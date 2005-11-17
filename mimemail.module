@@ -1,0 +1,80 @@
+<?php /* $Id$ */
+
+/**
+ * @file Component module for sending Mime-encoded emails
+ * 
+ */
+ 
+/**
+ * Implementation of hook_help()
+ */
+function mimemail_help($section) {
+  switch($section) {
+    
+    case 'admin/modules#description' :
+      return t('Mime Email');
+      
+    default :
+      return;
+  }
+}
+
+/**
+ * Implementation of hook_user()
+ */
+function mimemail_user($op, &$edit, &$user, $category='') {
+  if ( $op == 'form' && $category == 'account') { 
+    $form = form_checkbox(t('Send messages in plaintext email only'), 'mimemail_textonly', 1, $user->mimemail_textonly,t('Check this option if you do not wish to receive email messages with graphics and styles'));
+    return array(array('title' => t('Email Preference'), 'data' => $form, 'weight'=>0));
+  } 
+  return;
+}
+
+/**
+ * Send a mime-encoded email
+ * 
+ * @param $sender The email address or user object
+ * @param $recipient An email address or user object
+ * @param $subject An subject line string
+ * @param $body An HTML body
+ * 
+ * @return result from mail() call
+ */
+function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
+  require_once dirname(__FILE__).'/mimemail.inc';
+  
+  // try to determine recpient's text mail preference
+  if (!is_null($plaintext)) {
+    if (is_object($recipient) && isset($recipient->mimemail_textonly)) {
+      $plaintext = $recipient->mimemail_textonly;
+    }
+    elseif (valid_email($recipient)) {
+      if (is_object($r = user_load(array('mail'=>$recipient))) && isset($r->mimemail_textonly)) {
+        $plaintext = $r->mimemail_textonly;
+        $recipient = $r; // might as well pass the user object to the address function
+      }
+    }
+  }
+  
+  $sender    = mimemail_address($sender);
+  $recipient = mimemail_address($recipient);
+  $mail      = mimemail_html_body(theme('mimemail_message',$body), $subject, $plaintext);
+  $headers   = mimemail_prepare_headers($mail['headers'],$sender);
+  $body      = $mail['body'];
+  
+  return mail($recipient, $subject, $body, $headers);
+}
+
+/**
+ * Themeable message body
+ */
+function theme_mimemail_message($body) {
+  $output = '<html><head><style type="text/css"><!--';
+  // embed a version of all style definitions
+  foreach (theme_add_style() as $style) {
+    $output .= file_get_contents($style);
+  }
+  $output .= '--></style></head><body id="send-body">'.$body.'</body></html>';
+  // compress output
+  return preg_replace('/\s+|\n|\r|^\s|\s$/',' ',$output);
+}
