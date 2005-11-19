@@ -62,6 +62,11 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
   $headers   = mimemail_prepare_headers($mail['headers'],$sender);
   $body      = $mail['body'];
   
+  //functional compatibility with user_mail()
+  if (variable_get('smtp_library', '') && file_exists(variable_get('smtp_library', ''))) { 
+    include_once './' . variable_get('smtp_library', ''); 
+    return user_mail_wrapper($recipient, $subject, $body, $headers); 
+  }
   return mail($recipient, $subject, $body, $headers);
 }
 
