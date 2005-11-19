@@ -17,7 +17,6 @@
  *     and to use the mail_rfc_headers function for mime parts.
  *   - Reworked preg_match rules in mail_extract_files, as it was 
  *     breaking some formats ('<img src=' worked but '<img align="left" src=' didn't)
- *   - Added rollup mail_html_body function to generate an entire html message
  *   
  *   Allie Micka < allie at pajunas dot com >
  */
@@ -61,18 +60,22 @@ function mimemail_rfc_headers($headers) {
 function mimemail_address($address) {
   // it's a user object
   if (is_object($address) && isset($address->mail)) {
+    echo "\"{$address->name}\" <{$address->mail}>";
     return "\"{$address->name}\" <{$address->mail}>";
   }
   
   // it's an array 
   if (is_array($address) && isset($address['mail'])) {
-    return isset($address['name']) ? "\"{$address['name']}\" <{$address['mail']}>" : $address['mail'];
+    $output = '';
+    if (!empty($address['name'])) $output .= '"'.addslashes($address['name']).'" ';
+    $output .= '<'.$address['mail'].'>';
+    return $output;
   }
   
   // it's formatted or unformatted string
   // TODO shouldn't assume it's valid - should try to re-parse
   if (is_string($address)) {
-    return $string;
+    return $address;
   }
   return false;
 }
@@ -154,10 +157,10 @@ function mimemail_extract_files($html, $name) {
   $pattern = '/(<link[^>]+href="?|<object[^>]+codebase="?|@import |src="?)\/?([^"]+)("?)/eis';
   $html = preg_replace($pattern,'"\\1". _mimemail_file("\\2") ."\\3"', $html);
   
-  $document = array('name' => $name, 'content' => $html, 'Content-Type' => 'text/html; charset=utf-8');
+  $document = array(array('name' => $name, 'content' => $html, 'Content-Type' => 'text/html; charset=utf-8'));
   $files = _mimemail_file();
   
-  return array($document) + $files;
+  return array_merge($document, $files);
 }
 
 /**
@@ -228,13 +231,17 @@ function _mimemail_file($file = NULL, $type = '') {
  *     'body' is the mime encoded multipart body of a mail.
  *     'headers' is an array that includes some headers for the mail to be sent.
  */
-function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; charset=utf-8') {
+function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; charset=utf-8',$sub_part=false) {
   $boundary = md5(uniqid(time()));
+  $body = '';
   $headers = array(
-  		'Content-Type' => "$content_type; boundary=\"$boundary\"",
-  		'MIME-Version' => '1.0', 
+    'Content-Type' => "$content_type; boundary=\"$boundary\"",
   );
-  $body = "This is a multi-part message in MIME format.\n";
+  if (!$sub_part) {
+    $headers['MIME-Version'] = '1.0'; 
+    $body = "This is a multi-part message in MIME format.\n";
+  }
+
   foreach ($parts as $part) {
     $part_headers = array();
     
@@ -244,13 +251,13 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
     
     if (isset($part['Content-Type'])) {
       $part_headers['Content-Type'] = $part['Content-Type'];
-      if (isset($part['name'])) {
-        $part_headers['Content-Type'] .= '; name="'.$part['name'].'"';
-      }
     }
     
     if (isset($part['Content-Disposition'])) {
       $part_headers['Content-Disposition'] = $part['Content-Disposition'];
+    }
+    else { 
+      $part_headers['Content-Disposition'] = 'inline';
     }
     
     if ($part['Content-Transfer-Encoding']) {
@@ -263,6 +270,10 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
         $part_headers['Content-Transfer-Encoding'] = '8bit';
       }
       $part_body = $part['content'];
+      if (isset($part['name'])) {
+        $part_headers['Content-Type'] .= '; name="'.$part['name'].'"';
+        $part_headers['Content-Disposition'] .= '; filename="'.$part['name'].'"';
+      }
       
     // mail content references in a filename
     } 
@@ -271,18 +282,13 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
         $part_headers['Content-Transfer-Encoding'] = 'base64';
       }
       
-      if (!isset($part['Content-Disposition'])) {
-        $part_headers['Content-Disposition'] = 'inline';
-      }
-      
       if (!isset($part['Content-Type'])) {
-        // attempt to derive the part's content-type
-        if (function_exists('mime_content_type')) {
-          $part_headers['Content-Type'] = mime_content_type($part['file']);
-        } 
-        else {
-          $part_headers['Content-Type'] = 'application/octet-stream';
-        }
+        $part['Content-Type'] = _mimemail_mimetype($part['file'],$type);
+      }
+
+      if (isset($part['name'])) {
+        $part_headers['Content-Type'] .= '; name="'.$part['name'].'"';
+        $part_headers['Content-Disposition'] .= '; filename="'.$part['name'].'"';
       }
       
       $part_body = chunk_split(base64_encode(file_get_contents($part['file'])));
@@ -307,6 +313,10 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
  *     an array containing the elements 'header' and 'body'.
  *     'body' is the mime encoded multipart body of a mail.
  *     'headers' is an array that includes some headers for the mail to be sent.
+ *
+ * The first mime part is a multipart/alternative containing mime-encoded
+ * sub-parts for HTML and plaintext.  Each subsequent part is the required
+ * image/attachment
  */
 function mimemail_html_body($body, $subject, $plaintext=false) {
   //generate plaintext alternative
@@ -314,14 +324,20 @@ function mimemail_html_body($body, $subject, $plaintext=false) {
   if ($plaintext) {
     return $text;
   }
+  $text_part = array('Content-Type'=>'text/plain; charset=us-ascii','content'=>$text);
   
   //expand all local links
   $pattern = '/(<a[^>]+href=")([^"]*)/ei';
   $body = preg_replace($pattern, '"\\1"._mimemail_url("\2")', $body);
   
-  $parts = array('name'=> 'text alternative','Content-Type'=>'text/plain; charset=us-ascii','content'=>$text);
-  $parts = array_merge(array($parts) , mimemail_extract_files($body,$subject));
-  return mimemail_multipart_body($parts,'multipart/alternative');
+  $mime_parts = mimemail_extract_files($body, $subject);
+
+  $content = array($text_part,array_shift($mime_parts)); 
+  $content = mimemail_multipart_body($content,'multipart/alternative',true);
+  $content_part = array('Content-Type'=>$content['headers']['Content-Type'],'content'=>$content['body']);
+
+  $parts = array_merge(array($content_part), $mime_parts);
+  return mimemail_multipart_body($parts,'multipart/related');
 }
 
 /**
@@ -498,4 +514,37 @@ function _mimemail_define_replace() {
     );
     return $replace;
 }
-?>
+
+/**
+ * Attempt to determine the mimetime from or filename .  While not ideal, 
+ * using the filename as a fallback ensures that images will appear inline
+ * in HTML messages
+ *
+ * @param $name Name of the file
+ * 
+ * @return best-guess mimetype string
+ */
+function _mimemail_mimetype($file,$type='') {
+  if ($type) {
+    return $type;
+  } 
+
+  if (function_exists('mime_content_type')) {
+      return mime_content_type($file);
+  }
+
+  // some common embedded/attachment types
+  $types = Array( 
+    'jpg'  => 'image/jpeg',
+    'jpeg' => 'image/jpeg',
+    'gif'  => 'image/gif',
+    'png'  => 'image/png',
+  );
+  $ext = strtolower(substr(strrchr($file, '.'), 1));
+
+  if (isset($types[$ext])) {
+    return $types[$ext];
+  }
+
+  return 'application/octet-stream';
+}
