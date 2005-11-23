@@ -56,12 +56,13 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
     }
   }
   
+  $sender    = mimemail_address($sender);
+  $mail      = mimemail_html_body(theme('mimemail_message',$body), $subject, $plaintext);
   $message = array(
-    'sender'    => mimemail_address($sender),
-    'recipient' => mimemail_address($recipient),
-    'mail'      => mimemail_html_body(theme('mimemail_message',$body), $subject, $plaintext),
-    'headers'   => mimemail_prepare_headers($mail['headers'],$sender),
-    'body'      => $mail['body'],
+    'address' => mimemail_address($recipient),
+    'subject' => $subject,
+    'body'    => $mail['body'],
+    'headers' => mimemail_prepare_headers($mail['headers'],$sender),
   );
   
   $engine = variable_get('mailengine', 'mimemail') .'_mailengine';
@@ -69,10 +70,10 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
   if (!function_exists($engine)) {
     return false;
   }
-  if (is_string($message['recipient'])) {
+  if (is_string($message['address'])) {
     return $engine('single', $message);
   }
-  if (is_array($message['recipient'])) {
+  if (is_array($message['address'])) {
     return $engine('multiple', $message);
   }
   return false;
