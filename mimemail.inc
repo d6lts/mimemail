@@ -58,18 +58,29 @@ function mimemail_rfc_headers($headers) {
  * @return formatted address string
  */
 function mimemail_address($address) {
+  
+  if (is_array($address)) {
+    
+    // it's an array containing 'mail' and/or 'name'
+    if (isset($address['mail'])) {
+      $output = '';
+      if (!empty($address['name'])) $output .= '"'.addslashes($address['name']).'" ';
+      $output .= '<'.$address['mail'].'>';
+      return $output;
+    }
+    
+    // it's an array of address items
+    $addresses = array();
+    foreach($address as $a) {
+      $addresses[] = mimemail_address($a);
+    }
+    return $addresses;
+  }
+  
   // it's a user object
   if (is_object($address) && isset($address->mail)) {
     echo "\"{$address->name}\" <{$address->mail}>";
     return "\"{$address->name}\" <{$address->mail}>";
-  }
-  
-  // it's an array 
-  if (is_array($address) && isset($address['mail'])) {
-    $output = '';
-    if (!empty($address['name'])) $output .= '"'.addslashes($address['name']).'" ';
-    $output .= '<'.$address['mail'].'>';
-    return $output;
   }
   
   // it's formatted or unformatted string

@@ -56,18 +56,69 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
     }
   }
   
-  $sender    = mimemail_address($sender);
-  $recipient = mimemail_address($recipient);
-  $mail      = mimemail_html_body(theme('mimemail_message',$body), $subject, $plaintext);
-  $headers   = mimemail_prepare_headers($mail['headers'],$sender);
-  $body      = $mail['body'];
+  $message = array(
+    'sender'    => mimemail_address($sender),
+    'recipient' => mimemail_address($recipient),
+    'mail'      => mimemail_html_body(theme('mimemail_message',$body), $subject, $plaintext),
+    'headers'   => mimemail_prepare_headers($mail['headers'],$sender),
+    'body'      => $mail['body'],
+  );
   
-  //functional compatibility with user_mail()
-  if (variable_get('smtp_library', '') && file_exists(variable_get('smtp_library', ''))) { 
-    include_once './' . variable_get('smtp_library', ''); 
-    return user_mail_wrapper($recipient, $subject, $body, $headers); 
+  $engine = variable_get('mailengine', 'mimemail') .'_mailengine';
+  
+  if (!function_exists($engine)) {
+    return false;
   }
-  return mail($recipient, $subject, $body, $headers);
+  if (is_string($message['recipient'])) {
+    return $engine('single', $message);
+  }
+  if (is_array($message['recipient'])) {
+    return $engine('multiple', $message);
+  }
+  return false;
+}
+
+/**
+ * Default mailengine
+ */
+function mimemail_mailengine($op, $message = array()) {
+  //default values
+  $message = array_merge( array(
+  		'address' => '', 
+  		'subject' => '', 
+  		'body' => '', 
+  		'headers' => '', 
+  		'parameters' => ''), $message);
+      
+  switch ($op) {
+    case 'name':
+      return t('Mime Mail');
+      
+    case 'description':
+      return t("Default mailing engine using PHP's mail().");
+      
+    case 'settings': //not implemented
+      return false;
+      
+    case 'single':
+      return mail(
+        $message['address'], 
+        $message['subject'], 
+        $message['body'], 
+        $message['headers'],
+        $message['parameters']
+      );
+    
+    case 'multiple':
+      $status = true;
+      foreach ($message['address'] as $a) {
+        $status = mail_mailengine('single', array_merge($message,array('address'=>$a))) && $status;
+      }
+      return $status;
+    
+    default: // method not implemented.
+      return false;
+  }
 }
 
 /**
