@@ -185,19 +185,18 @@ function _mimemail_file($file = NULL, $type = '') {
 
   if ($file && !preg_match('@://|mailto:@', $file) && file_exists(file_create_path($file))) {
     $content_id = md5($file) .'@'. variable_get('site_name', 'drupal');
-    if ($type) {
-      $content_type = $type;
-    }
-    else if (function_exists('mime_content_type')) {
-      $content_type = mime_content_type($file);
-    }
+
     $new_file = array('name' => substr($file, strrpos($file, '/') + 1),
                       'file' => $file,
                       'Content-ID' => $content_id,
                      );
-    if ($content_type) {
-      $new_file['Content-Type'] = $content_type;
+    if ($type) {
+      $new_file['Content-Type'] = $type;
     }
+    else {
+      $new_file['Content-Type'] = _mimemail_mimetype($file,$type='');
+    }
+
     $files[] = $new_file;
 
     return 'cid:'. $content_id;
@@ -347,7 +346,7 @@ function mimemail_html_body($body, $subject, $plaintext=false) {
   $content_part = array('Content-Type'=>$content['headers']['Content-Type'],'content'=>$content['body']);
 
   $parts = array_merge(array($content_part), $mime_parts);
-  return mimemail_multipart_body($parts,'multipart/related');
+  return mimemail_multipart_body($parts,'multipart/related; charset=utf-8');
 }
 
 /**
