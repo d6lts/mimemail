@@ -79,7 +79,6 @@ function mimemail_address($address) {
   
   // it's a user object
   if (is_object($address) && isset($address->mail)) {
-    echo "\"{$address->name}\" <{$address->mail}>";
     return "\"{$address->name}\" <{$address->mail}>";
   }
   
