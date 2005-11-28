@@ -183,7 +183,7 @@ function mimemail_extract_files($html, $name) {
 function _mimemail_file($file = NULL, $type = '') {
   static $files = array();
 
-  if ($file && !preg_match('@://|mailto:@', $file) && file_exists(file_create_path($file))) {
+  if ($file && !preg_match('@://|mailto:@', $file) && file_exists($file)) {
     $content_id = md5($file) .'@'. variable_get('site_name', 'drupal');
 
     $new_file = array('name' => substr($file, strrpos($file, '/') + 1),
