@@ -373,7 +373,7 @@ function _mimemail_uri($href, $link) {
  * @return an absolute url, sans mailto:
  */
 function _mimemail_url($url) {
-  if (strpos('://', $url)) {
+  if (strpos($url, '://')) {
     return $url;
   }
   
