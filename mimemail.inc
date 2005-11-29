@@ -167,7 +167,12 @@ function mimemail_extract_files($html, $name) {
   $pattern = '/(<link[^>]+href="?|<object[^>]+codebase="?|@import |src="?)\/?([^"]+)("?)/eis';
   $html = preg_replace($pattern,'"\\1". _mimemail_file("\\2") ."\\3"', $html);
   
-  $document = array(array('name' => $name, 'content' => $html, 'Content-Type' => 'text/html; charset=utf-8'));
+  $document = array(array(
+    'Content-Type' => 'text/html; charset=utf-8',
+    'Content-Transfer-Encoding' => 'base64',
+    'name' => $name, 
+    'content' => chunk_split(base64_encode($html)),
+  ));
   $files = _mimemail_file();
   
   return array_merge($document, $files);
