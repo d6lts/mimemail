@@ -118,7 +118,7 @@ function mimemail_prepare_headers($headers,$from='') {
  * @return formatted text encoded in utf-8
  */
 function mimemail_html_to_text($txt, $inline = FALSE) {
-  $pattern = '@(<a href="(.\S+?)"[^>]*>(.+?)</a>)@ei';
+  $pattern = '@(<a href="(.\S+?)"[^>]*>(.+?)</a>)@emi';
   if ($inline) {
     $txt = preg_replace($pattern, "_mimemail_uri('\\2', '\\3')", $txt);
   }
@@ -164,7 +164,7 @@ function mimemail_html_to_text($txt, $inline = FALSE) {
  *                  )
  */
 function mimemail_extract_files($html, $name) {
-  $pattern = '/(<link[^>]+href="?|<object[^>]+codebase="?|@import |src="?)\/?([^"]+)("?)/eis';
+  $pattern = '/(<link[^>]+href="?|<object[^>]+codebase="?|@import |src="?)\/?([^"]+)("?)/emis';
   $html = preg_replace($pattern,'"\\1". _mimemail_file("\\2") ."\\3"', $html);
   
   $document = array(array(
@@ -337,7 +337,7 @@ function mimemail_html_body($body, $subject, $plaintext=false) {
   $text_part = array('Content-Type'=>'text/plain; charset=us-ascii','content'=>$text);
   
   //expand all local links
-  $pattern = '/(<a[^>]+href=")([^"]*)/ei';
+  $pattern = '/(<a[^>]+href=")([^"]*)/emi';
   $body = preg_replace($pattern, '"\\1"._mimemail_url("\2")', $body);
   
   $mime_parts = mimemail_extract_files($body, $subject);
@@ -373,7 +373,7 @@ function _mimemail_uri($href, $link) {
  * @return an absolute url, sans mailto:
  */
 function _mimemail_url($url) {
-  if (preg_match('@://@', $url)) {
+  if (strpos('://', $url)) {
     return $url;
   }
   
