@@ -184,18 +184,14 @@ function _mimemail_file($file = NULL, $type = '') {
   static $files = array();
 
   if ($file && !preg_match('@://|mailto:@', $file) && file_exists($file)) {
-    $content_id = md5($file) .'@'. variable_get('site_name', 'drupal');
+    $content_id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
 
     $new_file = array('name' => substr($file, strrpos($file, '/') + 1),
                       'file' => $file,
                       'Content-ID' => $content_id,
+                      'Content-Disposition' => 'related',
                      );
-    if ($type) {
-      $new_file['Content-Type'] = $type;
-    }
-    else {
-      $new_file['Content-Type'] = _mimemail_mimetype($file,$type='');
-    }
+    $new_file['Content-Type'] = _mimemail_mimetype($file,$type);
 
     $files[] = $new_file;
 
