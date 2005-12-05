@@ -64,9 +64,11 @@ function mimemail_address($address) {
     // it's an array containing 'mail' and/or 'name'
     if (isset($address['mail'])) {
       $output = '';
-      if (!empty($address['name'])) $output .= '"'.addslashes($address['name']).'" ';
-      $output .= '<'.$address['mail'].'>';
-      return $output;
+      if (empty($address['name'])) {
+        return $address['mail'];
+      } else {
+        return '"'.addslashes($address['name']).'" <'.$address['mail'].'>';
+      }
     }
     
     // it's an array of address items
@@ -79,7 +81,7 @@ function mimemail_address($address) {
   
   // it's a user object
   if (is_object($address) && isset($address->mail)) {
-    return "\"{$address->name}\" <{$address->mail}>";
+    return "\"{addslashes($address->name)}\" <{$address->mail}>";
   }
   
   // it's formatted or unformatted string
@@ -102,8 +104,10 @@ function mimemail_prepare_headers($headers,$from='') {
   if (!$from) {
     $from = variable_get('site_mail', ini_get('sendmail_from'));
   }
+  preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
+  $from_email = $matches[0];
   // allow a mail to overwrite standard headers.
-  $headers = array_merge(array('Return-Path' => "<$from>", 'Errors-To' => $from, 'From' => $from, 'Content-Type' => 'text/plain; charset=utf-8; format=flowed'),$headers);
+  $headers = array_merge(array('Return-Path' => "<$from_email>", 'Errors-To' => $from, 'From' => $from, 'Content-Type' => 'text/plain; charset=utf-8; format=flowed'),$headers);
   return mimemail_rfc_headers($headers);
 }
 
