@@ -81,7 +81,7 @@ function mimemail_address($address) {
   
   // it's a user object
   if (is_object($address) && isset($address->mail)) {
-    return "\"{addslashes($address->name)}\" <{$address->mail}>";
+    return '"'.addslashes($address->name).'" <'.$address->mail.'>';
   }
   
   // it's formatted or unformatted string
@@ -338,7 +338,7 @@ function mimemail_html_body($body, $subject, $plaintext=false) {
   if ($plaintext) {
     return $text;
   }
-  $text_part = array('Content-Type'=>'text/plain; charset=us-ascii','content'=>$text);
+  $text_part = array('Content-Type'=>'text/plain; charset=utf-8','content'=>$text);
   
   //expand all local links
   $pattern = '/(<a[^>]+href=")([^"]*)/emi';
