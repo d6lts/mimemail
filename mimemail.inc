@@ -174,9 +174,9 @@ function mimemail_extract_files($html, $name) {
   $document = array(array(
     'Content-Type' => 'text/html; charset=utf-8',
     'Content-Transfer-Encoding' => 'base64',
-    'name' => $name, 
     'content' => chunk_split(base64_encode($html)),
   ));
+  
   $files = _mimemail_file();
   
   return array_merge($document, $files);
