@@ -24,7 +24,7 @@ function mimemail_help($section) {
  */
 function mimemail_user($op, &$edit, &$user, $category='') {
   if ( $op == 'form' && $category == 'account') { 
-    $form = form_checkbox(t('Send messages in plaintext email only'), 'mimemail_textonly', 1, $user->mimemail_textonly,t('Check this option if you do not wish to receive email messages with graphics and styles'));
+    $form = form_checkbox(t('Plaintext email only'), 'mimemail_textonly', 1, $user->mimemail_textonly,t('Check this option if you do not wish to receive email messages with graphics and styles'));
     return array(array('title' => t('Email Preference'), 'data' => $form, 'weight'=>0));
   } 
   return;
@@ -56,6 +56,18 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
     }
   }
   
+  if (is_null($sender)) {        // use site default for sender
+    $sender = array(
+    		'name' => variable_get('site_name', 'Drupal'),
+    		'mail' => variable_get('site_mail', ini_get('sendmail_from')),
+    );
+  }
+  if (is_null($recipient)) {     // use site default for recipient
+    $recipient = array(
+    		'name' => variable_get('site_name', 'Drupal'),
+    		'mail' => variable_get('site_mail', ini_get('sendmail_from')),
+    );
+  }
   $sender    = mimemail_address($sender);
   $mail      = mimemail_html_body(theme('mimemail_message',$body), $subject, $plaintext);
   $message = array(
@@ -131,7 +143,7 @@ function theme_mimemail_message($body) {
   foreach (theme_add_style() as $style) {
     $output .= file_get_contents($style);
   }
-  $output .= '--></style></head><body id="send-body">'.$body.'</body></html>';
+  $output .= '--></style></head><body id="mimemail-body">'.$body.'</body></html>';
   // compress output
   return preg_replace('/\s+|\n|\r|^\s|\s$/',' ',$output);
 }
