@@ -24,8 +24,20 @@ function mimemail_help($section) {
  */
 function mimemail_user($op, &$edit, &$user, $category='') {
   if ( $op == 'form' && $category == 'account') { 
-    $form = form_checkbox(t('Plaintext email only'), 'mimemail_textonly', 1, $user->mimemail_textonly,t('Check this option if you do not wish to receive email messages with graphics and styles'));
-    return array(array('title' => t('Email Preference'), 'data' => $form, 'weight'=>0));
+    $form = array();
+    $form['mimemail'] = array(
+    		'#type'          => 'fieldset',
+    		'#title'         => t('Email settings'),
+    		'#weight'        => 5, 
+    		'#collapsible' => true,
+    );
+    $form['mimemail']['mimemail_textonly'] = array(
+      '#type'	         => 'checkbox',
+      '#title'	         => t('Plaintext email only'),
+      '#default_value'	 => $user->mimemail_textonly,
+      '#description'	   => t('Check this option if you do not wish to receive email messages with graphics and styles'),
+    );
+    return $form;
   } 
   return;
 }
