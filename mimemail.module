@@ -20,6 +20,67 @@ function mimemail_help($section) {
 }
 
 /**
+ * Implementation of hook_settings()
+ */
+function mimemail_settings() {
+  $engines = mimemail_get_engines();
+  
+  $form = array();
+  $form['site_mail'] = array(
+  		'#type'          => 'textfield', 
+  		'#title'         => t('E-mail address'), 
+  		'#default_value' => variable_get('site_mail', ini_get('sendmail_from')), 
+  		'#size' => 60, 
+  		'#maxlength' => 128, 
+  		'#description' => t('A valid e-mail address for this website, used by the auto-mailer during registration, new password requests, notifications, etc.')
+  );
+  $form['mimemail']['mimemail_textonly'] = array(
+    '#type'	         => 'checkbox',
+    '#title'	         => t('Plaintext email only'),
+    '#default_value'	 => variable_get('mimemail_textonly', 0),
+    '#description'	   => t('This option disables the use of email messages with graphics and styles.  All messages will be converted to plain text.'),
+  );
+  
+  // hide the settings if only 1 engine is available
+  if (count($engines == 1)) {
+    variable_set('mimemail_engine',key($engines));
+    $form['mimemail_engine'] = array(
+  			'#type'          => 'hidden',
+	  		'#title'         => t('E-mail engine'), 
+	  		'#default_value' => variable_get('mimemail_engine', 'mail'), 
+	  		'#options'       => $engines, 
+	  		'#description'   => t('Choose an e-mail engine for sending mails from your site.')
+	  );
+  }
+  else {
+    $form['mimemail_engine'] = array(
+  			'#type'          => 'select',
+	  		'#title'         => t('E-mail engine'), 
+	  		'#default_value' => variable_get('mimemail_engine', 'mail'), 
+	  		'#options'       => $engines, 
+	  		'#description'   => t('Choose an e-mail engine for sending mails from your site.')
+	  );
+  }
+
+	if (variable_get('mimemail_engine', 0)) {
+	  $settings = module_invoke(variable_get('mimemail_engine', 'mail'), 'mailengine', 'settings');
+    if ($settings) {
+        $form['mimemail_engine_settings'] = array(
+      		'#type'        => 'fieldset', 
+      		'#title'       => t('Engine specific settings'),
+      );
+      foreach ($settings as $name => $value) {
+        $form['mimemail_engine_settings'][$name] = $value;
+      }
+    }
+  }
+  else {
+    drupal_set_message(t('Please choose a mail engine.'), 'error');
+  }
+  return $form;
+}
+
+/**
  * Implementation of hook_user()
  */
 function mimemail_user($op, &$edit, &$user, $category='') {
@@ -46,8 +107,7 @@ function mimemail_user($op, &$edit, &$user, $category='') {
  * Send a mime-encoded email
  * 
  * @param $sender The email address or user object
- * @param $recipient An email address or user object
- * @param $subject An subject line string
+ * @param $recipient An email address or user object * @param $subject An subject line string
  * @param $body An HTML body
  * 
  * @return result from mail() call
@@ -80,6 +140,7 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
     		'mail' => variable_get('site_mail', ini_get('sendmail_from')),
     );
   }
+  $plaintext = $plaintext || variable_get('mimemail_textonly', 0);
   $sender    = mimemail_address($sender);
   $mail      = mimemail_html_body(theme('mimemail_message',$body), $subject, $plaintext);
   $message = array(
@@ -104,6 +165,22 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
 }
 
 /**
+ * Returns available mailer engines.
+ *
+ * @return an array of mailer engine names.
+ */
+function mimemail_get_engines() {
+  $engines = array();
+  foreach(module_implements('mailengine') as $module) {
+    $function = $module .'_mailengine';
+    if (function_exists($function)) {
+      $engines[$module] = $function('name') .' - '. $function('description');
+    }
+  }
+  return $engines;
+}
+
+/**
  * Default mailengine
  */
 function mimemail_mailengine($op, $message = array()) {
@@ -123,6 +200,7 @@ function mimemail_mailengine($op, $message = array()) {
       return t("Default mailing engine using PHP's mail().");
       
     case 'settings': //not implemented
+    return $form;
       return false;
       
     case 'single':
