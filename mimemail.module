@@ -231,7 +231,9 @@ function theme_mimemail_message($body) {
   $output = '<html><head><style type="text/css"><!--';
   // embed a version of all style definitions
   foreach (theme_add_style() as $style) {
-    $output .= file_get_contents($style);
+    if (in_array($style->media, array('all', 'screen'))) {
+      $output .= file_get_contents($style->path);
+    }
   }
   $output .= '--></style></head><body id="mimemail-body">'.$body.'</body></html>';
   // compress output
