@@ -385,6 +385,7 @@ function _mimemail_url($url) {
     return str_replace('mailto:', '', $url);
   }
   
+  $url = str_replace('?q=', '', $url); // url() expects path only
   return url($url, NULL, NULL, TRUE);
 }
 
