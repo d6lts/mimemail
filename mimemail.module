@@ -204,6 +204,14 @@ function mimemail_mailengine($op, $message = array()) {
       return false;
       
     case 'single':
+      if (!$message['parameters'] || ini_get('safe_mode')) {
+        return mail(
+          $message['address'], 
+          $message['subject'], 
+          $message['body'], 
+          $message['headers']
+        );
+      }
       return mail(
         $message['address'], 
         $message['subject'], 
