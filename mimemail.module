@@ -120,7 +120,7 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
     if (is_object($recipient) && isset($recipient->mimemail_textonly)) {
       $plaintext = $recipient->mimemail_textonly;
     }
-    elseif (valid_email($recipient)) {
+    elseif (valid_email_address($recipient)) {
       if (is_object($r = user_load(array('mail'=>$recipient))) && isset($r->mimemail_textonly)) {
         $plaintext = $r->mimemail_textonly;
         $recipient = $r; // might as well pass the user object to the address function
