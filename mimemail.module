@@ -109,10 +109,13 @@ function mimemail_user($op, &$edit, &$user, $category='') {
  * @param $sender The email address or user object
  * @param $recipient An email address or user object * @param $subject An subject line string
  * @param $body An HTML body
+ * @param $plaintext Whether to send message as plaintext only
+ * @param $headers Optional e-mail headers in a keyed array
+ * @param $text Optional plaintext portion of a multipart e-mail (instead of auto-generated)
  * 
  * @return result from mail() call
  */
-function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
+function mimemail($sender, $recipient, $subject, $body, $plaintext=null, $headers=array(), $text=null) {
   require_once dirname(__FILE__).'/mimemail.inc';
   
   // try to determine recpient's text mail preference
@@ -134,20 +137,23 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null) {
     		'mail' => variable_get('site_mail', ini_get('sendmail_from')),
     );
   }
+  
   if (is_null($recipient)) {     // use site default for recipient
     $recipient = array(
     		'name' => variable_get('site_name', 'Drupal'),
     		'mail' => variable_get('site_mail', ini_get('sendmail_from')),
     );
   }
+  
   $plaintext = $plaintext || variable_get('mimemail_textonly', 0);
   $sender    = mimemail_address($sender);
-  $mail      = mimemail_html_body(theme('mimemail_message',$body), $subject, $plaintext);
-  $message = array(
+  $mail      = mimemail_html_body(theme('mimemail_message', $body), $subject, $plaintext, $text);
+  $headers   = array_merge($headers, $mail['headers']);
+  $message   = array(
     'address' => mimemail_address($recipient),
     'subject' => $subject,
     'body'    => $mail['body'],
-    'headers' => mimemail_prepare_headers($mail['headers'],$sender),
+    'headers' => mimemail_prepare_headers($headers, $sender),
   );
   
   $engine = variable_get('mailengine', 'mimemail') .'_mailengine';
@@ -200,7 +206,6 @@ function mimemail_mailengine($op, $message = array()) {
       return t("Default mailing engine using PHP's mail().");
       
     case 'settings': //not implemented
-    return $form;
       return false;
       
     case 'single':

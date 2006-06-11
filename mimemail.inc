@@ -3,8 +3,7 @@
 
 /**
  * @file
- * Common mail functions for queueing and sending e-mail.  Originally 
- * written by Gerhard.  
+ * Common mail functions for sending e-mail.  Originally written by Gerhard.  
  * 
  *  see http://cvs.drupal.org/viewcvs/drupal/contributions/sandbox/killes/mail/
  * 
@@ -332,9 +331,11 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
  * sub-parts for HTML and plaintext.  Each subsequent part is the required
  * image/attachment
  */
-function mimemail_html_body($body, $subject, $plaintext=false) {
-  //generate plaintext alternative
-  $text = mimemail_html_to_text($body);
+function mimemail_html_body($body, $subject, $plaintext=false, $text=null) {
+  if (is_null($text)) {
+    //generate plaintext alternative
+    $text = mimemail_html_to_text($body);
+  }
   if ($plaintext) {
     return $text;
   }
