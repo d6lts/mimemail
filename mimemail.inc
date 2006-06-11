@@ -337,8 +337,12 @@ function mimemail_html_body($body, $subject, $plaintext=false, $text=null) {
     $text = mimemail_html_to_text($body);
   }
   if ($plaintext) {
-    return $text;
+    return array(
+      'body' => $text, 
+      'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
+    );
   }
+
   $text_part = array('Content-Type'=>'text/plain; charset=utf-8','content'=>$text);
   
   //expand all local links
@@ -386,8 +390,11 @@ function _mimemail_url($url) {
     return str_replace('mailto:', '', $url);
   }
   
-  $url = str_replace('?q=', '', $url); // url() expects path only
-  return url($url, NULL, NULL, TRUE);
+  $url = str_replace('?q=', '', ltrim($url, base_path()));
+  list($url, $fragment) = explode('#', $url, 2);
+  list($path, $query) = explode('?', $url, 2);
+  
+  return url($path, $query, $fragment, TRUE);
 }
 
 /**
