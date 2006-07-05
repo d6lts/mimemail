@@ -156,7 +156,7 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext=null, $header
     'headers' => mimemail_prepare_headers($headers, $sender),
   );
   
-  $engine = variable_get('mailengine', 'mimemail') .'_mailengine';
+  $engine = variable_get('mimemail_engine', 'mimemail') .'_mailengine';
   
   if (!function_exists($engine)) {
     return false;
@@ -228,7 +228,7 @@ function mimemail_mailengine($op, $message = array()) {
     case 'multiple':
       $status = true;
       foreach ($message['address'] as $a) {
-        $status = mail_mailengine('single', array_merge($message,array('address'=>$a))) && $status;
+        $status = mimemail_mailengine('single', array_merge($message,array('address'=>$a))) && $status;
       }
       return $status;
     
@@ -245,7 +245,7 @@ function theme_mimemail_message($body) {
   // embed a version of all style definitions
   foreach (theme_add_style() as $style) {
     if (in_array($style->media, array('all', 'screen'))) {
-      $output .= file_get_contents(getcwd().$style->path);
+      $output .= file_get_contents(substr($style->path, strlen(base_path())));
     }
   }
   $output .= '--></style></head><body id="mimemail-body">'.$body.'</body></html>';
