@@ -5,18 +5,6 @@
  * @file
  * Common mail functions for sending e-mail.  Originally written by Gerhard.  
  * 
- *  see http://cvs.drupal.org/viewcvs/drupal/contributions/sandbox/killes/mail/
- * 
- * I have adapted this code and made the following changes:
- *   - Deleted mail_queue_* functions 
- *   - added mail_rfc_headers to generate a header string for use in 
- *     both the message headers and mime-part headers
- *   - modified mail_prepare_headers to use mail_rfc_headers
- *   - refactored mail_multipart_body to eliminate some duplicate logic
- *     and to use the mail_rfc_headers function for mime parts.
- *   - Reworked preg_match rules in mail_extract_files, as it was 
- *     breaking some formats ('<img src=' worked but '<img align="left" src=' didn't)
- *   
  *   Allie Micka < allie at pajunas dot com >
  */
 
@@ -29,6 +17,7 @@
  */
 function mimemail_rfc_headers($headers) {
   $header = '';
+  $crlf = variable_get("mimemail_crlf","\n");
   foreach ($headers as $key => $value) {
     $key = trim($key);
     // collapse spaces and get rid of newline characters
@@ -38,13 +27,13 @@ function mimemail_rfc_headers($headers) {
     if (strlen($value) > 60) {
       //if there's a semicolon, use that to separate
       if (count($array = preg_split('/;\s*/',$value)) > 1) {
-        $value = trim(join(";\n    ", $array));
+        $value = trim(join(";$crlf    ", $array));
       } 
       else {
-        $value = wordwrap($value,50,"\n    ",false);
+        $value = wordwrap($value,50,"$crlf    ",false);
       }
     }
-    $header .= "$key: $value\n";
+    $header .= "$key: $value$crlf";
   }
   return trim($header);
 }
@@ -88,6 +77,15 @@ function mimemail_address($address) {
   if (is_string($address)) {
     return $address;
   }
+
+  // it's null.  return the site default address
+  if (is_null($address)) {
+    return array(
+      'name' => variable_get('site_name', 'Drupal'),
+      'mail' => variable_get('site_mail', ini_get('sendmail_from')),
+    );
+  }
+
   return false;
 }
 
@@ -97,17 +95,17 @@ function mimemail_address($address) {
  * @param $headers An array of headers
  * @return header string.
  */
-function mimemail_prepare_headers($headers,$from='') {
-  // Note: This may work or not. The MTA might rewrite the Return-Path, and Errors-To is deprecated.
-  // Depending on your MTA and its configuration you can make it work by specifying appropriate arguments in $additional_parameters
+function mimemail_headers($headers, $from='') {
+  // Note: This may not work. The MTA may rewrite the Return-Path, and Errors-To is deprecated.
   if (!$from) {
     $from = variable_get('site_mail', ini_get('sendmail_from'));
   }
   preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
   $from_email = $matches[0];
   // allow a mail to overwrite standard headers.
-  $headers = array_merge(array('Return-Path' => "<$from_email>", 'Errors-To' => $from, 'From' => $from, 'Content-Type' => 'text/plain; charset=utf-8; format=flowed'),$headers);
-  return mimemail_rfc_headers($headers);
+  $headers = array_merge(array('Return-Path' => "<$from_email>", 'Errors-To' => $from, 'From' => $from, 'Content-Type' => 'text/plain; charset=utf-8; format=flowed'), $headers);
+
+  return $headers;
 }
 
 /**
@@ -172,7 +170,7 @@ function mimemail_extract_files($html, $name) {
   $html = preg_replace($pattern,'"\\1". _mimemail_file("\\2") ."\\3"', $html);
   
   $document = array(array(
-    'Content-Type' => 'text/html; charset=utf-8',
+    'Content-Type' => "text/html; charset=utf-8; name=$name;",
     'Content-Transfer-Encoding' => 'base64',
     'content' => chunk_split(base64_encode($html)),
   ));
@@ -247,7 +245,7 @@ function _mimemail_file($file = NULL, $type = '') {
  *     'body' is the mime encoded multipart body of a mail.
  *     'headers' is an array that includes some headers for the mail to be sent.
  */
-function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; charset=utf-8',$sub_part=false) {
+function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; charset=utf-8', $sub_part=false) {
   $boundary = md5(uniqid(time()));
   $body = '';
   $headers = array(

@@ -1,0 +1,4 @@
+; $Id$
+name = Mime Mail
+description = E-mail with HTML and attachments
+package = Mail
