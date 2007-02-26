@@ -165,12 +165,12 @@ function mimemail_html_to_text($txt, $inline = FALSE) {
  *                     )
  *                  )
  */
-function mimemail_extract_files($html, $name) {
+function mimemail_extract_files($html) {
   $pattern = '/(<link[^>]+href="?|<object[^>]+codebase="?|@import |src="?)\/?([^"]+)("?)/emis';
   $html = preg_replace($pattern,'"\\1". _mimemail_file("\\2") ."\\3"', $html);
   
   $document = array(array(
-    'Content-Type' => "text/html; charset=utf-8; name=$name;",
+    'Content-Type' => "text/html; charset=utf-8",
     'Content-Transfer-Encoding' => 'base64',
     'content' => chunk_split(base64_encode($html)),
   ));
@@ -187,7 +187,7 @@ function mimemail_extract_files($html, $name) {
  *
  * @return an absolute :
  */
-function _mimemail_file($file = NULL, $type = '') {
+function _mimemail_file($file = NULL, $type = '', $disposition = 'related') {
   static $files = array();
 
   if ($file && !preg_match('@://|mailto:@', $file) && file_exists($file)) {
@@ -196,7 +196,7 @@ function _mimemail_file($file = NULL, $type = '') {
     $new_file = array('name' => substr($file, strrpos($file, '/') + 1),
                       'file' => $file,
                       'Content-ID' => $content_id,
-                      'Content-Disposition' => 'related',
+                      'Content-Disposition' => $disposition,
                      );
     $new_file['Content-Type'] = _mimemail_mimetype($file,$type);
 
@@ -332,7 +332,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
  * sub-parts for HTML and plaintext.  Each subsequent part is the required
  * image/attachment
  */
-function mimemail_html_body($body, $subject, $plaintext=false, $text=null) {
+function mimemail_html_body($body, $subject, $plaintext=false, $text=null, $attachments = array()) {
   if (is_null($text)) {
     //generate plaintext alternative
     $text = mimemail_html_to_text($body);
@@ -343,6 +343,7 @@ function mimemail_html_body($body, $subject, $plaintext=false, $text=null) {
       'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
     );
   }
+  $content_type = 'multipart/alternative';
 
   $text_part = array('Content-Type'=>'text/plain; charset=utf-8','content'=>$text);
   
@@ -350,14 +351,25 @@ function mimemail_html_body($body, $subject, $plaintext=false, $text=null) {
   $pattern = '/(<a[^>]+href=")([^"]*)/emi';
   $body = preg_replace($pattern, '"\\1"._mimemail_url("\2")', $body);
   
-  $mime_parts = mimemail_extract_files($body, $subject);
+  $mime_parts = mimemail_extract_files($body);
 
   $content = array($text_part,array_shift($mime_parts)); 
-  $content = mimemail_multipart_body($content,'multipart/alternative',true);
-  $content_part = array('Content-Type'=>$content['headers']['Content-Type'],'content'=>$content['body']);
+  $content = mimemail_multipart_body($content, $content_type, true);
+  $parts = array(array('Content-Type'=>$content['headers']['Content-Type'],'content'=>$content['body']));
 
-  $parts = array_merge(array($content_part), $mime_parts);
-  return mimemail_multipart_body($parts,'multipart/related; charset=utf-8');
+  if ($mime_parts) {
+    $content_type = 'multipart/related';
+    $parts = array_merge($parts, $mime_parts);
+  }
+
+  foreach ($attachments as $a) {
+    $a = (object) $a;
+    $content_type = 'multipart/mixed';
+    _mimemail_file($a->filepath, $a->filemime, 'attachment');
+    $parts = array_merge($parts, _mimemail_file());
+  }
+
+  return mimemail_multipart_body($parts,"$content_type; charset=utf-8");
 }
 
 /**

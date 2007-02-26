@@ -135,7 +135,7 @@ function mimemail_user($op, &$edit, &$user, $category='') {
  * 
  * @return result from mail() call
  */
-function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext=null, $headers=array(), $text=null) {
+function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext=null, $headers=array(), $text=null, $attachments=array()) {
 
   require_once dirname(__FILE__).'/mimemail.inc';
   
@@ -151,14 +151,15 @@ function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext=null,
       }
     }
   }
+  $subject = mime_header_encode($subject);
   
   $plaintext = $plaintext || variable_get('mimemail_textonly', 0);
   $sender    = mimemail_address($sender);
-  $mail      = mimemail_html_body(theme('mimemail_message', $body), $subject, $plaintext, $text);
+  $mail      = mimemail_html_body(theme('mimemail_message', $body), $subject, $plaintext, $text, $attachments);
   $headers   = array_merge($headers, $mail['headers']);
   $message   = array(
     'address' => mimemail_address($recipient),
-    'subject' => mime_header_encode($subject),
+    'subject' => $subject,
     'body'    => $mail['body'],
     'sender'  => $sender,
     'headers' => mimemail_headers($headers, $sender),
@@ -167,9 +168,9 @@ function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext=null,
   return $message;
 }
 
-function mimemail($sender, $recipient, $subject, $body, $plaintext=null, $headers=array(), $text=null) {
+function mimemail($sender, $recipient, $subject, $body, $plaintext=null, $headers=array(), $text=null, $attachments=array()) {
 
-  $message = mimemail_prepare($sender, $recipient, $subject, $body, $plaintext, $headers, $text);
+  $message = mimemail_prepare($sender, $recipient, $subject, $body, $plaintext, $headers, $text, $attachments);
 
   $engine = variable_get('mimemail_engine', 'mimemail') .'_mailengine';
   
