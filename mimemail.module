@@ -138,13 +138,22 @@ function mimemail_user($op, &$edit, &$user, $category='') {
 function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext=null, $headers=array(), $text=null, $attachments=array()) {
 
   require_once dirname(__FILE__).'/mimemail.inc';
+
+  if (is_null($sender)) {        // use site default for sender
+    $sender = array(
+        'name' => variable_get('site_name', 'Drupal'),
+        'mail' => variable_get('site_mail', ini_get('sendmail_from')),
+    );
+  }
   
   // try to determine recpient's text mail preference
-  if (!is_null($plaintext)) {
-    if (is_object($recipient) && isset($recipient->mimemail_textonly)) {
-      $plaintext = $recipient->mimemail_textonly;
+  if (is_null($plaintext)) {
+    if (is_object($recipient)) {
+      if(isset($recipient->mimemail_textonly)) {
+        $plaintext = $recipient->mimemail_textonly;
+      }
     }
-    elseif (valid_email_address($recipient)) {
+    elseif (is_string($recipient) && valid_email_address($recipient)) {
       if (is_object($r = user_load(array('mail'=>$recipient))) && isset($r->mimemail_textonly)) {
         $plaintext = $r->mimemail_textonly;
         $recipient = $r; // might as well pass the user object to the address function
