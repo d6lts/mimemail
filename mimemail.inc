@@ -17,20 +17,20 @@
  */
 function mimemail_rfc_headers($headers) {
   $header = '';
-  $crlf = variable_get("mimemail_crlf","\n");
+  $crlf = variable_get('mimemail_crlf', "\n");
   foreach ($headers as $key => $value) {
     $key = trim($key);
     // collapse spaces and get rid of newline characters
-    $value = preg_replace('/(\s+|\n|\r|^\s|\s$)/',' ',$value);
+    $value = preg_replace('/(\s+|\n|\r|^\s|\s$)/', ' ', $value);
     
     //fold headers if they're too long
     if (strlen($value) > 60) {
       //if there's a semicolon, use that to separate
-      if (count($array = preg_split('/;\s*/',$value)) > 1) {
+      if (count($array = preg_split('/;\s*/', $value)) > 1) {
         $value = trim(join(";$crlf    ", $array));
       } 
       else {
-        $value = wordwrap($value,50,"$crlf    ",false);
+        $value = wordwrap($value, 50, "$crlf    ", false);
       }
     }
     $header .= "$key: $value$crlf";
@@ -116,7 +116,7 @@ function mimemail_html_to_text($txt, $inline = FALSE) {
  */
 function mimemail_extract_files($html) {
   $pattern = '/(<link[^>]+href="?|<object[^>]+codebase="?|@import |src="?)\/?([^"]+)("?)/emis';
-  $html = preg_replace($pattern,'"\\1". _mimemail_file("\\2") ."\\3"', $html);
+  $html = preg_replace($pattern, '"\\1". _mimemail_file("\\2") ."\\3"', $html);
   
   $document = array(array(
     'Content-Type' => "text/html; charset=utf-8",
@@ -143,11 +143,11 @@ function _mimemail_file($file = NULL, $type = '', $disposition = 'related') {
     $content_id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
 
     $new_file = array('name' => substr($file, strrpos($file, '/') + 1),
-                      'file' => $file,
-                      'Content-ID' => $content_id,
-                      'Content-Disposition' => $disposition,
-                     );
-    $new_file['Content-Type'] = _mimemail_mimetype($file,$type);
+      'file' => $file,
+      'Content-ID' => $content_id,
+      'Content-Disposition' => $disposition,
+    );
+    $new_file['Content-Type'] = _mimemail_mimetype($file, $type);
 
     $files[] = $new_file;
 
@@ -234,8 +234,8 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
       }
       $part_body = $part['content'];
       if (isset($part['name'])) {
-        $part_headers['Content-Type'] .= '; name="'.$part['name'].'"';
-        $part_headers['Content-Disposition'] .= '; filename="'.$part['name'].'"';
+        $part_headers['Content-Type'] .= '; name="'. $part['name'] .'"';
+        $part_headers['Content-Disposition'] .= '; filename="'. $part['name'] .'"';
       }
       
     // mail content references in a filename
@@ -246,19 +246,19 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
       }
       
       if (!isset($part['Content-Type'])) {
-        $part['Content-Type'] = _mimemail_mimetype($part['file'],$type);
+        $part['Content-Type'] = _mimemail_mimetype($part['file'], $type);
       }
 
       if (isset($part['name'])) {
-        $part_headers['Content-Type'] .= '; name="'.$part['name'].'"';
-        $part_headers['Content-Disposition'] .= '; filename="'.$part['name'].'"';
+        $part_headers['Content-Type'] .= '; name="'. $part['name'] .'"';
+        $part_headers['Content-Disposition'] .= '; filename="'. $part['name'] .'"';
       }
       
       $part_body = chunk_split(base64_encode(file_get_contents($part['file'])));
     }
     
     $body .= "\n--$boundary\n";
-    $body .= mimemail_rfc_headers($part_headers)."\n\n";
+    $body .= mimemail_rfc_headers($part_headers) ."\n\n";
     $body .= $part_body;
   }
   $body .= "\n--$boundary--\n";
@@ -294,7 +294,7 @@ function mimemail_html_body($body, $subject, $plaintext=false, $text=null, $atta
   }
   $content_type = 'multipart/alternative';
 
-  $text_part = array('Content-Type'=>'text/plain; charset=utf-8','content'=>$text);
+  $text_part = array('Content-Type' => 'text/plain; charset=utf-8', 'content' => $text);
   
   //expand all local links
   $pattern = '/(<a[^>]+href=")([^"]*)/emi';
@@ -302,9 +302,9 @@ function mimemail_html_body($body, $subject, $plaintext=false, $text=null, $atta
   
   $mime_parts = mimemail_extract_files($body);
 
-  $content = array($text_part,array_shift($mime_parts)); 
+  $content = array($text_part, array_shift($mime_parts)); 
   $content = mimemail_multipart_body($content, $content_type, true);
-  $parts = array(array('Content-Type'=>$content['headers']['Content-Type'],'content'=>$content['body']));
+  $parts = array(array('Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']));
 
   if ($mime_parts) {
     $content_type = 'multipart/related';
@@ -338,7 +338,7 @@ function mimemail_parse($message) {
   // We're dealing with a multi-part message.
   $mail['parts'] = mimemail_parse_boundary($mail);
 
-  foreach($mail['parts'] as $i => $part_body) {
+  foreach ($mail['parts'] as $i => $part_body) {
 
     $part = mimemail_parse_headers($part_body);
 
@@ -412,10 +412,10 @@ function mimemail_parse_headers($message) {
   }
 
   // Un-fold the headers.
-  $hdr = preg_replace(array("/\r/","/\n(\t| )+/"), array('',' '), $hdr);
+  $hdr = preg_replace(array("/\r/", "/\n(\t| )+/"), array('', ' '), $hdr);
 
   $headers = array();
-  foreach(explode("\n", trim($hdr)) as $row) {
+  foreach (explode("\n", trim($hdr)) as $row) {
     $split = strpos( $row, ':' );
     $name = trim(substr($row, 0, $split));
     $val  = trim(substr($row, $split+1));
@@ -485,10 +485,10 @@ function mimemail_parse_attachment($part) {
 function _mimemail_uri($href, $link) {
   $href = _mimemail_url($href);
   if ($href == $link) {
-    $output =  '['.$href.']';
+    $output = '['. $href .']';
   }
   else {
-    $output = $link.' ['.$href.']';
+    $output = $link .' ['. $href .']';
   }
   return $output;
 }
@@ -527,7 +527,7 @@ function _mimemail_url($url) {
 function _mimemail_urls($url = 0, $refresh = FALSE) {
   static $urls = array();
 
-  if($refresh) {
+  if ($refresh) {
     $urls = array();
   }
 
@@ -596,7 +596,7 @@ function _mimemail_html2text() {
  * 
  * @return best-guess mimetype string
  */
-function _mimemail_mimetype($file,$type='') {
+function _mimemail_mimetype($file, $type='') {
   if ($type) {
     return $type;
   } 
@@ -606,7 +606,7 @@ function _mimemail_mimetype($file,$type='') {
   }
 
   // some common embedded/attachment types
-  $types = Array( 
+  $types = array( 
     'jpg'  => 'image/jpeg',
     'jpeg' => 'image/jpeg',
     'gif'  => 'image/gif',
