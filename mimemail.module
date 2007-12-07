@@ -10,14 +10,20 @@
  */
 function mimemail_menu() {
  $items[] = array(
-    'path' => 'admin/settings/mimemail',
-    'title' => t('Mail'),
-    'description' => t('HTML E-mail settings'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => 'mimemail_settings',
-    'access' => user_access('administer site configuration'),
-    'type' => MENU_NORMAL_ITEM,
-   );
+   'path' => 'admin/settings/mimemail',
+   'title' => t('Mail'),
+   'description' => t('HTML E-mail settings'),
+   'callback' => 'drupal_get_form',
+   'callback arguments' => 'mimemail_settings',
+   'access' => user_access('administer site configuration'),
+   'type' => MENU_NORMAL_ITEM,
+ );
+ $items[] = array(
+   'path' => 'mimemail',
+   'callback' => 'mimemail_post',
+   'access' => variable_get('mimemail_incoming', FALSE),
+   'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -58,6 +64,26 @@ function mimemail_settings() {
     '#title'         => t('Plaintext email only'),
     '#default_value' => variable_get('mimemail_textonly', 0),
     '#description'   => t('This option disables the use of email messages with graphics and styles.  All messages will be converted to plain text.'),
+  );
+
+  $form['mimemail']['incoming'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Advanced Settings'),
+    '#collapsible'   => TRUE,
+    '#collapsed'     => TRUE,
+  );
+  $form['mimemail']['incoming']['mimemail_incoming'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Process incoming messages posted to this site'),
+    '#default_value' => variable_get('mimemail_incoming', 0),
+    '#description'   => t('This is an advanced setting that should not be enabled unless you know what you are doing'),
+  );
+  $form['mimemail']['incoming']['mimemail_key'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Message validation string'),
+    '#default_value' => variable_get('mimemail_key', md5(rand())),
+    '#required'      => TRUE,
+    '#description'   => t('This string will be used to validate incoming messages.  It can be anything, but must be used on both sides of the transfer'),
   );
   
   // hide the settings if only 1 engine is available
@@ -280,6 +306,80 @@ function mimemail_mail_alter($mailkey, &$recipient, &$subject, &$body, &$sender,
   // I'm open to suggestions for better ways of doing this
   $body = check_markup($body, FILTER_FORMAT_DEFAULT);
   return;
+}
+
+function mimemail_post() {
+  $message = $_POST['message'];
+  $token   = $_POST['token'];
+  $hash    = md5(variable_get('mimemail_key','**') . $message );
+
+  if ($hash != $token) {
+    watchdog('access denied', t('Authentication error for POST e-mail'), WATCHDOG_WARNING);
+    return drupal_access_denied();
+  }
+  return mimemail_incoming($message);
+}
+
+function mimemail_incoming($message) {
+  require_once dirname(__FILE__).'/mimemail.inc';
+  $mail = mimemail_parse($message);
+
+  foreach (module_implements('mimemail_incoming_alter') as $module) { 
+    call_user_func_array($module.'_mimemail_incoming_alter', $mail); 
+  }
+
+  module_invoke_all('mimemail_incoming', $mail);
+}
+
+/**
+ * Formats an address string 
+ * TODO could use some enhancement and stress testing 
+ * 
+ * @param $address - a user object, a text email address or an array containing name, mail
+ * @return formatted address string
+ */
+function mimemail_address($address) {
+  
+  if (is_array($address)) {
+    
+    // it's an array containing 'mail' and/or 'name'
+    if (isset($address['mail'])) {
+      $output = '';
+      if (empty($address['name'])) {
+        return $address['mail'];
+      } else {
+        return '"'.addslashes($address['name']).'" <'.$address['mail'].'>';
+      }
+    }
+    
+    // it's an array of address items
+    $addresses = array();
+    foreach($address as $a) {
+      $addresses[] = mimemail_address($a);
+    }
+    return $addresses;
+  }
+  
+  // it's a user object
+  if (is_object($address) && isset($address->mail)) {
+    return '"'.addslashes($address->name).'" <'.$address->mail.'>';
+  }
+  
+  // it's formatted or unformatted string
+  // TODO shouldn't assume it's valid - should try to re-parse
+  if (is_string($address)) {
+    return $address;
+  }
+
+  // it's null.  return the site default address
+  if (is_null($address)) {
+    return array(
+      'name' => variable_get('site_name', 'Drupal'),
+      'mail' => variable_get('site_mail', ini_get('sendmail_from')),
+    );
+  }
+
+  return false;
 }
 
 /**
