@@ -79,7 +79,8 @@ function mimemail_html_to_text($txt, $inline = FALSE) {
       $txt .= "\n";
       $i = 0;
       for ($max = count($urls); $i < $max; $i++) {
-        $txt .= '['. ($i + 1) .'] '. $urls[$i] ."\n";
+        $url = preg_replace('/^mailto:(.+@.+)(\?.*)?/', '\1', $urls[$i]);
+        $txt .= '['. ($i + 1) .'] '. $url ."\n";
       }
     }
     _mimemail_urls(0, TRUE);
@@ -506,12 +507,17 @@ function _mimemail_url($url) {
   }
   
   if (preg_match('!mailto:!i', $url)) {
-    return str_replace('mailto:', '', $url);
+    return $url;
   }
   
-  $url = str_replace('?q=', '', ltrim($url, base_path()));
+  $url = preg_replace( '!'. base_path() .'!', '', $url, 1);
+  $url = str_replace('?q=', '', $url);
   list($url, $fragment) = explode('#', $url, 2);
   list($path, $query) = explode('?', $url, 2);
+
+  if (empty($path) && !empty($fragment)) {
+    return '#' . $fragment;
+  }
   
   return url($path, $query, $fragment, TRUE);
 }
