@@ -205,12 +205,18 @@ function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext=null,
 
 function mimemail($sender, $recipient, $subject, $body, $plaintext = NULL, $headers=array(), $text = NULL, $attachments = array(), $mailkey = '') {
 
-  $message = mimemail_prepare($sender, $recipient, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey);
-
   $engine = variable_get('mimemail_engine', 'mimemail') .'_mailengine';
   
   if (!function_exists($engine)) {
     return false;
+  }
+
+  $engine_prepare = variable_get('mimemail_engine', 'mimemail') .'_prepare';
+  if (function_exists($engine_prepare)) {
+    $message = $engine_prepare($sender, $recipient, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey);
+  }
+  else {
+    $message = mimemail_prepare($sender, $recipient, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey);
   }
 
   return $engine('send', $message);
