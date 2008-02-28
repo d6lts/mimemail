@@ -382,12 +382,14 @@ function mimemail_address($address) {
  * Themeable message body
  */
 function theme_mimemail_message($body, $mailkey) {
-  $output = '<html><head><style type="text/css"><!--';
+  $output = '<html><head>';
+  $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
 
   // attempt to include a mail-specific version of the css.
   // if you want smaller mail messages, add a mail.css file to your theme
   $styles = path_to_theme() .'/mail.css';
 
+  $output .= '<style type="text/css"><!--';
   if (!file_exists($styles)) {
     // embed a version of all style definitions
     $styles = preg_replace('|<style.*"'. base_path() .'([^"]*)".*|', '\1', drupal_get_css());
