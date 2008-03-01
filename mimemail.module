@@ -381,7 +381,7 @@ function mimemail_address($address) {
 /**
  * Themeable message body
  */
-function theme_mimemail_message($body, $mailkey) {
+function theme_mimemail_message($body, $mailkey = null) {
   $output = '<html><head>';
   $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
 
