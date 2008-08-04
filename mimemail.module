@@ -1,7 +1,8 @@
 <?php /* $Id$ */
 
 /**
- * @file Component module for sending Mime-encoded emails
+ * @file 
+ * Component module for sending Mime-encoded emails.
  */
  
 /**
@@ -26,6 +27,12 @@ function mimemail_menu() {
   return $items;
 }
 
+/**
+ * Administration settings.
+ *
+ * @return
+ *   The administration from.
+ */
 function mimemail_settings() {
 
   // override the smtp_library value if mimemail is chosen to handle all mail
@@ -149,16 +156,43 @@ function mimemail_user($op, &$edit, &$user, $category = '') {
 }
 
 /**
- * Send a mime-encoded email
+ * Sends a mime-encoded e-mail.
  *
- * @param $sender The email address or user object
- * @param $recipient An email address or user object * @param $subject An subject line string
- * @param $body An HTML body
- * @param $plaintext Whether to send message as plaintext only
- * @param $headers Optional e-mail headers in a keyed array
- * @param $text Optional plaintext portion of a multipart e-mail (instead of auto-generated)
+ * This function first determines the mail engine to use, then prepares the
+ * message by calling the mail engine's prepare function, or
+ * mimemail_prepare() if another one does not exist, then sends the message.
  *
- * @return result from mail() call
+ * @param $sender
+ *   The email address or user object who is sending the message.
+ * @param $recipient+  
+ *   An email address or user object who is receiving the message.
+ * @param $subject
+ *   A subject line string.
+ * @param $body
+ *   The message body in HTML format.
+ * @param $plaintext
+ *   Whether to send the message as plaintext only or HTML. If set to 1, Yes
+ *   or TRUE, then the message will be sent as plaintext.
+ * @param $headers
+ *   Optional e-mail headers in a keyed array.
+ * @param $text
+ *   Optional plaintext portion of a multipart e-mail.
+ * @param $attachments
+ *   An array of arrays which describe one or more attachments. The internal
+ *   array consists of two parts: the file's path and the file's MIME type.
+ *   The array of arrays looks something like this:
+ *   Array
+ *   (
+ *     [0] => Array
+ *       (
+ *         [filepath] => '/path/to/file.name'
+ *         [filemime] => 'mime/type'
+ *       )
+ *   )
+ * @param $mailkey
+ *   An identifier for the message.
+ * @return
+ *   An array containing the MIME encoded message, including headers and body.
  */
 function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext = NULL, $headers = array(), $text = NULL, $attachments = array(), $mailkey = '') {
 
@@ -224,9 +258,10 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext = NULL, $head
 }
 
 /**
- * Returns available mailer engines.
+ * Retreives a list of all available mailer engines.
  *
- * @return an array of mailer engine names.
+ * @return
+ *   An array of mailer engine names.
  */
 function mimemail_get_engines() {
   $engines = array();
@@ -240,7 +275,14 @@ function mimemail_get_engines() {
 }
 
 /**
- * Default mailengine
+ * The default mailengine.
+ *
+ * @param $op
+ *   The operation to perform on the message.
+ * @param $message
+ *   The message to be sent.
+ * @return
+ *   Returns TRUE if the operation was successful or FALSE if it was not.
  */
 function mimemail_mailengine($op, $message = array()) {
   //default values
@@ -284,6 +326,24 @@ function mimemail_mailengine($op, $message = array()) {
   return FALSE;
 }
 
+/**
+ * Overrides Drupal's default mail sending process.
+ *
+ * @param $mailkey
+ *   An identifier for the message.
+ * @param $to
+ *   An email address or user object who is receiving the message.
+ * @param $subject
+ *   A subject line string.
+ * @param $body
+ *   The message body in HTML format.
+ * @param $from
+ *   The email address or user object who is sending the message.
+ * @param $headers
+ *   Optional e-mail headers in a keyed array.
+ * @return
+ *   Returns the resultss of the call to mimemail().
+ */
 if (strpos(variable_get('smtp_library', ''), 'mimemail')
   && !function_exists('drupal_mail_wrapper')) {
 
@@ -292,6 +352,27 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
   }
 }
 
+/**
+ * Modifys messages being sent through drupal_mail.
+ *
+ * Remove's unauthorized HTML from the body of a message being sent through
+ * drupal_mail() before it does it's final processing.
+ *
+ * @param $mailkey
+ *   An identifier for the message.
+ * @param $recipient
+ *   An email address or user object who is receiving the message.
+ * @param $subject
+ *   A subject line string.
+ * @param $body
+ *   The message body in HTML format.
+ * @param $sender
+ *   The email address or user object who is sending the message.
+ * @param $headers
+ *   Optional e-mail headers in a keyed array.
+ * @return
+ *   Returns the resultss of the call to mimemail().
+ */
 function mimemail_mail_alter($mailkey, &$recipient, &$subject, &$body, &$sender, &$headers) {
 
   if (!variable_get('mimemail_alter', 0)) return;
@@ -302,6 +383,15 @@ function mimemail_mail_alter($mailkey, &$recipient, &$subject, &$body, &$sender,
   return;
 }
 
+/**
+ * Receive messages POSTed from an external source.
+ *
+ * This function enables messages to be sent via POST or some other RFC822
+ * source input (e.g. directly from a mail server).
+ *
+ * @return
+ *   The POSTed message.
+ */
 function mimemail_post() {
   $message = $_POST['message'];
   $token   = $_POST['token'];
@@ -314,6 +404,12 @@ function mimemail_post() {
   return mimemail_incoming($message);
 }
 
+/**
+ * Parses an externally received message.
+ *
+ * @param $message
+ *   The message to parse.
+ */
 function mimemail_incoming($message) {
   require_once dirname(__FILE__) .'/mimemail.inc';
   $mail = mimemail_parse($message);
@@ -326,11 +422,13 @@ function mimemail_incoming($message) {
 }
 
 /**
- * Formats an address string
- * TODO could use some enhancement and stress testing
+ * Formats an address string.
+ * TODO could use some enhancement and stress testing.
  *
- * @param $address - a user object, a text email address or an array containing name, mail
- * @return formatted address string
+ * @param $address
+ *   A user object, a text email address or an array containing name, mail.
+ * @return 
+ *   A formatted address string or FALSE.
  */
 function mimemail_address($address) {
 
@@ -378,7 +476,14 @@ function mimemail_address($address) {
 }
 
 /**
- * Themeable message body
+ * Themes the message body.
+ *
+ * @param $body
+ *   The message body to theme.
+ * @param $mailkey
+ *   An identifier for the message.
+ * @return
+ *   The themed HTML message body.
  */
 function theme_mimemail_message($body, $mailkey = NULL) {
   $output = '<html><head>';
