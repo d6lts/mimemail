@@ -101,13 +101,17 @@ function mimemail_extract_files($html) {
  *
  * @return an absolute :
  */
-function _mimemail_file($file = NULL, $type = '', $disposition = 'related') {
+function _mimemail_file($file = NULL, $name = '', $type = '', $disposition = 'related') {
   static $files = array();
 
   if ($file && !preg_match('@://|mailto:@', $file) && file_exists($file)) {
     $content_id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
 
-    $new_file = array('name' => substr($file, strrpos($file, '/') + 1),
+    if (!$name) {
+      $name = substr($file, strrpos($file, '/') + 1);
+    }
+
+    $new_file = array('name' => $name,
       'file' => $file,
       'Content-ID' => $content_id,
       'Content-Disposition' => $disposition,
@@ -279,7 +283,7 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
   foreach ($attachments as $a) {
     $a = (object) $a;
     $content_type = 'multipart/mixed';
-    _mimemail_file($a->filepath, $a->filemime, 'attachment');
+    _mimemail_file($a->filepath, $a->filename, $a->filemime, 'attachment');
     $parts = array_merge($parts, _mimemail_file());
   }
 
