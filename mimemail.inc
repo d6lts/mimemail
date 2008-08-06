@@ -8,6 +8,8 @@
  *   Allie Micka < allie at pajunas dot com >
  */
 
+include drupal_get_path('module', 'mimemail') . '/html_to_text.inc';
+
 /**
  * Attempts to RFC822-compliant headers for the mail message or its MIME parts
  * TODO could use some enhancement and stress testing
@@ -55,44 +57,6 @@ function mimemail_headers($headers, $from = '') {
   $headers = array_merge(array('Return-Path' => "<$from_email>", 'Errors-To' => $from, 'From' => $from, 'Content-Type' => 'text/plain; charset=utf-8; format=flowed'), $headers);
 
   return $headers;
-}
-
-/**
- * Converts html to utf-8 encoded text.
- *
- * @param $txt html text that needs formatting.
- * @param $inline Optional. If TRUE put links in the text,
- *               if FALSE put a footnote into the text and
- *               a list of links below it. Default: FALSE
- *
- * @return formatted text encoded in utf-8
- */
-function mimemail_html_to_text($txt, $inline = FALSE) {
-  $pattern = '@(<a href="(.\S+?)"[^>]*>(.+?)</a>)@emi';
-  if ($inline) {
-    $txt = preg_replace($pattern, "_mimemail_uri('\\2', '\\3')", $txt);
-  }
-  else {
-    $txt = preg_replace($pattern, "'\\3 ['. _mimemail_urls('\\2') .']'", $txt);
-    $urls = _mimemail_urls();
-    if (count($urls)) {
-      $txt .= "\n";
-      $i = 0;
-      for ($max = count($urls); $i < $max; $i++) {
-        $url = preg_replace('/^mailto:(.+@.+)(\?.*)?/', '\1', $urls[$i]);
-        $txt .= '['. ($i + 1) .'] '. $url ."\n";
-      }
-    }
-    _mimemail_urls(0, TRUE);
-  }
-
-  // some basic html to text conversion
-  $replace = _mimemail_html2text();
-  $txt = preg_replace(array_keys($replace), $replace, $txt);
-  $txt = preg_replace("/\n\s+\n/", "\n\n", $txt);
-  $txt = strip_tags($txt);
-  $txt = decode_entities($txt);
-  return wordwrap($txt, 80);
 }
 
 /**
@@ -375,7 +339,7 @@ function mimemail_parse($message) {
 
   // Make sure our text and html parts are accounted for
   if (isset($mail['html']) && !isset($mail['text'])) {
-    $mail['text'] = mimemail_html_to_text($mail['html']);
+     $mail['text'] = mimemail_html_to_text($mail['html']);
   }
   elseif (isset($mail['text']) && !isset($mail['html'])) {
     $mail['html'] = check_markup($mail['text']);
@@ -543,54 +507,6 @@ function _mimemail_urls($url = 0, $refresh = FALSE) {
   }
 
   return $urls;
-}
-
-function _mimemail_html2text() {
-  return array(
-    "/\r/"                              => '',
-    "/[\t]+/"                           => '  ',
-    '/<script[^>]*>.*?<\/script>/i'     => '',
-    '/<style[^>]*>.*?<\/style>/i'       => '',
-    '!<h1[^>]*>(.+?)</h1>!ie'           => "\"\n\" .strtoupper('\\1').\"\n============================================================\n\"",
-    '!<h2[^>]*>(.+?)</h2>!ie'           => "\"\n------------------------------------------------------------\n\" .'\\1'.\"\n------------------------------------------------------------\n\"",
-    '/<h3[^>]*>(.+?)<\/h3>/ie'          => "\"\n\n\\1\n\n\"",
-    '/<h[456][^>]*>(.+?)<\/h[456]>/ie'  => "\"\n\\1\n\"",
-    '!<blockquote[^>]*>!i'              => "\n\n\t",
-    '!</blockquote>!i'                  => "\n\n",
-    '!</?p[^>]*>!i'                     => "\n\n",
-    '/<br[^>]*>/i'                      => "\n",
-    '/(<(u|o|d)l[^>]*>|<\/(u|o|d)l>)/i' => "\n\n",
-    '!<(li|dt)[^>]*>!i'                 => "  * ",
-    '!<dd[^>]*>!i'                      => "    ",
-    '!</(li|dt|dd)>!i'                  => "\n",
-    '/<hr[^>]*>/i'                      => "\n-------------------------\n",
-    '/(<table[^>]*>|<\/table>)/i'       => "\n\n",
-    '/(<tr[^>]*>|<\/tr>)/i'             => "\n",
-    '/<td[^>]*>(.+?)<\/td>/i'           => "\t\t\\1\n",
-    '/<th[^>]*>(.+?)<\/th>/i'           => "\"\t\t\\1\n\"",
-    '/&nbsp;/i'                         => " ",
-    '/&quot;/i'                         => '"',
-    '/&gt;/i'                           => '>',
-    '/&lt;/i'                           => '<',
-    '/&amp;/i'                          => '&',
-    '/&copy;/i'                         => '(c)',
-    '/&trade;/i'                        => '(tm)',
-    '/&#8220;/'                         => '"',
-    '/&#8221;/'                         => '"',
-    '/&#8211;/'                         => '-',
-    '/&#8217;/'                         => "'",
-    '/&#38;/'                           => '&',
-    '/&#169;/'                          => '(c)',
-    '/&#8482;/'                         => '(tm)',
-    '/&#151;/'                          => '--',
-    '/&#145;/'                          => '\'',
-    '/&#147;/'                          => '"',
-    '/&#148;/'                          => '"',
-    '/&#149;/'                          => '*',
-    '/&reg;/i'                          => '(R)',
-    '/&bull;/i'                         => '*',
-    '/&[&;]+;/i'                        => '',
-  );
 }
 
 /**
