@@ -56,6 +56,12 @@ function mimemail_headers($headers, $from = '') {
   // allow a mail to overwrite standard headers.
   $headers = array_merge(array('Return-Path' => "<$from_email>", 'Errors-To' => $from, 'From' => $from, 'Content-Type' => 'text/plain; charset=utf-8; format=flowed'), $headers);
 
+  // Run all headers through mime_header_encode() to convert non-ascii
+  // characters to an rfc compliant string, similar to drupal_mail().
+  foreach($headers as $key => $value) {
+    $headers[$key] = mime_header_encode($value);
+  }
+
   return $headers;
 }
 
