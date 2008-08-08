@@ -262,10 +262,20 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
     $text = mimemail_html_to_text($body);
   }
   if ($plaintext) {
-    return array(
-      'body' => $text,
-      'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
-    );
+    //Plain mail without attachment
+    if (empty($attachments)) {
+      return array(
+        'body' => $text, 
+        'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
+      );
+    }
+    //Plain mail has attachement
+    else {
+      $parts = array(array(
+      'content' => $text, 
+        'Content-Type' => 'text/plain; charset=utf-8',
+      ));
+    }
   }
   $content_type = 'multipart/alternative';
 
