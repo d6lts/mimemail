@@ -65,6 +65,20 @@ function mimemail_settings() {
     '#default_value' => variable_get('mimemail_alter', 0),
     '#description'   => t('Use the mime mail module to deliver all site messages.  With this option, system emails will have styles and formatting'),
   );
+
+  $formats = array(0 => t('None'));
+  foreach (filter_formats() as $format) {
+    $formats[$format->format] = $format->name;
+  }
+
+  $form['mimemail']['mimemail_format'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Mimemail site format'),
+    '#default_value' => variable_get('mimemail_format', 0),
+    '#description'   => t('When using mime mail for all messages, this format will be applied to message bodies before sending.'),
+    '#options'       => $formats,
+  );
+
   $form['mimemail']['mimemail_textonly'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Plaintext email only'),
@@ -244,6 +258,15 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext = NULL, $head
     return FALSE;
   }
 
+  // Allow modules implementing hook_mail_alter() to function when all 
+  // mail is routed through mimemail.
+  //  - doesn't support passing all the variables used here (e.g. attachements)
+  //  - should also provide a hook_mimemail_alter for full mimemail support
+  foreach (module_implements('mail_alter') as $module) {
+    $function = $module .'_mail_alter';
+    $function($mailkey, $recipient, $subject, $body, $sender, $headers);
+  }
+
   $engine_prepare = variable_get('mimemail_engine', 'mimemail') .'_prepare';
   if (function_exists($engine_prepare)) {
     $message = $engine_prepare($sender, $recipient, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey);
@@ -348,39 +371,12 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
   && !function_exists('drupal_mail_wrapper')) {
 
   function drupal_mail_wrapper($mailkey, $to, $subject, $body, $from, $headers) {
+    if (variable_get('mimemail_format', 0)) {
+      $body = check_markup($body, $format);
+    }
+
     return mimemail($from, $to, $subject, $body, NULL, $headers, NULL, array(), $mailkey);
   }
-}
-
-/**
- * Modifys messages being sent through drupal_mail.
- *
- * Remove's unauthorized HTML from the body of a message being sent through
- * drupal_mail() before it does it's final processing.
- *
- * @param $mailkey
- *   An identifier for the message.
- * @param $recipient
- *   An email address or user object who is receiving the message.
- * @param $subject
- *   A subject line string.
- * @param $body
- *   The message body in HTML format.
- * @param $sender
- *   The email address or user object who is sending the message.
- * @param $headers
- *   Optional e-mail headers in a keyed array.
- * @return
- *   Returns the resultss of the call to mimemail().
- */
-function mimemail_mail_alter($mailkey, &$recipient, &$subject, &$body, &$sender, &$headers) {
-
-  if (!variable_get('mimemail_alter', 0)) return;
-
-  // attempt to fixup non-html messages that are being sent through drupal_mail
-  // I'm open to suggestions for better ways of doing this
-  $body = check_markup($body, FILTER_FORMAT_DEFAULT);
-  return;
 }
 
 /**
