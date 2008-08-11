@@ -66,18 +66,8 @@ function mimemail_settings() {
     '#description'   => t('Use the mime mail module to deliver all site messages.  With this option, system emails will have styles and formatting'),
   );
 
-  $formats = array(0 => t('None'));
-  foreach (filter_formats() as $format) {
-    $formats[$format->format] = $format->name;
-  }
-
-  $form['mimemail']['mimemail_format'] = array(
-    '#type'          => 'select',
-    '#title'         => t('Mimemail site format'),
-    '#default_value' => variable_get('mimemail_format', 0),
-    '#description'   => t('When using mime mail for all messages, this format will be applied to message bodies before sending.'),
-    '#options'       => $formats,
-  );
+  $filter_format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
+  $form['mimemail']['mimemail_format'] =  filter_form($filter_format, NULL, array("mimemail_format"));
 
   $form['mimemail']['mimemail_textonly'] = array(
     '#type'          => 'checkbox',
@@ -371,7 +361,7 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
   && !function_exists('drupal_mail_wrapper')) {
 
   function drupal_mail_wrapper($mailkey, $to, $subject, $body, $from, $headers) {
-    if (variable_get('mimemail_format', 0)) {
+    if ($format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT)) {
       $body = check_markup($body, $format);
     }
 
