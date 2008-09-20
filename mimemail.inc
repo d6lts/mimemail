@@ -86,8 +86,9 @@ function mimemail_headers($headers, $from = '') {
  *                  )
  */
 function mimemail_extract_files($html) {
-  $pattern = '/(<link[^>]+href="?|<object[^>]+codebase="?|@import |src="?)\/?([^"]+)("?)/emis';
-  $html = preg_replace($pattern, '"\\1". _mimemail_file("\\2") ."\\3"', $html);
+  $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |src=[\'"]?)([^\'>"]+)([\'"]?)/emis';
+  $replace = 'stripslashes("\\1")._mimemail_file("\\2").stripslashes("\\3")'; 
+  $html = preg_replace($pattern, $replace, $html);
 
   $document = array(array(
     'Content-Type' => "text/html; charset=utf-8",
@@ -103,21 +104,33 @@ function mimemail_extract_files($html) {
 /**
  * Helper function to extract local files
  *
- * @param $file a link to a file
+ * @param $url a URL to a file
  *
  * @return an absolute :
  */
-function _mimemail_file($file = NULL, $name = '', $type = '', $disposition = 'related') {
+function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'related') {
   static $files = array();
 
-  if ($file && !preg_match('@://|mailto:@', $file) && file_exists($file)) {
+  if ($url) {
+    $url = _mimemail_url($url, 'TRUE');
+
+    // If the $url is absolute, we're done here.
+    if (strpos($url, '://') || preg_match('!mailto:!', $url)) {
+      return $url;
+    }
+    else {
+    // The $url is a relative file path, continue processing.
+      $file = $url;
+    }
+  }
+
+  if ($file && file_exists($file)) {
     $content_id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
 
-    if (!$name) {
-      $name = substr($file, strrpos($file, '/') + 1);
-    }
+    if (!$name) $name = substr($file, strrpos($file, '/') + 1);
 
-    $new_file = array('name' => $name,
+    $new_file = array(
+      'name' => $name,
       'file' => $file,
       'Content-ID' => $content_id,
       'Content-Disposition' => $disposition,
@@ -127,10 +140,6 @@ function _mimemail_file($file = NULL, $name = '', $type = '', $disposition = 're
     $files[] = $new_file;
 
     return 'cid:'. $content_id;
-  }
-
-  if ($file) {
-    return $file;
   }
 
   $ret = $files;
@@ -466,67 +475,46 @@ function mimemail_parse_attachment($part) {
 /**
  * Helper function to format urls
  *
- */
-function _mimemail_uri($href, $link) {
-  $href = _mimemail_url($href);
-  if ($href == $link) {
-    $output = '['. $href .']';
-  }
-  else {
-    $output = $link .' ['. $href .']';
-  }
-  return $output;
-}
-
-/**
- * Helper function to format urls
- *
  * @param $url an url
  *
  * @return an absolute url, sans mailto:
  */
-function _mimemail_url($url) {
-  if (strpos($url, '://')) {
+function _mimemail_url($url, $embed_file = NULL) {
+  global $base_url;
+  $url = urldecode($url); 
+
+  // If the URL is absolute or a mailto, return it as-is.
+  if (strpos($url, '://') || preg_match('!mailto:!', $url)) {
+    $url = str_replace(' ', '%20', $url);
     return $url;
   }
 
-  if (preg_match('!mailto:!i', $url)) {
-    return $url;
-  }
+  $url = preg_replace( '!^'. base_path() .'!', '', $url, 1);
 
-  $url = preg_replace( '!'. base_path() .'!', '', $url, 1);
+  // If we're processing to embed the file, we're done here so return.
+  if ($embed_file) return $url;
+
+  if (!preg_match('!^\?q=*!', $url)) {
+    $strip_clean = TRUE;
+  }
+  
   $url = str_replace('?q=', '', $url);
   list($url, $fragment) = explode('#', $url, 2);
   list($path, $query) = explode('?', $url, 2);
-
+  
+  // If we're dealing with an intra-document reference, return it.
   if (empty($path) && !empty($fragment)) {
     return '#'. $fragment;
   }
 
-  return url($path, $query, $fragment, TRUE);
-}
+  // If we have not yet returned, then let's clean things up and leave.
+  $url = url($path, $query, $fragment, TRUE);
+  
+  // If url() added a ?q= where there should not be one, remove it.
+  if ($strip_clean) $url = preg_replace('!\?q=!', '', $url);
 
-/**
- * Helper function to store processed urls.
- *
- * @param $url Optional.
- * @param $refresh Optional. If TRUE refresh the cache.
- *
- * @return a count of stored if $url evaluates to false, the stored urls ortherwise.
- */
-function _mimemail_urls($url = 0, $refresh = FALSE) {
-  static $urls = array();
-
-  if ($refresh) {
-    $urls = array();
-  }
-
-  if ($url) {
-    $urls[] = _mimemail_url($url);
-    return count($urls);
-  }
-
-  return $urls;
+  $url = str_replace('+', '%20', $url);
+  return $url; 
 }
 
 /**
