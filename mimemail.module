@@ -485,7 +485,7 @@ function theme_mimemail_message($body, $mailkey = NULL) {
     $styles = preg_replace('|<style.*"'. base_path() .'([^"]*)".*|', '\1', drupal_get_css());
   }
   foreach (explode("\n", $styles) as $style) {
-    $output .= file_get_contents($style);
+    if (file_exists($style)) $output .= file_get_contents($style);
   }
   $output .= '--></style></head><body id="mimemail-body"><div id="center"><div id="main">'. $body .'</div></div></body></html>';
   // compress output
