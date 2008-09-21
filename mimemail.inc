@@ -8,8 +8,6 @@
  *   Allie Micka < allie at pajunas dot com >
  */
 
-include drupal_get_path('module', 'mimemail') . '/html_to_text.inc';
-
 /**
  * Attempts to RFC822-compliant headers for the mail message or its MIME parts
  * TODO could use some enhancement and stress testing
@@ -268,7 +266,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
 function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $attachments = array()) {
   if (is_null($text)) {
     //generate plaintext alternative
-    $text = mimemail_html_to_text($body);
+    $text = drupal_html_to_text($body);
   }
   if ($plaintext) {
     //Plain mail without attachment
@@ -368,7 +366,7 @@ function mimemail_parse($message) {
 
   // Make sure our text and html parts are accounted for
   if (isset($mail['html']) && !isset($mail['text'])) {
-     $mail['text'] = mimemail_html_to_text($mail['html']);
+     $mail['text'] = drupal_html_to_text($mail['html']);
   }
   elseif (isset($mail['text']) && !isset($mail['html'])) {
     $mail['html'] = check_markup($mail['text']);
@@ -508,7 +506,8 @@ function _mimemail_url($url, $embed_file = NULL) {
   }
 
   // If we have not yet returned, then let's clean things up and leave.
-  $url = url($path, $query, $fragment, TRUE);
+  $url = url($path, array('query' => $query, 'fragment' => $fragment, 'absolute' => TRUE));
+
   
   // If url() added a ?q= where there should not be one, remove it.
   if ($strip_clean) $url = preg_replace('!\?q=!', '', $url);

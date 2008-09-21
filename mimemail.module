@@ -9,19 +9,17 @@
  * Implementation of hook_menu()
  */
 function mimemail_menu() {
-  $items[] = array(
-    'path' => 'admin/settings/mimemail',
-    'title' => t('Mail'),
-    'description' => t('HTML E-mail settings'),
-    'callback' => 'drupal_get_form',
-    'callback arguments' => 'mimemail_settings',
-    'access' => user_access('administer site configuration'),
+  $items['admin/settings/mimemail'] = array(
+    'title' => 'Mime Mail',
+    'description' => 'HTML E-mail settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mimemail_settings'),
+    'access arguments' => array('administer site configuration'),
     'type' => MENU_NORMAL_ITEM,
   );
-  $items[] = array(
-    'path' => 'mimemail',
-    'callback' => 'mimemail_post',
-    'access' => variable_get('mimemail_incoming', FALSE),
+  $items['mimemail'] = array(
+    'page callback' => 'mimemail_post',
+    'access callback' => variable_get('mimemail_incoming', FALSE),
     'type' => MENU_CALLBACK,
   );
   return $items;
@@ -360,11 +358,18 @@ function mimemail_mailengine($op, $message = array()) {
 if (strpos(variable_get('smtp_library', ''), 'mimemail')
   && !function_exists('drupal_mail_wrapper')) {
 
-  function drupal_mail_wrapper($mailkey, $to, $subject, $body, $from, $headers) {
+  function drupal_mail_wrapper(&$message) {
+    $from = $message['from'];
+    $to = $message['to'];
+    $subject = $message['subject'];
     if ($format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT)) {
-      $body = check_markup($body, $format);
+      $body = check_markup($message['body'], $format);
     }
-
+    else {
+      $body = $message['body'];
+    }
+    $headers = isset($message['headers']) ? $message['headers'] : array();
+    $mailkey = isset($message['mailkey']) ? $message['mailkey'] : '';
     return mimemail($from, $to, $subject, $body, NULL, $headers, NULL, array(), $mailkey);
   }
 }
@@ -462,6 +467,17 @@ function mimemail_address($address) {
 }
 
 /**
+ * Implementation of hook_theme().
+ */
+function mimemail_theme() {
+  return array(
+    'mimemail_message' => array(
+      'arguments' => array('body' => NULL, 'mailkey' => NULL)
+    )
+  );
+}
+
+/**
  * Themes the message body.
  *
  * @param $body
@@ -482,7 +498,7 @@ function theme_mimemail_message($body, $mailkey = NULL) {
   $output .= '<style type="text/css"><!--';
   if (!file_exists($styles)) {
     // embed a version of all style definitions
-    $styles = preg_replace('|<style.*"'. base_path() .'([^"]*)".*|', '\1', drupal_get_css());
+    $styles = preg_replace('|<link.*href="'. base_path() .'([^"?]*)[?"].*|', '\1', drupal_get_css());
   }
   foreach (explode("\n", $styles) as $style) {
     if (file_exists($style)) $output .= file_get_contents($style);
