@@ -8,6 +8,8 @@
  *   Allie Micka < allie at pajunas dot com >
  */
 
+include drupal_get_path('module', 'mimemail') . '/html_to_text.inc';
+
 /**
  * Attempts to RFC822-compliant headers for the mail message or its MIME parts
  * TODO could use some enhancement and stress testing
@@ -54,45 +56,13 @@ function mimemail_headers($headers, $from = '') {
   // allow a mail to overwrite standard headers.
   $headers = array_merge(array('Return-Path' => "<$from_email>", 'Errors-To' => $from, 'From' => $from, 'Content-Type' => 'text/plain; charset=utf-8; format=flowed'), $headers);
 
+  // Run all headers through mime_header_encode() to convert non-ascii
+  // characters to an rfc compliant string, similar to drupal_mail().
+  foreach($headers as $key => $value) {
+    $headers[$key] = mime_header_encode($value);
+  }
+
   return $headers;
-}
-
-/**
- * Converts html to utf-8 encoded text.
- *
- * @param $txt html text that needs formatting.
- * @param $inline Optional. If TRUE put links in the text,
- *               if FALSE put a footnote into the text and
- *               a list of links below it. Default: FALSE
- *
- * @return formatted text encoded in utf-8
- */
-function mimemail_html_to_text($txt, $inline = FALSE) {
-  $pattern = '@(<a href="(.\S+?)"[^>]*>(.+?)</a>)@emi';
-  if ($inline) {
-    $txt = preg_replace($pattern, "_mimemail_uri('\\2', '\\3')", $txt);
-  }
-  else {
-    $txt = preg_replace($pattern, "'\\3 ['. _mimemail_urls('\\2') .']'", $txt);
-    $urls = _mimemail_urls();
-    if (count($urls)) {
-      $txt .= "\n";
-      $i = 0;
-      for ($max = count($urls); $i < $max; $i++) {
-        $url = preg_replace('/^mailto:(.+@.+)(\?.*)?/', '\1', $urls[$i]);
-        $txt .= '['. ($i + 1) .'] '. $url ."\n";
-      }
-    }
-    _mimemail_urls(0, TRUE);
-  }
-
-  // some basic html to text conversion
-  $replace = _mimemail_html2text();
-  $txt = preg_replace(array_keys($replace), $replace, $txt);
-  $txt = preg_replace("/\n\s+\n/", "\n\n", $txt);
-  $txt = strip_tags($txt);
-  $txt = decode_entities($txt);
-  return wordwrap($txt, 80);
 }
 
 /**
@@ -116,8 +86,9 @@ function mimemail_html_to_text($txt, $inline = FALSE) {
  *                  )
  */
 function mimemail_extract_files($html) {
-  $pattern = '/(<link[^>]+href="?|<object[^>]+codebase="?|@import |src="?)\/?([^"]+)("?)/emis';
-  $html = preg_replace($pattern, '"\\1". _mimemail_file("\\2") ."\\3"', $html);
+  $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |src=[\'"]?)([^\'>"]+)([\'"]?)/emis';
+  $replace = 'stripslashes("\\1")._mimemail_file("\\2").stripslashes("\\3")'; 
+  $html = preg_replace($pattern, $replace, $html);
 
   $document = array(array(
     'Content-Type' => "text/html; charset=utf-8",
@@ -133,17 +104,33 @@ function mimemail_extract_files($html) {
 /**
  * Helper function to extract local files
  *
- * @param $file a link to a file
+ * @param $url a URL to a file
  *
  * @return an absolute :
  */
-function _mimemail_file($file = NULL, $type = '', $disposition = 'related') {
+function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'related') {
   static $files = array();
 
-  if ($file && !preg_match('@://|mailto:@', $file) && file_exists($file)) {
+  if ($url) {
+    $url = _mimemail_url($url, 'TRUE');
+
+    // If the $url is absolute, we're done here.
+    if (strpos($url, '://') || preg_match('!mailto:!', $url)) {
+      return $url;
+    }
+    else {
+    // The $url is a relative file path, continue processing.
+      $file = $url;
+    }
+  }
+
+  if ($file && file_exists($file)) {
     $content_id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
 
-    $new_file = array('name' => substr($file, strrpos($file, '/') + 1),
+    if (!$name) $name = substr($file, strrpos($file, '/') + 1);
+
+    $new_file = array(
+      'name' => $name,
       'file' => $file,
       'Content-ID' => $content_id,
       'Content-Disposition' => $disposition,
@@ -153,10 +140,6 @@ function _mimemail_file($file = NULL, $type = '', $disposition = 'related') {
     $files[] = $new_file;
 
     return 'cid:'. $content_id;
-  }
-
-  if ($file) {
-    return $file;
   }
 
   $ret = $files;
@@ -288,10 +271,20 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
     $text = mimemail_html_to_text($body);
   }
   if ($plaintext) {
-    return array(
-      'body' => $text,
-      'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
-    );
+    //Plain mail without attachment
+    if (empty($attachments)) {
+      return array(
+        'body' => $text, 
+        'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
+      );
+    }
+    //Plain mail has attachement
+    else {
+      $parts = array(array(
+      'content' => $text, 
+        'Content-Type' => 'text/plain; charset=utf-8',
+      ));
+    }
   }
   $content_type = 'multipart/alternative';
 
@@ -315,7 +308,7 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
   foreach ($attachments as $a) {
     $a = (object) $a;
     $content_type = 'multipart/mixed';
-    _mimemail_file($a->filepath, $a->filemime, 'attachment');
+    _mimemail_file($a->filepath, $a->filename, $a->filemime, 'attachment');
     $parts = array_merge($parts, _mimemail_file());
   }
 
@@ -375,7 +368,7 @@ function mimemail_parse($message) {
 
   // Make sure our text and html parts are accounted for
   if (isset($mail['html']) && !isset($mail['text'])) {
-    $mail['text'] = mimemail_html_to_text($mail['html']);
+     $mail['text'] = mimemail_html_to_text($mail['html']);
   }
   elseif (isset($mail['text']) && !isset($mail['html'])) {
     $mail['html'] = check_markup($mail['text']);
@@ -482,115 +475,46 @@ function mimemail_parse_attachment($part) {
 /**
  * Helper function to format urls
  *
- */
-function _mimemail_uri($href, $link) {
-  $href = _mimemail_url($href);
-  if ($href == $link) {
-    $output = '['. $href .']';
-  }
-  else {
-    $output = $link .' ['. $href .']';
-  }
-  return $output;
-}
-
-/**
- * Helper function to format urls
- *
  * @param $url an url
  *
  * @return an absolute url, sans mailto:
  */
-function _mimemail_url($url) {
-  if (strpos($url, '://')) {
+function _mimemail_url($url, $embed_file = NULL) {
+  global $base_url;
+  $url = urldecode($url); 
+
+  // If the URL is absolute or a mailto, return it as-is.
+  if (strpos($url, '://') || preg_match('!mailto:!', $url)) {
+    $url = str_replace(' ', '%20', $url);
     return $url;
   }
 
-  if (preg_match('!mailto:!i', $url)) {
-    return $url;
-  }
+  $url = preg_replace( '!^'. base_path() .'!', '', $url, 1);
 
-  $url = preg_replace( '!'. base_path() .'!', '', $url, 1);
+  // If we're processing to embed the file, we're done here so return.
+  if ($embed_file) return $url;
+
+  if (!preg_match('!^\?q=*!', $url)) {
+    $strip_clean = TRUE;
+  }
+  
   $url = str_replace('?q=', '', $url);
   list($url, $fragment) = explode('#', $url, 2);
   list($path, $query) = explode('?', $url, 2);
-
+  
+  // If we're dealing with an intra-document reference, return it.
   if (empty($path) && !empty($fragment)) {
     return '#'. $fragment;
   }
 
-  return url($path, $query, $fragment, TRUE);
-}
+  // If we have not yet returned, then let's clean things up and leave.
+  $url = url($path, $query, $fragment, TRUE);
+  
+  // If url() added a ?q= where there should not be one, remove it.
+  if ($strip_clean) $url = preg_replace('!\?q=!', '', $url);
 
-/**
- * Helper function to store processed urls.
- *
- * @param $url Optional.
- * @param $refresh Optional. If TRUE refresh the cache.
- *
- * @return a count of stored if $url evaluates to false, the stored urls ortherwise.
- */
-function _mimemail_urls($url = 0, $refresh = FALSE) {
-  static $urls = array();
-
-  if ($refresh) {
-    $urls = array();
-  }
-
-  if ($url) {
-    $urls[] = _mimemail_url($url);
-    return count($urls);
-  }
-
-  return $urls;
-}
-
-function _mimemail_html2text() {
-  return array(
-    "/\r/"                              => '',
-    "/[\t]+/"                           => '  ',
-    '/<script[^>]*>.*?<\/script>/i'     => '',
-    '/<style[^>]*>.*?<\/style>/i'       => '',
-    '!<h1[^>]*>(.+?)</h1>!ie'           => "\"\n\" .strtoupper('\\1').\"\n============================================================\n\"",
-    '!<h2[^>]*>(.+?)</h2>!ie'           => "\"\n------------------------------------------------------------\n\" .'\\1'.\"\n------------------------------------------------------------\n\"",
-    '/<h3[^>]*>(.+?)<\/h3>/ie'          => "\"\n\n\\1\n\n\"",
-    '/<h[456][^>]*>(.+?)<\/h[456]>/ie'  => "\"\n\\1\n\"",
-    '!<blockquote[^>]*>!i'              => "\n\n\t",
-    '!</blockquote>!i'                  => "\n\n",
-    '!</?p[^>]*>!i'                     => "\n\n",
-    '/<br[^>]*>/i'                      => "\n",
-    '/(<(u|o|d)l[^>]*>|<\/(u|o|d)l>)/i' => "\n\n",
-    '!<(li|dt)[^>]*>!i'                 => "  * ",
-    '!<dd[^>]*>!i'                      => "    ",
-    '!</(li|dt|dd)>!i'                  => "\n",
-    '/<hr[^>]*>/i'                      => "\n-------------------------\n",
-    '/(<table[^>]*>|<\/table>)/i'       => "\n\n",
-    '/(<tr[^>]*>|<\/tr>)/i'             => "\n",
-    '/<td[^>]*>(.+?)<\/td>/i'           => "\t\t\\1\n",
-    '/<th[^>]*>(.+?)<\/th>/i'           => "\"\t\t\\1\n\"",
-    '/&nbsp;/i'                         => " ",
-    '/&quot;/i'                         => '"',
-    '/&gt;/i'                           => '>',
-    '/&lt;/i'                           => '<',
-    '/&amp;/i'                          => '&',
-    '/&copy;/i'                         => '(c)',
-    '/&trade;/i'                        => '(tm)',
-    '/&#8220;/'                         => '"',
-    '/&#8221;/'                         => '"',
-    '/&#8211;/'                         => '-',
-    '/&#8217;/'                         => "'",
-    '/&#38;/'                           => '&',
-    '/&#169;/'                          => '(c)',
-    '/&#8482;/'                         => '(tm)',
-    '/&#151;/'                          => '--',
-    '/&#145;/'                          => '\'',
-    '/&#147;/'                          => '"',
-    '/&#148;/'                          => '"',
-    '/&#149;/'                          => '*',
-    '/&reg;/i'                          => '(R)',
-    '/&bull;/i'                         => '*',
-    '/&[&;]+;/i'                        => '',
-  );
+  $url = str_replace('+', '%20', $url);
+  return $url; 
 }
 
 /**

@@ -65,6 +65,10 @@ function mimemail_settings() {
     '#default_value' => variable_get('mimemail_alter', 0),
     '#description'   => t('Use the mime mail module to deliver all site messages.  With this option, system emails will have styles and formatting'),
   );
+
+  $filter_format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
+  $form['mimemail']['mimemail_format'] =  filter_form($filter_format, NULL, array("mimemail_format"));
+
   $form['mimemail']['mimemail_textonly'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Plaintext email only'),
@@ -244,6 +248,15 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext = NULL, $head
     return FALSE;
   }
 
+  // Allow modules implementing hook_mail_alter() to function when all 
+  // mail is routed through mimemail.
+  //  - doesn't support passing all the variables used here (e.g. attachements)
+  //  - should also provide a hook_mimemail_alter for full mimemail support
+  foreach (module_implements('mail_alter') as $module) {
+    $function = $module .'_mail_alter';
+    $function($mailkey, $recipient, $subject, $body, $sender, $headers);
+  }
+
   $engine_prepare = variable_get('mimemail_engine', 'mimemail') .'_prepare';
   if (function_exists($engine_prepare)) {
     $message = $engine_prepare($sender, $recipient, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey);
@@ -348,39 +361,12 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
   && !function_exists('drupal_mail_wrapper')) {
 
   function drupal_mail_wrapper($mailkey, $to, $subject, $body, $from, $headers) {
+    if ($format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT)) {
+      $body = check_markup($body, $format);
+    }
+
     return mimemail($from, $to, $subject, $body, NULL, $headers, NULL, array(), $mailkey);
   }
-}
-
-/**
- * Modifys messages being sent through drupal_mail.
- *
- * Remove's unauthorized HTML from the body of a message being sent through
- * drupal_mail() before it does it's final processing.
- *
- * @param $mailkey
- *   An identifier for the message.
- * @param $recipient
- *   An email address or user object who is receiving the message.
- * @param $subject
- *   A subject line string.
- * @param $body
- *   The message body in HTML format.
- * @param $sender
- *   The email address or user object who is sending the message.
- * @param $headers
- *   Optional e-mail headers in a keyed array.
- * @return
- *   Returns the resultss of the call to mimemail().
- */
-function mimemail_mail_alter($mailkey, &$recipient, &$subject, &$body, &$sender, &$headers) {
-
-  if (!variable_get('mimemail_alter', 0)) return;
-
-  // attempt to fixup non-html messages that are being sent through drupal_mail
-  // I'm open to suggestions for better ways of doing this
-  $body = check_markup($body, FILTER_FORMAT_DEFAULT);
-  return;
 }
 
 /**
@@ -441,7 +427,7 @@ function mimemail_address($address) {
         return $address['mail'];
       }
       else {
-        return '"'. addslashes($address['name']) .'" <'. $address['mail'] .'>';
+        return '"'. addslashes(mime_header_encode($address['name'])) .'" <'. $address['mail'] .'>';
       }
     }
 
@@ -455,7 +441,7 @@ function mimemail_address($address) {
 
   // it's a user object
   if (is_object($address) && isset($address->mail)) {
-    return '"'. addslashes($address->name) .'" <'. $address->mail .'>';
+    return '"'. addslashes(mime_header_encode($address->name)) .'" <'. $address->mail .'>';
   }
 
   // it's formatted or unformatted string
@@ -467,7 +453,7 @@ function mimemail_address($address) {
   // it's null.  return the site default address
   if (is_null($address)) {
     return array(
-      'name' => variable_get('site_name', 'Drupal'),
+      'name' => mime_header_encode(variable_get('site_name', 'Drupal')),
       'mail' => variable_get('site_mail', ini_get('sendmail_from')),
     );
   }
@@ -499,7 +485,7 @@ function theme_mimemail_message($body, $mailkey = NULL) {
     $styles = preg_replace('|<style.*"'. base_path() .'([^"]*)".*|', '\1', drupal_get_css());
   }
   foreach (explode("\n", $styles) as $style) {
-    $output .= file_get_contents($style);
+    if (file_exists($style)) $output .= file_get_contents($style);
   }
   $output .= '--></style></head><body id="mimemail-body"><div id="center"><div id="main">'. $body .'</div></div></body></html>';
   // compress output
