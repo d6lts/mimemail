@@ -268,8 +268,7 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
     // todo: remove this preg_replace once filter_xss() is properly handling
     // direct descendant css selectors '>' in inline CSS. For now this cleans
     // up our plain text part. See mimemail #364198, drupal #370903
-    $reg = '/.*?<body[^>]*>(.*?)<\/body>.*?/';
-    $text = preg_replace($reg, '\\1', $body);
+    $text = preg_replace('|<style.*</style>|', '', $body);
     $text = drupal_html_to_text($text);
   }
   if ($plaintext) {
