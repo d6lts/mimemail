@@ -493,7 +493,8 @@ function theme_mimemail_message($body, $mailkey = NULL) {
 
   // attempt to include a mail-specific version of the css.
   // if you want smaller mail messages, add a mail.css file to your theme
-  $styles = path_to_theme() .'/mail.css';
+  $theme  = variable_get('theme_default', NULL); 
+  $styles = drupal_get_path('theme', $theme) .'/mail.css';
 
   $output .= '<style type="text/css"><!--';
   if (!file_exists($styles)) {

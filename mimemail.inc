@@ -265,8 +265,12 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
  */
 function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $attachments = array()) {
   if (is_null($text)) {
-    //generate plaintext alternative
-    $text = drupal_html_to_text($body);
+    // todo: remove this preg_replace once filter_xss() is properly handling
+    // direct descendant css selectors '>' in inline CSS. For now this cleans
+    // up our plain text part. See mimemail #364198, drupal #370903
+    $reg = '/.*?<body[^>]*>(.*?)<\/body>.*?/';
+    $text = preg_replace($reg, '\\1', $body);
+    $text = drupal_html_to_text($text);
   }
   if ($plaintext) {
     //Plain mail without attachment
