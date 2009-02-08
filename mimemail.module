@@ -362,7 +362,8 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
     $from = $message['from'];
     $to = $message['to'];
     $subject = $message['subject'];
-    if ($format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT)) {
+    if (preg_match('/plain/',$message['headers']['Content-Type'])) {
+      $format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
       $body = check_markup($message['body'], $format);
     }
     else {
