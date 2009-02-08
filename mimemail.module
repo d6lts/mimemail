@@ -362,8 +362,9 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
     $from = $message['from'];
     $to = $message['to'];
     $subject = $message['subject'];
-    if ($format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT)) {
-      $body = check_markup($message['body'], $format);
+    if (preg_match('/plain/',$message['headers']['Content-Type'])) {
+      $format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
+      $body = check_markup($message['body'], $format, FALSE);
     }
     else {
       $body = $message['body'];
@@ -493,7 +494,8 @@ function theme_mimemail_message($body, $mailkey = NULL) {
 
   // attempt to include a mail-specific version of the css.
   // if you want smaller mail messages, add a mail.css file to your theme
-  $styles = path_to_theme() .'/mail.css';
+  $theme  = variable_get('theme_default', NULL); 
+  $styles = drupal_get_path('theme', $theme) .'/mail.css';
 
   $output .= '<style type="text/css"><!--';
   if (!file_exists($styles)) {
