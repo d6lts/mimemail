@@ -390,7 +390,7 @@ function mimemail_post() {
   $hash    = md5(variable_get('mimemail_key', '**') . $message );
 
   if ($hash != $token) {
-    watchdog('access denied', t('Authentication error for POST e-mail'), WATCHDOG_WARNING);
+    watchdog('access denied', 'Authentication error for POST e-mail', WATCHDOG_WARNING);
     return drupal_access_denied();
   }
   return mimemail_incoming($message);
