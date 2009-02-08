@@ -90,8 +90,8 @@ function mimemail_extract_files($html) {
 
   $document = array(array(
     'Content-Type' => "text/html; charset=utf-8",
-    'Content-Transfer-Encoding' => 'base64',
-    'content' => chunk_split(base64_encode($html)),
+    'Content-Transfer-Encoding' => '8bit',
+    'content' => $html,
   ));
 
   $files = _mimemail_file();
