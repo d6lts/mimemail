@@ -85,7 +85,7 @@ function mimemail_headers($headers, $from = '') {
  */
 function mimemail_extract_files($html) {
   $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |src=[\'"]?)([^\'>"]+)([\'"]?)/emis';
-  $replace = 'stripslashes("\\1")._mimemail_file("\\2").stripslashes("\\3")'; 
+  $replace = 'stripslashes("\\1")._mimemail_file("\\2").stripslashes("\\3")';
   $html = preg_replace($pattern, $replace, $html);
 
   $document = array(array(
@@ -268,22 +268,21 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
     // todo: remove this preg_replace once filter_xss() is properly handling
     // direct descendant css selectors '>' in inline CSS. For now this cleans
     // up our plain text part. See mimemail #364198, drupal #370903
-    $reg = '/.*?<body[^>]*>(.*?)<\/body>.*?/';
-    $text = preg_replace($reg, '\\1', $body);
+    $text = preg_replace('|<style.*</style>|', '', $body);
     $text = drupal_html_to_text($text);
   }
   if ($plaintext) {
     //Plain mail without attachment
     if (empty($attachments)) {
       return array(
-        'body' => $text, 
+        'body' => $text,
         'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
       );
     }
     //Plain mail has attachement
     else {
       $parts = array(array(
-      'content' => $text, 
+      'content' => $text,
         'Content-Type' => 'text/plain; charset=utf-8',
       ));
     }
@@ -370,7 +369,8 @@ function mimemail_parse($message) {
 
   // Make sure our text and html parts are accounted for
   if (isset($mail['html']) && !isset($mail['text'])) {
-     $mail['text'] = drupal_html_to_text($mail['html']);
+    $mail['text'] = preg_replace('|<style.*</style>|', '', $mail['html']);
+    $mail['text'] = drupal_html_to_text($mail['text']);
   }
   elseif (isset($mail['text']) && !isset($mail['html'])) {
     $format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
@@ -485,7 +485,7 @@ function mimemail_parse_attachment($part) {
  */
 function _mimemail_url($url, $embed_file = NULL) {
   global $base_url;
-  $url = urldecode($url); 
+  $url = urldecode($url);
 
   // If the URL is absolute or a mailto, return it as-is.
   if (strpos($url, '://') || preg_match('!mailto:!', $url)) {
@@ -501,11 +501,11 @@ function _mimemail_url($url, $embed_file = NULL) {
   if (!preg_match('!^\?q=*!', $url)) {
     $strip_clean = TRUE;
   }
-  
+
   $url = str_replace('?q=', '', $url);
   list($url, $fragment) = explode('#', $url, 2);
   list($path, $query) = explode('?', $url, 2);
-  
+
   // If we're dealing with an intra-document reference, return it.
   if (empty($path) && !empty($fragment)) {
     return '#'. $fragment;
@@ -514,12 +514,12 @@ function _mimemail_url($url, $embed_file = NULL) {
   // If we have not yet returned, then let's clean things up and leave.
   $url = url($path, array('query' => $query, 'fragment' => $fragment, 'absolute' => TRUE));
 
-  
+
   // If url() added a ?q= where there should not be one, remove it.
   if ($strip_clean) $url = preg_replace('!\?q=!', '', $url);
 
   $url = str_replace('+', '%20', $url);
-  return $url; 
+  return $url;
 }
 
 /**
