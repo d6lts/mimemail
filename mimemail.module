@@ -274,64 +274,46 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
  * Implementation of hook_theme().
  */
 function mimemail_theme() {
+  $path = drupal_get_path('module', 'mimemail') .'/includes';
+
   return array(
     'mimemail_message' => array(
-      'arguments' => array('body' => NULL, 'mailkey' => NULL)
+      'arguments' => array('body' => NULL, 'mailkey' => NULL),
+      'template' => 'mimemail',
+      'pattern' => 'mimemail__',
+      'path' => $path,
     )
   );
 }
 
 /**
- * Themes the message body.
+ * A preprocess function for theme('mimemail_message').
  *
- * @param $body
- *   The message body to theme.
- * @param $mailkey
- *   An identifier for the message.
- * @return
- *   The themed HTML message body.
+ * The $variables array initially contains the following arguments:
+ * - $body:  The message body
+ * - $mailkey:  The mailkey associated with the message
+ *
+ * See includes/mimemail.tpl.php for additional variables
  */
-function theme_mimemail_message($body, $mailkey = NULL) {
-  // attempt to include a mail-specific version of the css.
-  // if you want smaller mail messages, add a mail.css file to your theme
-  $theme  = variable_get('theme_default', NULL);
+function template_preprocess_mimemail_message(&$variables) {
+  $theme = variable_get('theme_default', NULL);
 
-  // If we have a $mailkey, check for a mailkey-specific style sheet and
-  // set it as a class for <body>.
-  if ($mailkey) {
-    $styles = drupal_get_path('theme', $theme) .'/mail-'. $mailkey .'.css';
-    $class  = ' class="mail-'. $mailkey .'"';
-  }
+  // Check for the existence of a mail.css file in the current theme folder
   if (!file_exists($styles)) {
     $styles = drupal_get_path('theme', $theme) .'/mail.css';
   }
 
+  // If no mail.css was found, gather all style sheets
   if (!file_exists($styles)) {
     // embed a version of all style definitions
-    $styles = preg_replace('|<link.*href="'. base_path() .'([^"?]*)[?"].*|', '\1', drupal_get_css());
+    $styles = preg_replace('|<link.*href="'. base_path()
+                           .'([^"?]*)[?"].*|', '\1', drupal_get_css());
   }
+
+  // Process each style sheet
   foreach (explode("\n", $styles) as $style) {
     if (file_exists($style)) $css .= file_get_contents($style);
   }
 
-  $html  = '<html><head>';
-  $html .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
-
-  if (module_exists('mimemail_css_combiner')) {
-    $css = preg_replace('|\{|',"\n{\n", $css);
-    $css = preg_replace('|\}|',"\n}\n", $css);
-    $html .= '</head><body id="mimemail-body"'. $class .'><div id="center">';
-    $html .= '<div id="main">'. $body .'</div></div></body></html>';
-    $html = preg_replace('|</p>|','',$html);
-    $output = new mimemail_css_combiner($html, $css);
-    $output = $output->combine();
-  }
-  else {
-    $html .= '<style type="text/css"><!--'. $css .'--></style>';
-    $html .= '</head><body id="mimemail-body"><div id="center">';
-    $html .= '<div id="main">'. $body .'</div></div></body></html>';
-    $output = $html;
-  }
-
-  return $output; // preg_replace('/\s+|\n|\r|^\s|\s$/', ' ', $output);
+  $variables['css'] = str_replace(' ','', str_replace("\n", '', $css));
 }

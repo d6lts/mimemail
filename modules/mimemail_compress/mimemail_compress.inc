@@ -1,15 +1,20 @@
 <?php // $Id$
 
+function mimemail_compress_clean_message($message) {
+  $parts = array();
+  return $parts;
+}
+
 class mimemail_compress {
   private $html = '';
   private $css  = '';
 
-  public function mimemail_css_combiner($html = '', $css = '') {
+  public function mimemail_compress($html = '', $css = '') {
     $this->html = $html;
     $this->css  = $css;
   }
 
-  public function combine() {
+  public function compress() {
     $doc = new DOMDocument('1.0', 'utf8');
     $doc->strictErrorChecking = false;
     $doc->formatOutput = true;
@@ -30,9 +35,9 @@ class mimemail_compress {
             $style = $node->getAttribute('style');
             $old_style = $this->css_style_to_array($node->getAttribute('style'));
             $new_style = $this->css_style_to_array($matches[2][$key]);
-            $combined = array_merge($old_style,$new_style);
+            $compressed = array_merge($old_style,$new_style);
             $style = '';
-            foreach ($combined as $k => $v) $style .= ($k . ':' . $v . ';');
+            foreach ($compressed as $k => $v) $style .= ($k . ':' . $v . ';');
           }
           else {
             $style = trim($matches[2][$key]);

@@ -1,1 +1,19 @@
 <?php // $Id$
+
+/**
+ * @file
+ * Component module for sending Mime-encoded emails.
+ */
+
+/**
+ * Mimemail postprocess
+ */
+function mimemail_compress_mime_message_post_process(&$message) {
+  module_load_include('inc', 'mimemail_compress');
+  // Separate CSS from HTML for processing
+  $parts = mimemail_compress_clean_message($message);
+  // Compress HTML and CSS into combined message
+  $output = new mimemail_compress($parts['html'], $parts['css']);
+  $output = $output->compress();
+  return $output;
+}
