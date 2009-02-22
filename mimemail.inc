@@ -133,7 +133,7 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
       'Content-ID' => $content_id,
       'Content-Disposition' => $disposition,
     );
-    $new_file['Content-Type'] = _mimemail_mimetype($file, $type);
+    $new_file['Content-Type'] = file_get_mimetype($file);
 
     $files[] = $new_file;
 
@@ -228,7 +228,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
       }
 
       if (!isset($part['Content-Type'])) {
-        $part['Content-Type'] = _mimemail_mimetype($part['file'], $type);
+        $part['Content-Type'] = file_get_mimetype($part['file']);
       }
 
       if (isset($part['name'])) {
@@ -520,38 +520,4 @@ function _mimemail_url($url, $embed_file = NULL) {
 
   $url = str_replace('+', '%20', $url);
   return $url;
-}
-
-/**
- * Attempt to determine the mimetime from or filename .  While not ideal,
- * using the filename as a fallback ensures that images will appear inline
- * in HTML messages
- *
- * @param $name Name of the file
- *
- * @return best-guess mimetype string
- */
-function _mimemail_mimetype($file, $type = '') {
-  if ($type) {
-    return $type;
-  }
-
-  if (function_exists('mime_content_type')) {
-      return mime_content_type($file);
-  }
-
-  // some common embedded/attachment types
-  $types = array(
-    'jpg'  => 'image/jpeg',
-    'jpeg' => 'image/jpeg',
-    'gif'  => 'image/gif',
-    'png'  => 'image/png',
-  );
-  $ext = strtolower(substr(strrchr($file, '.'), 1));
-
-  if (isset($types[$ext])) {
-    return $types[$ext];
-  }
-
-  return 'application/octet-stream';
 }
