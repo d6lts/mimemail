@@ -1,7 +1,6 @@
-<?php
-error_reporting(0);
+<?php // $Id$
 
-class mimemail_css_combiner {
+class mimemail_compress {
   private $html = '';
   private $css  = '';
 
