@@ -1,0 +1,6 @@
+; $Id$
+name = Mime Mail CSS Combiner
+description = Converts CSS to inline styles in an html message. Requires PHP 5.x
+package = Mail
+dependencies[] = mimemail
+core = 6.x
