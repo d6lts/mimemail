@@ -274,7 +274,7 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
  * Implementation of hook_theme().
  */
 function mimemail_theme() {
-  $path = drupal_get_path('module', 'mimemail') .'/includes';
+  $path = drupal_get_path('module', 'mimemail') .'/theme';
 
   return array(
     'mimemail_message' => array(
