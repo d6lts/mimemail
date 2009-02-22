@@ -493,7 +493,16 @@ function theme_mimemail_message($body, $mailkey = NULL) {
   // attempt to include a mail-specific version of the css.
   // if you want smaller mail messages, add a mail.css file to your theme
   $theme  = variable_get('theme_default', NULL);
-  $styles = drupal_get_path('theme', $theme) .'/mail.css';
+
+  // If we have a $mailkey, check for a mailkey-specific style sheet and
+  // set it as a class for <body>.
+  if ($mailkey) {
+    $styles = drupal_get_path('theme', $theme) .'/mail-'. $mailkey .'.css';
+    $class  = ' class="mail-'. $mailkey .'"';
+  }
+  if (!file_exists($styles)) {
+    $styles = drupal_get_path('theme', $theme) .'/mail.css';
+  }
 
   if (!file_exists($styles)) {
     // embed a version of all style definitions
@@ -509,7 +518,7 @@ function theme_mimemail_message($body, $mailkey = NULL) {
   if (module_exists('mimemail_css_combiner')) {
     $css = preg_replace('|\{|',"\n{\n", $css);
     $css = preg_replace('|\}|',"\n}\n", $css);
-    $html .= '</head><body id="mimemail-body"><div id="center">';
+    $html .= '</head><body id="mimemail-body"'. $class .'><div id="center">';
     $html .= '<div id="main">'. $body .'</div></div></body></html>';
     $html = preg_replace('|</p>|','',$html);
     $output = new mimemail_css_combiner($html, $css);
