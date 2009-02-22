@@ -221,7 +221,7 @@ function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext = NUL
       }
     }
   }
-  $subject = mime_header_encode($subject);
+  $subject = mime_header_encode(drupal_html_to_text($subject));
 
   $plaintext = $plaintext || variable_get('mimemail_textonly', 0);
   $sender    = mimemail_address($sender);
