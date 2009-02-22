@@ -137,7 +137,7 @@ function mimemail_settings() {
 /**
  * Implementation of hook_user().
  */
-function mimemail_user($op, &$edit, &$user, $category = '') {
+function mimemail_user($op, &$edit, &$account, $category = '') {
   if ($op == 'form' && $category == 'account') {
     $form = array();
     $form['mimemail'] = array(
@@ -149,7 +149,7 @@ function mimemail_user($op, &$edit, &$user, $category = '') {
     $form['mimemail']['mimemail_textonly'] = array(
       '#type'           => 'checkbox',
       '#title'           => t('Plaintext email only'),
-      '#default_value'   => $user->mimemail_textonly,
+      '#default_value'   => $account->mimemail_textonly,
       '#description'     => t('Check this option if you do not wish to receive email messages with graphics and styles'),
     );
     return $form;
