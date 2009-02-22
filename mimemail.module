@@ -9,6 +9,7 @@
  * Implementation of hook_menu()
  */
 function mimemail_menu() {
+  $path = drupal_get_path('module', 'mimemail') .'/includes';
   $items['admin/settings/mimemail'] = array(
     'title' => 'Mime Mail',
     'description' => 'HTML E-mail settings',
@@ -17,11 +18,14 @@ function mimemail_menu() {
     'access arguments' => array('administer site configuration'),
     'type' => MENU_NORMAL_ITEM,
     'file' => 'mimemail.admin.inc',
+    'file path' => $path,
   );
   $items['mimemail'] = array(
     'page callback' => 'mimemail_post',
     'access callback' => variable_get('mimemail_incoming', FALSE),
     'type' => MENU_CALLBACK,
+    'file' => 'mimemail.incoming.inc',
+    'file path' => $path,
   );
   return $items;
 }
@@ -89,8 +93,7 @@ function mimemail_user($op, &$edit, &$account, $category = '') {
  *   An array containing the MIME encoded message, including headers and body.
  */
 function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext = NULL, $headers = array(), $text = NULL, $attachments = array(), $mailkey = '') {
-
-  require_once dirname(__FILE__) .'/mimemail.inc';
+  module_load_include('inc', 'mimemail');
 
   if (is_null($sender)) {        // use site default for sender
     $sender = array(
@@ -265,98 +268,6 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
     $mailkey = isset($message['mailkey']) ? $message['mailkey'] : '';
     return mimemail($from, $to, $subject, $body, NULL, $headers, NULL, array(), $mailkey);
   }
-}
-
-/**
- * Receive messages POSTed from an external source.
- *
- * This function enables messages to be sent via POST or some other RFC822
- * source input (e.g. directly from a mail server).
- *
- * @return
- *   The POSTed message.
- */
-function mimemail_post() {
-  $message = $_POST['message'];
-  $token   = $_POST['token'];
-  $hash    = md5(variable_get('mimemail_key', '**') . $message );
-
-  if ($hash != $token) {
-    watchdog('access denied', 'Authentication error for POST e-mail', WATCHDOG_WARNING);
-    return drupal_access_denied();
-  }
-  return mimemail_incoming($message);
-}
-
-/**
- * Parses an externally received message.
- *
- * @param $message
- *   The message to parse.
- */
-function mimemail_incoming($message) {
-  require_once dirname(__FILE__) .'/mimemail.inc';
-  $mail = mimemail_parse($message);
-
-  foreach (module_implements('mimemail_incoming_alter') as $module) {
-    call_user_func_array($module .'_mimemail_incoming_alter', $mail);
-  }
-
-  module_invoke_all('mimemail_incoming', $mail);
-}
-
-/**
- * Formats an address string.
- * TODO could use some enhancement and stress testing.
- *
- * @param $address
- *   A user object, a text email address or an array containing name, mail.
- * @return
- *   A formatted address string or FALSE.
- */
-function mimemail_address($address) {
-
-  if (is_array($address)) {
-
-    // it's an array containing 'mail' and/or 'name'
-    if (isset($address['mail'])) {
-      $output = '';
-      if (empty($address['name'])) {
-        return $address['mail'];
-      }
-      else {
-        return '"'. addslashes(mime_header_encode($address['name'])) .'" <'. $address['mail'] .'>';
-      }
-    }
-
-    // it's an array of address items
-    $addresses = array();
-    foreach ($address as $a) {
-      $addresses[] = mimemail_address($a);
-    }
-    return $addresses;
-  }
-
-  // it's a user object
-  if (is_object($address) && isset($address->mail)) {
-    return '"'. addslashes(mime_header_encode($address->name)) .'" <'. $address->mail .'>';
-  }
-
-  // it's formatted or unformatted string
-  // TODO shouldn't assume it's valid - should try to re-parse
-  if (is_string($address)) {
-    return $address;
-  }
-
-  // it's null.  return the site default address
-  if (is_null($address)) {
-    return array(
-      'name' => mime_header_encode(variable_get('site_name', 'Drupal')),
-      'mail' => variable_get('site_mail', ini_get('sendmail_from')),
-    );
-  }
-
-  return FALSE;
 }
 
 /**

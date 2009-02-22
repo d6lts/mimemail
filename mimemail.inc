@@ -521,3 +521,57 @@ function _mimemail_url($url, $embed_file = NULL) {
   $url = str_replace('+', '%20', $url);
   return $url;
 }
+
+/**
+ * Formats an address string.
+ * TODO could use some enhancement and stress testing.
+ *
+ * @param $address
+ *   A user object, a text email address or an array containing name, mail.
+ * @return
+ *   A formatted address string or FALSE.
+ */
+function mimemail_address($address) {
+
+  if (is_array($address)) {
+
+    // it's an array containing 'mail' and/or 'name'
+    if (isset($address['mail'])) {
+      $output = '';
+      if (empty($address['name'])) {
+        return $address['mail'];
+      }
+      else {
+        return '"'. addslashes(mime_header_encode($address['name'])) .'" <'. $address['mail'] .'>';
+      }
+    }
+
+    // it's an array of address items
+    $addresses = array();
+    foreach ($address as $a) {
+      $addresses[] = mimemail_address($a);
+    }
+    return $addresses;
+  }
+
+  // it's a user object
+  if (is_object($address) && isset($address->mail)) {
+    return '"'. addslashes(mime_header_encode($address->name)) .'" <'. $address->mail .'>';
+  }
+
+  // it's formatted or unformatted string
+  // TODO shouldn't assume it's valid - should try to re-parse
+  if (is_string($address)) {
+    return $address;
+  }
+
+  // it's null.  return the site default address
+  if (is_null($address)) {
+    return array(
+      'name' => mime_header_encode(variable_get('site_name', 'Drupal')),
+      'mail' => variable_get('site_mail', ini_get('sendmail_from')),
+    );
+  }
+
+  return FALSE;
+}
