@@ -117,10 +117,15 @@ function mimemail_prepare($sender, $recipient, $subject, $body, $plaintext = NUL
     }
   }
   $subject = mime_header_encode(drupal_html_to_text($subject));
+  $body = theme('mimemail_message', $body, $mailkey);
+  foreach (module_implements('mail_post_process') as $module) {
+    $function = $module .'_mail_post_process';
+    $function($body, $mailkey);
+  }
 
   $plaintext = $plaintext || variable_get('mimemail_textonly', 0);
   $sender    = mimemail_address($sender);
-  $mail      = mimemail_html_body(theme('mimemail_message', $body, $mailkey), $subject, $plaintext, $text, $attachments);
+  $mail      = mimemail_html_body($body, $subject, $plaintext, $text, $attachments);
   $headers   = array_merge($headers, $mail['headers']);
   $message   = array(
     'address' => mimemail_address($recipient),
