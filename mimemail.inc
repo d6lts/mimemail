@@ -108,6 +108,7 @@ function mimemail_extract_files($html) {
  */
 function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'related') {
   static $files = array();
+  static $filenames = array();
 
   if ($url) {
     $url = _mimemail_url($url, 'TRUE');
@@ -123,6 +124,9 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
   }
 
   if ($file && file_exists($file)) {
+    // Prevent duplicate items
+    if (isset($filenames[$file])) return 'cid:'. $filenames[$file];
+    
     $content_id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
 
     if (!$name) $name = substr($file, strrpos($file, '/') + 1);
@@ -136,6 +140,7 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
     $new_file['Content-Type'] = file_get_mimetype($file);
 
     $files[] = $new_file;
+    $filenames[$file] = $content_id;
 
     return 'cid:'. $content_id;
   }
