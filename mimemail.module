@@ -362,7 +362,7 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
 
   function drupal_mail_wrapper($mailkey, $to, $subject, $body, $from, $headers) {
     if ($format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT)) {
-      $body = check_markup($body, $format);
+      $body = check_markup($body, $format, FALSE);
     }
 
     return mimemail($from, $to, $subject, $body, NULL, $headers, NULL, array(), $mailkey);
