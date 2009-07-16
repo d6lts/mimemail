@@ -38,7 +38,7 @@ class mimemail_compress {
   }
 
   public function compress() {
-    error_reporting(0);
+    $err = error_reporting(0);
     $doc = new DOMDocument('1.0', 'utf8');
     $doc->strictErrorChecking = false;
     $doc->formatOutput = true;
@@ -72,6 +72,7 @@ class mimemail_compress {
     }
     $nodes = $xpath->query('//*[contains(translate(@style," ",""),"display:none;")]');
     foreach ($nodes as $node) $node->parentNode->removeChild($node);
+    error_reporting($err);
     return $doc->saveHTML();
   }
 
