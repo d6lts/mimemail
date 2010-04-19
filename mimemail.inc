@@ -153,6 +153,7 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
 
   $ret = $files;
   $files = array();
+  $filenames = array();
   return $ret;
 }
 
