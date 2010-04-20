@@ -43,5 +43,13 @@ function template_preprocess_mimemail_message(&$variables) {
     if (file_exists($style)) $css .= file_get_contents($style);
   }
 
-  $variables['css'] = str_replace(' ','', str_replace("\n", '', $css));
+  // Perform some safe CSS optimizations. (derived from core CSS aggregation)
+  $css = preg_replace('<
+    \s*([@{}:;,]|\)\s|\s\()\s[^\n\S]* |  # Remove whitespace around separators, but keep space around parentheses and new lines between definitions.
+    /\*([^*\\\\]|\*(?!/))+\*/ \s+    # Remove comments that are not CSS hacks.
+    >x', '\1', $css);
+  // Wordwrap to adhere to RFC821
+  $css = wordwrap($css, 700);
+  $variables['css'] = $css;
+
 }
