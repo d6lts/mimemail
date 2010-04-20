@@ -306,7 +306,7 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
       ));
     }
   }
-  $content_type = 'multipart/alternative';
+  $content_type = 'multipart/related; type="multipart/alternative"';
 
   $text_part = array('Content-Type' => 'text/plain; charset=utf-8', 'content' => $text);
 
@@ -317,22 +317,20 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
   $mime_parts = mimemail_extract_files($body);
 
   $content = array($text_part, array_shift($mime_parts));
-  $content = mimemail_multipart_body($content, $content_type, TRUE);
+  $content = mimemail_multipart_body($content, 'multipart/alternative', TRUE);
   $parts = array(array('Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']));
 
   if ($mime_parts) {
-    $content_type = 'multipart/related';
     $parts = array_merge($parts, $mime_parts);
   }
 
   foreach ($attachments as $a) {
     $a = (object) $a;
-    $content_type = 'multipart/mixed';
     _mimemail_file($a->filepath, $a->filename, $a->filemime, 'attachment');
     $parts = array_merge($parts, _mimemail_file());
   }
 
-  return mimemail_multipart_body($parts, "$content_type; charset=utf-8");
+  return mimemail_multipart_body($parts, $content_type);
 }
 
 function mimemail_parse($message) {
