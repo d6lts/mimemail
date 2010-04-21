@@ -45,7 +45,7 @@ function template_preprocess_mimemail_message(&$variables) {
 
   // Perform some safe CSS optimizations. (derived from core CSS aggregation)
   $css = preg_replace('<
-    \s*([@{}:;,]|\)\s|\s\()\s[^\n\S]* |  # Remove whitespace around separators, but keep space around parentheses and new lines between definitions.
+    \s*([@{}:;,]|\)\s|\s\()\s*[^\n\S] |  # Remove whitespace around separators, but keep space around parentheses and new lines between definitions.
     /\*([^*\\\\]|\*(?!/))+\*/ \s+    # Remove comments that are not CSS hacks.
     >x', '\1', $css);
   // Wordwrap to adhere to RFC821
