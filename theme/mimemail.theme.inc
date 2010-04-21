@@ -6,7 +6,7 @@ function mimemail_theme_theme() {
   return array(
     'mimemail_message' => array(
       'arguments' => array('body' => NULL, 'mailkey' => NULL),
-      'template' => 'mimemail',
+      'template' => 'mimemail-message',
       'pattern' => 'mimemail__',
       'file' => 'mimemail.theme.inc',
       'path' => $path,

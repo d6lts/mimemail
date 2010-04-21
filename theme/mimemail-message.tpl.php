@@ -1,7 +1,8 @@
-<?php // $Id$
+<?php 
+// $Id$
 
 /**
- * @file mimemail.tpl.php
+ * @file mimemail-message.tpl.php
  */
 ?>
 <html>
