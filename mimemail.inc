@@ -293,6 +293,7 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
   if ($plaintext) {
     //Plain mail without attachment
     if (empty($attachments)) {
+      $content_type = 'text/plain';
       return array(
         'body' => $text,
         'headers' => array('Content-Type' => 'text/plain; charset=utf-8'),
@@ -300,28 +301,31 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
     }
     //Plain mail has attachement
     else {
+      $content_type = 'multipart/mixed';
       $parts = array(array(
       'content' => $text,
         'Content-Type' => 'text/plain; charset=utf-8',
       ));
     }
   }
-  $content_type = 'multipart/related; type="multipart/alternative"';
+  else {
+    $content_type = 'multipart/related; type="multipart/alternative"';
 
-  $text_part = array('Content-Type' => 'text/plain; charset=utf-8', 'content' => $text);
+    $text_part = array('Content-Type' => 'text/plain; charset=utf-8', 'content' => $text);
 
-  //expand all local links
-  $pattern = '/(<a[^>]+href=")([^"]*)/mi';
-  $body = preg_replace_callback($pattern, '_mimemail_expand_links', $body);
+    //expand all local links
+    $pattern = '/(<a[^>]+href=")([^"]*)/mi';
+    $body = preg_replace_callback($pattern, '_mimemail_expand_links', $body);
 
-  $mime_parts = mimemail_extract_files($body);
+    $mime_parts = mimemail_extract_files($body);
 
-  $content = array($text_part, array_shift($mime_parts));
-  $content = mimemail_multipart_body($content, 'multipart/alternative', TRUE);
-  $parts = array(array('Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']));
+    $content = array($text_part, array_shift($mime_parts));
+    $content = mimemail_multipart_body($content, 'multipart/alternative', TRUE);
+    $parts = array(array('Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']));
 
-  if ($mime_parts) {
-    $parts = array_merge($parts, $mime_parts);
+    if ($mime_parts) {
+      $parts = array_merge($parts, $mime_parts);
+    }
   }
 
   foreach ($attachments as $a) {
