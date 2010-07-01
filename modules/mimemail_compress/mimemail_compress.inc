@@ -89,7 +89,7 @@ class mimemail_compress {
       '\\1/following-sibling::*[1]/self::\\2',
       '//',
       "(strlen('\\1') ? '\\1' : '*').'[@id=\"\\2\"]'",
-      "(strlen('\\1') ? '\\1' : '*').'[contains(concat(\" \",@class,\" \"),concat(\" \",\"\\2\",\" \"))]'",
+      "(strlen('\\1') ? '\\1' : '*').'[contains(concat(\" \",normalize-space(@class),\" \"),concat(\" \",\"\\2\",\" \"))]'",
     );
     return '//'.preg_replace($search, $replace, trim($selector));
   }
