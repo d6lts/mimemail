@@ -579,7 +579,12 @@ function mimemail_address($address) {
 
   // it's a user object
   if (is_object($address) && isset($address->mail)) {
-    return '"'. addslashes(mime_header_encode($address->name)) .'" <'. $address->mail .'>';
+    if (empty($address->name)) {
+      return $address->mail;
+    }
+    else {
+      return '"'. addslashes(mime_header_encode($address->name)) .'" <'. $address->mail .'>';
+    }
   }
 
   // it's formatted or unformatted string
