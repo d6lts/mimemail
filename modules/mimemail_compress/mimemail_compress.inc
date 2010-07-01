@@ -59,7 +59,7 @@ class mimemail_compress {
             $style = $node->getAttribute('style');
             $old_style = $this->css_style_to_array($node->getAttribute('style'));
             $new_style = $this->css_style_to_array($matches[2][$key]);
-            $compressed = array_merge($old_style,$new_style);
+            $compressed = array_merge($new_style, $old_style);
             $style = '';
             foreach ($compressed as $k => $v) $style .= ($k . ':' . $v . ';');
           }
