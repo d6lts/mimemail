@@ -248,7 +248,9 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
         $part_headers['Content-Disposition'] .= '; filename="'. $part['name'] .'"';
       }
 
-      $part_body = chunk_split(base64_encode(file_get_contents($part['file'])));
+      if (isset($part['file'])) {
+        $part_body = chunk_split(base64_encode(file_get_contents($part['file'])));
+      }
     }
 
     $body .= "\n--$boundary\n";
