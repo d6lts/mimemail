@@ -1,6 +1,15 @@
 <?php /* $Id$ */
 
 /**
+ * Implementation of hook_disable().
+ */
+function mimemail_disable() {
+  if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE) {
+    variable_del('smtp_library');
+  }
+}
+
+/**
  * Implementation of hook_uninstall()
  */
 function mimemail_uninstall() {
@@ -16,4 +25,3 @@ function mimemail_uninstall() {
     variable_del($variable);
   }
 }
-
