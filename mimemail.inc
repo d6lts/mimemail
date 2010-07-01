@@ -333,8 +333,10 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
 
   foreach ($attachments as $a) {
     $a = (object) $a;
-    _mimemail_file($a->filepath, $a->filename, $a->filemime, 'attachment');
-    $parts = array_merge($parts, _mimemail_file());
+    if($a->list) {
+      _mimemail_file($a->filepath, $a->filename, $a->filemime, 'attachment');
+      $parts = array_merge($parts, _mimemail_file());
+    }
   }
 
   return mimemail_multipart_body($parts, $content_type);
