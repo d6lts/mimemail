@@ -278,7 +278,7 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail')
       $body = $message['body'];
     }
     $headers = isset($message['headers']) ? $message['headers'] : array();
-    $mailkey = isset($message['mailkey']) ? $message['mailkey'] : '';
+    $mailkey = isset($message['id']) ? $message['id'] : '';
     return mimemail($from, $to, $subject, $body, NULL, $headers, NULL, array(), $mailkey);
   }
 }
