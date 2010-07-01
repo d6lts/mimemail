@@ -143,7 +143,8 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
       'Content-ID' => $content_id,
       'Content-Disposition' => $disposition,
     );
-    $new_file['Content-Type'] = file_get_mimetype($file);
+
+    $new_file['Content-Type'] = (!empty($name)) ? file_get_mimetype($name) : file_get_mimetype($file);
 
     $files[] = $new_file;
     $filenames[$file] = $content_id;
