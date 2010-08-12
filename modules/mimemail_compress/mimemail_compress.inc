@@ -38,42 +38,47 @@ class mimemail_compress {
   }
 
   public function compress() {
-    $err = error_reporting(0);
-    $doc = new DOMDocument('1.0', 'utf8');
-    $doc->strictErrorChecking = false;
-    $doc->formatOutput = true;
-    $doc->loadHTML($this->html);
-    $doc->normalizeDocument();
-    $xpath = new DOMXPath($doc);
-    $css = preg_replace('/\/\*.*\*\//sU', '', $this->css);
-    preg_match_all('/^\s*([^{]+){([^}]+)}/mis', $css, $matches);
+    if (class_exists('DOMDocument', FALSE)) {
+      $err = error_reporting(0);
+      $doc = new DOMDocument('1.0', 'utf8');
+      $doc->strictErrorChecking = false;
+      $doc->formatOutput = true;
+      $doc->loadHTML($this->html);
+      $doc->normalizeDocument();
+      $xpath = new DOMXPath($doc);
+      $css = preg_replace('/\/\*.*\*\//sU', '', $this->css);
+      preg_match_all('/^\s*([^{]+){([^}]+)}/mis', $css, $matches);
 
-    foreach ($matches[1] as $key => $selector_string) {
-      if (!strlen(trim($matches[2][$key]))) continue;
-      $selectors = explode(',',$selector_string);
-      foreach ($selectors as $selector) {
-        if (strpos($selector,':') !== false) continue;
-        $nodes = $xpath->query($this->css_to_xpath(trim($selector)));
-        foreach($nodes as $node) {
-          if ($node->hasAttribute('style')) {
-            $style = $node->getAttribute('style');
-            $old_style = $this->css_style_to_array($node->getAttribute('style'));
-            $new_style = $this->css_style_to_array($matches[2][$key]);
-            $compressed = array_merge($new_style, $old_style);
-            $style = '';
-            foreach ($compressed as $k => $v) $style .= ($k . ':' . $v . ';');
+      foreach ($matches[1] as $key => $selector_string) {
+        if (!strlen(trim($matches[2][$key]))) continue;
+        $selectors = explode(',',$selector_string);
+        foreach ($selectors as $selector) {
+          if (strpos($selector,':') !== false) continue;
+          $nodes = $xpath->query($this->css_to_xpath(trim($selector)));
+          foreach($nodes as $node) {
+            if ($node->hasAttribute('style')) {
+              $style = $node->getAttribute('style');
+              $old_style = $this->css_style_to_array($node->getAttribute('style'));
+              $new_style = $this->css_style_to_array($matches[2][$key]);
+              $compressed = array_merge($new_style, $old_style);
+              $style = '';
+              foreach ($compressed as $k => $v) $style .= ($k . ':' . $v . ';');
+            }
+            else {
+              $style = trim($matches[2][$key]);
+            }
+            $node->setAttribute('style',$style);
           }
-          else {
-            $style = trim($matches[2][$key]);
-          }
-          $node->setAttribute('style',$style);
         }
       }
+      $nodes = $xpath->query('//*[contains(translate(@style," ",""),"display:none;")]');
+      foreach ($nodes as $node) $node->parentNode->removeChild($node);
+      error_reporting($err);
+      return $doc->saveHTML();
     }
-    $nodes = $xpath->query('//*[contains(translate(@style," ",""),"display:none;")]');
-    foreach ($nodes as $node) $node->parentNode->removeChild($node);
-    error_reporting($err);
-    return $doc->saveHTML();
+    else {
+      return $this->html;
+    }
   }
 
   private function css_to_xpath($selector) {
