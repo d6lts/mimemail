@@ -136,7 +136,7 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
     }
   }
 
-  if ($file && @file_exists($file)) {
+  if (isset($file) && @file_exists($file)) {
     // Prevent duplicate items.
     if (isset($filenames[$file])) return 'cid:'. $filenames[$file];
 
@@ -229,7 +229,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
       $part_headers['Content-Disposition'] = 'inline';
     }
 
-    if ($part['Content-Transfer-Encoding']) {
+    if (isset($part['Content-Transfer-Encoding'])) {
       $part_headers['Content-Transfer-Encoding'] = $part['Content-Transfer-Encoding'];
     }
 
