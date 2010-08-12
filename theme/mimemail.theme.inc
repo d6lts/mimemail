@@ -25,22 +25,25 @@ function mimemail_theme_theme() {
  */
 function template_preprocess_mimemail_message(&$variables) {
   $theme = variable_get('theme_default', NULL);
+  $mailstyle = drupal_get_path('theme', $theme) .'/mail.css';
 
   // Check for the existence of a mail.css file in the current theme folder
-  if (!file_exists($styles)) {
-    $styles = drupal_get_path('theme', $theme) .'/mail.css';
+  if (@file_exists($mailstyle)) {
+    $styles = $mailstyle;
   }
-
   // If no mail.css was found, gather all style sheets
-  if (!file_exists($styles)) {
-    // embed a version of all style definitions
+  // and embed a version of all style definitions
+  else {
     $styles = preg_replace('|<link.*href="'. base_path()
-                           .'([^"?]*)[?"].*|', '\1', drupal_get_css());
+                          .'([^"?]*)[?"].*|', '\1', drupal_get_css());
   }
 
   // Process each style sheet
+  $css = '';
   foreach (explode("\n", $styles) as $style) {
-    if (file_exists($style)) $css .= file_get_contents($style);
+    if (!empty($style) && @file_exists($style)) {
+      $css .= @file_get_contents($style);
+    }
   }
 
   // Perform some safe CSS optimizations. (derived from core CSS aggregation)
