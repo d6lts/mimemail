@@ -84,7 +84,7 @@ function mimemail_headers($headers, $from = '') {
  *                  )
  */
 function mimemail_extract_files($html) {
-  $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |src=[\'"]?)([^\'>"]+)([\'"]?)/mis';
+  $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |[\s]src=[\'"]?)([^\'>"]+)([\'"]?)/mis';
   $html = preg_replace_callback($pattern, '_mimemail_replace_files', $html);
 
   $document = array(array(
