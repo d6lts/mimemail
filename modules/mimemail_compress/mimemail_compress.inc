@@ -95,10 +95,11 @@ class mimemail_compress {
   }
 
   private function css_style_to_array($style) {
-    $definitions = explode(';',$style);
+    $definitions = explode(';', $style);
     $css_styles = array();
     foreach ($definitions as $def) {
-      list($key,$value) = explode(':',$def);
+      preg_match("/([^:]+):(.+)/", $def, $matches);
+      list( , $key, $value) = $matches;
       if (empty($key) || empty($value)) continue;
       $css_styles[trim($key)] = trim($value);
     }
