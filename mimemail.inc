@@ -123,19 +123,26 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
     if (strpos($url, '://') || preg_match('!mailto:!', $url)) {
       return $url;
     }
-    else {
     // The $url is a relative file path, continue processing.
-      $file = $url;
+    else {
+      // Download method is private, and the $url needs conversion.
+      if (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PRIVATE && strpos($url, 'system/files/') !== FALSE) {
+        $file = file_create_path(drupal_substr($url, (strpos($url, 'system/files/') + drupal_strlen('system/files/'))));
+      }
+      // Download method is public.
+      else {
+        $file = $url;
+      }
     }
   }
 
-  if ($file && file_exists($file)) {
-    // Prevent duplicate items
+  if ($file && @file_exists($file)) {
+    // Prevent duplicate items.
     if (isset($filenames[$file])) return 'cid:'. $filenames[$file];
-    
+
     $content_id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
 
-    if (!$name) $name = substr($file, strrpos($file, '/') + 1);
+    if (!$name) $name = drupal_substr($file, strrpos($file, '/') + 1);
 
     $new_file = array(
       'name' => $name,
@@ -150,6 +157,10 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
     $filenames[$file] = $content_id;
 
     return 'cid:'. $content_id;
+  }
+  // The $file is not exist, return the $url if possible.
+  elseif ($url) {
+    return $url;
   }
 
   $ret = $files;
