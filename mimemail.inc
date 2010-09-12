@@ -120,7 +120,7 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
     $url = _mimemail_url($url, 'TRUE');
 
     // If the $url is absolute, we're done here.
-    if (strpos($url, '://') || preg_match('!mailto:!', $url)) {
+    if (strpos($url, '://') !== FALSE || preg_match('!mailto:!', $url)) {
       return $url;
     }
     // The $url is a relative file path, continue processing.
@@ -526,7 +526,7 @@ function _mimemail_url($url, $embed_file = NULL) {
   $url = urldecode($url);
 
   // If the URL is absolute or a mailto, return it as-is.
-  if (strpos($url, '://') || preg_match('!mailto:!', $url)) {
+  if (strpos($url, '://') !== FALSE || preg_match('!mailto:!', $url)) {
     $url = str_replace(' ', '%20', $url);
     return $url;
   }

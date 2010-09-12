@@ -252,7 +252,7 @@ function mimemail_mailengine($op, $message = array()) {
  * @return
  *   Returns the resultss of the call to mimemail().
  */
-if (strpos(variable_get('smtp_library', ''), 'mimemail')
+if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE
   && !function_exists('drupal_mail_wrapper')) {
 
   function drupal_mail_wrapper(&$message) {
