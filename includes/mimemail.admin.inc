@@ -20,10 +20,8 @@ function mimemail_admin_settings() {
       variable_set('smtp_library', drupal_get_filename('module', 'mimemail'));
     }
   }
-  else {
-    if (strpos(variable_get('smtp_library', ''), 'mimemail')) {
-      db_query("DELETE FROM {variable} WHERE name = 'smtp_library'");
-    }
+  elseif (strpos(variable_get('smtp_library', ''), 'mimemail')) {
+    variable_del('smtp_library');
   }
 
   $engines = mimemail_get_engines();
