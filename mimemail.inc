@@ -344,7 +344,8 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
 
   foreach ($attachments as $a) {
     $a = (object) $a;
-    if($a->list) {
+    // Check the list parameter if its set or ignore it (Upload module support).
+    if(!isset($a->list) || $a->list) {
       _mimemail_file($a->filepath, $a->filename, $a->filemime, 'attachment');
       $parts = array_merge($parts, _mimemail_file());
     }
