@@ -125,7 +125,7 @@ function mimemail_prepare_message($sender, $recipient, $subject, $body, $plainte
     }
   }
   $subject = mime_header_encode(trim(drupal_html_to_text($subject)));
-  $body = theme('mimemail_message', $body, $mailkey);
+  $body = theme(array('mimemail_message__'. $mailkey, 'mimemail_message'), $body, $mailkey);
   foreach (module_implements('mail_post_process') as $module) {
     $function = $module .'_mail_post_process';
     $function($body, $mailkey);
