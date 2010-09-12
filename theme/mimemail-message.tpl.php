@@ -2,7 +2,20 @@
 // $Id$
 
 /**
- * @file mimemail-message.tpl.php
+ * @file
+ * Default theme implementation to format an HTML mail.
+ *
+ * Copy this file in your default theme folder to create a custom themed mail.
+ * Rename it to mimemail-message--[mailkey].tpl.php to override it for a
+ * specific mail.
+ *
+ * Available variables:
+ * - $subject: The message subject
+ * - $body: The message body
+ * - $css: Internal style sheets
+ * - $mailkey: The message identifier
+ *
+ * @see template_preprocess_mimemail_message()
  */
 ?>
 <html>
