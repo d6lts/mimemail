@@ -16,7 +16,7 @@
     </style>
     <?php endif; ?>
   </head>
-  <body id="mimemail-body">
+  <body id="mimemail-body" <?php if ($mailkey): print 'class="'. $mailkey .'"'; endif; ?>>
     <div id="center">
       <div id="main">
         <?php print $body ?>

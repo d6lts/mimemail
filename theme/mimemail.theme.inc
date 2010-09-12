@@ -56,4 +56,6 @@ function template_preprocess_mimemail_message(&$variables) {
   $css = wordwrap($css, 700);
   $variables['css'] = $css;
 
+   // Process mailkey to be a proper CSS class.
+  $variables['mailkey'] = 'mail-'. str_replace('_', '-', $variables['mailkey']);
 }
