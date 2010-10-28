@@ -96,13 +96,13 @@ function mimemail_rules_action_mail_validate($form, $form_state) {
   }
   foreach ($cc as $recipient) {
     $recipient = trim($recipient);
-    if (!valid_email_address($recipient)) {
+    if (!empty($recipient) &&!valid_email_address($recipient)) {
       form_set_error('settings][cc', t('Please enter valid e-mail address(es) for carbon copy (CC) recipient.'));
     }
   }
   foreach ($bcc as $recipient) {
     $recipient = trim($recipient);
-    if (!valid_email_address($recipient)) {
+    if (!empty($recipient) &&!valid_email_address($recipient)) {
       form_set_error('settings][bcc', t('Please enter valid e-mail address(es) for blind carbon copy (BCC) recipient.'));
     }
   }
