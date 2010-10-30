@@ -24,6 +24,15 @@ function mimemail_admin_settings() {
     variable_del('smtp_library');
   }
 
+  // Check for the existence of a mail.css file in the default theme folder.
+  $theme = variable_get('theme_default', NULL);
+  $mailstyle = drupal_get_path('theme', $theme) . '/mail.css';
+  // Disable site style sheets including option if found.
+  if (is_file($mailstyle)) {
+    variable_set('mimemail_sitestyle', 0);
+    $disable_sitestyle = TRUE;
+  }
+
   $engines = mimemail_get_engines();
 
   $form = array();
@@ -40,6 +49,13 @@ function mimemail_admin_settings() {
     '#title'         => t('Use mime mail for all messages'),
     '#default_value' => variable_get('mimemail_alter', 0),
     '#description'   => t('Use the mime mail module to deliver all site messages.  With this option, system emails will have styles and formatting'),
+  );
+  $form['mimemail']['mimemail_sitestyle'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Include site style sheets'),
+    '#default_value' => variable_get('mimemail_sitestyle', 1),
+    '#description'   => t('Gather all style sheets when no mail.css found in the default theme directory.'),
+    '#disabled'      => $disable_sitestyle,
   );
 
   $filter_format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);

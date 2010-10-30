@@ -26,15 +26,16 @@ function mimemail_theme_theme() {
  */
 function template_preprocess_mimemail_message(&$variables) {
   $theme = variable_get('theme_default', NULL);
+  $sitestyle = variable_get('mimemail_sitestyle', 1);
   $mailstyle = drupal_get_path('theme', $theme) .'/mail.css';
 
   // Check for the existence of a mail.css file in the current theme folder
   if (@file_exists($mailstyle)) {
     $styles = $mailstyle;
   }
-  // If no mail.css was found, gather all style sheets
-  // and embed a version of all style definitions
-  else {
+  // If no mail.css was found and the site style sheets including is enabled,
+  // gather all style sheets and embed a version of all style definitions.
+  elseif ($sitestyle) {
     $styles = preg_replace('|<link.*href="'. base_path()
                           .'([^"?]*)[?"].*|', '\1', drupal_get_css());
   }
