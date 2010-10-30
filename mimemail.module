@@ -103,10 +103,15 @@ function mimemail_theme() {
 function mimemail_prepare_message($sender, $recipient, $subject, $body, $plaintext = NULL, $headers = array(), $text = NULL, $attachments = array(), $mailkey = '') {
   module_load_include('inc', 'mimemail');
 
-  if (is_null($sender)) {        // use site default for sender
+  $site_name = variable_get('site_name', 'Drupal');
+  $site_mail = variable_get('site_mail', ini_get('sendmail_from'));
+
+  // Override site mails default sender when using default engine.
+  if ((is_null($sender) || $sender == $site_mail)
+      && variable_get('mimemail_engine', 'mimemail') == 'mimemail') {
     $sender = array(
-        'name' => variable_get('site_name', 'Drupal'),
-        'mail' => variable_get('site_mail', ini_get('sendmail_from')),
+      'name' => variable_get('mimemail_name', $site_name),
+      'mail' => variable_get('mimemail_mail', $site_mail),
     );
   }
 

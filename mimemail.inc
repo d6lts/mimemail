@@ -44,15 +44,15 @@ function mimemail_rfc_headers($headers) {
  * @param $headers An array of headers
  * @return header string.
  */
-function mimemail_headers($headers, $from = '') {
+function mimemail_headers($headers, $from = NULL) {
   // Note: This may not work. The MTA may rewrite the Return-Path, and Errors-To is deprecated.
-  if (!$from) {
-    $from = variable_get('site_mail', ini_get('sendmail_from'));
+
+  // Allow a mail to overwrite standard headers.
+  if (!is_null($from)) {
+    preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
+    $from_email = $matches[0];
+    $headers = array_merge($headers, array('From' => $from, 'Sender' => $from, 'Return-Path' => "<$from_email>", 'Errors-To' => $from));
   }
-  preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
-  $from_email = $matches[0];
-  // allow a mail to overwrite standard headers.
-  $headers = array_merge(array('Return-Path' => "<$from_email>", 'Errors-To' => $from, 'From' => $from, 'Content-Type' => 'text/plain; charset=utf-8; format=flowed'), $headers);
 
   // Run all headers through mime_header_encode() to convert non-ascii
   // characters to an rfc compliant string, similar to drupal_mail().

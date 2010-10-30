@@ -36,13 +36,21 @@ function mimemail_admin_settings() {
   $engines = mimemail_get_engines();
 
   $form = array();
-  $form['site_mail'] = array(
+  $form['mimemail']['mimemail_name'] = array(
     '#type'          => 'textfield',
-    '#title'         => t('E-mail address'),
-    '#default_value' => variable_get('site_mail', ini_get('sendmail_from')),
+    '#title'         => t('Sender name'),
+    '#default_value' => variable_get('mimemail_name', variable_get('site_name', 'Drupal')),
     '#size'          => 60,
     '#maxlength'     => 128,
-    '#description'   => t('A valid e-mail address for this website, used by the auto-mailer during registration, new password requests, notifications, etc.')
+    '#description'   => t('The name that all site e-mails will be from when using default engine.'),
+  );
+  $form['mimemail']['mimemail_mail'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Sender e-mail address'),
+    '#default_value' => variable_get('mimemail_mail', variable_get('site_mail', ini_get('sendmail_from'))),
+    '#size'          => 60,
+    '#maxlength'     => 128,
+    '#description'   => t('The e-mail address that all site e-mails will be from when using default engine.'),
   );
   $form['mimemail']['mimemail_alter'] = array(
     '#type'          => 'checkbox',
