@@ -61,12 +61,18 @@ class mimemail_compress {
       $body = preg_replace("/<($unprocessable_tags)[^>]*>/i", '', $body);
     }
 
-    $encoding = mb_detect_encoding($body);
-    $body = mb_convert_encoding($body, 'HTML-ENTITIES', $encoding);
-
     $err = error_reporting(0);
     $doc = new DOMDocument;
-    $doc->encoding = $encoding;
+
+    // Try to detect and set character encoding.
+    if (function_exists('mb_detect_encoding') && function_exists('mb_convert_encoding')) {
+      $encoding = mb_detect_encoding($body);
+      if ($encoding) {
+        $body = mb_convert_encoding($body, 'HTML-ENTITIES', $encoding);
+        $doc->encoding = $encoding;
+      }
+    }
+
     $doc->strictErrorChecking = FALSE;
     $doc->formatOutput = TRUE;
     $doc->loadHTML($body);
