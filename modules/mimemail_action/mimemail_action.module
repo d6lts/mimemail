@@ -67,10 +67,13 @@ function mimemail_send_mail_action(&$object, $context = array()) {
   $text = $context['message_plaintext'];
   $mailkey = 'mimemail_action_send_mail';
 
-  $headers = array(
-    'Bcc' => $context['bcc'],
-    'Cc' => $context['cc'],
-  );
+  $headers = array();
+  if (!empty($context['bcc'])) {
+    $headers['Bcc'] = $context['bcc'];
+  }
+  if (!empty($context['cc'])) {
+    $headers['Cc'] = $context['cc'];
+  }
 
   // Prepare the array of the attachments.
   $attachments = array();

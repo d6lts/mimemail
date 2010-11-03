@@ -50,10 +50,13 @@ function mimemail_rules_action_mail_to_user($user, $settings) {
   // If recipient field is empty send it to given user object.
   $to = empty($settings['to']) ? $user->mail : implode(',', $settings['to']);
 
-  $headers = array(
-    'Bcc' => isset($settings['bcc']) ? implode(',', $settings['bcc']) : '',
-    'Cc' => isset($settings['cc']) ? implode(',', $settings['cc']) : '',
-  );
+  $headers = array();
+  if (!empty($settings['bcc'])) {
+    $headers['Bcc'] = implode(',', $settings['bcc']);
+  }
+  if (!empty($settings['cc'])) {
+    $headers['Cc'] = implode(',', $settings['cc']);
+  }
 
   $status = mimemail($from, $to, $subject, $body, NULL , $headers, $plaintext, $attachments, $mailkey);
 
