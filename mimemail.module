@@ -115,8 +115,12 @@ function mimemail_prepare_message($sender, $recipient, $subject, $body, $plainte
     );
   }
 
-  // try to determine recpient's text mail preference
-  if (is_null($plaintext)) {
+  // Body is empty, this is a plaintext message.
+ if (empty($body)) {
+   $plaintext = 1;
+  }
+ // Try to determine recpient's text mail preference.
+  elseif (is_null($plaintext)) {
     if (is_object($recipient)) {
       if (isset($recipient->mimemail_textonly)) {
         $plaintext = $recipient->mimemail_textonly;
