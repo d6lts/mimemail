@@ -137,7 +137,7 @@ function mimemail_send_mail_action(&$object, $context = array()) {
  * Form for configurable Drupal action to send an HTML mail.
  */
 function mimemail_send_mail_action_form($context) {
-  $context += array('recipient' => '', 'subject' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
+  $context += array('to' => '', 'cc' => '', 'bcc' => '', 'subject' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
 
   $form['to'] = array(
     '#type' => 'textfield',
