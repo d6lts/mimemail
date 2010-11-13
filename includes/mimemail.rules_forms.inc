@@ -78,38 +78,6 @@ function mimemail_rules_action_mail_form($settings = array(), &$form) {
 }
 
 /**
- * Validate the configuration form.
- */
-function mimemail_rules_action_mail_validate($form, $form_state) {
-  $from = $form_state['values']['settings']['from'];
-  $to = explode(',', $form_state['values']['settings']['to']);
-  $cc = explode(',', $form_state['values']['settings']['cc']);
-  $bcc = explode(',', $form_state['values']['settings']['bcc']);
-
-  if (!empty($from) && !valid_email_address($from)) {
-      form_set_error('settings][from', t('Please enter a valid e-mail address for sender or leave it empty to use the site-wide configured address.'));
-  }
-  foreach ($to as $recipient) {
-    $recipient = trim($recipient);
-    if (!valid_email_address($recipient)) {
-      form_set_error('settings][to', t('Please enter a valid e-mail address for recipient.'));
-    }
-  }
-  foreach ($cc as $recipient) {
-    $recipient = trim($recipient);
-    if (!empty($recipient) &&!valid_email_address($recipient)) {
-      form_set_error('settings][cc', t('Please enter valid e-mail address(es) for carbon copy (CC) recipient.'));
-    }
-  }
-  foreach ($bcc as $recipient) {
-    $recipient = trim($recipient);
-    if (!empty($recipient) &&!valid_email_address($recipient)) {
-      form_set_error('settings][bcc', t('Please enter valid e-mail address(es) for blind carbon copy (BCC) recipient.'));
-    }
-  }
-}
-
-/**
  * Action "Send an HTML mail to users of a role" configuration form.
  */
 function mimemail_rules_action_mail_to_users_of_role_form($settings = array(), &$form) {
