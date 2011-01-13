@@ -107,7 +107,7 @@ function mimemail_prepare_message($sender, $recipient, $subject, $body, $plainte
   $site_mail = variable_get('site_mail', ini_get('sendmail_from'));
 
   // Override site mails default sender when using default engine.
-  if ((is_null($sender) || $sender == $site_mail)
+  if ((empty($sender) || $sender == $site_mail)
       && variable_get('mimemail_engine', 'mimemail') == 'mimemail') {
     $sender = array(
       'name' => variable_get('mimemail_name', $site_name),
@@ -115,8 +115,12 @@ function mimemail_prepare_message($sender, $recipient, $subject, $body, $plainte
     );
   }
 
-  // try to determine recpient's text mail preference
-  if (is_null($plaintext)) {
+  // Body is empty, this is a plaintext message.
+ if (empty($body)) {
+   $plaintext = 1;
+  }
+ // Try to determine recpient's text mail preference.
+  elseif (is_null($plaintext)) {
     if (is_object($recipient)) {
       if (isset($recipient->mimemail_textonly)) {
         $plaintext = $recipient->mimemail_textonly;
@@ -199,6 +203,8 @@ function mimemail_get_engines() {
  *   Returns TRUE if the operation was successful or FALSE if it was not.
  */
 function mimemail_mailengine($op, $message = array()) {
+  module_load_include('inc', 'mimemail');
+
   //default values
   $message = array_merge( array(
       'address' => '',

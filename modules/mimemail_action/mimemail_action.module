@@ -67,10 +67,13 @@ function mimemail_send_mail_action(&$object, $context = array()) {
   $text = $context['message_plaintext'];
   $mailkey = 'mimemail_action_send_mail';
 
-  $headers = array(
-    'Bcc' => $context['bcc'],
-    'Cc' => $context['cc'],
-  );
+  $headers = array();
+  if (!empty($context['bcc'])) {
+    $headers['Bcc'] = $context['bcc'];
+  }
+  if (!empty($context['cc'])) {
+    $headers['Cc'] = $context['cc'];
+  }
 
   // Prepare the array of the attachments.
   $attachments = array();
@@ -134,7 +137,7 @@ function mimemail_send_mail_action(&$object, $context = array()) {
  * Form for configurable Drupal action to send an HTML mail.
  */
 function mimemail_send_mail_action_form($context) {
-  $context += array('recipient' => '', 'subject' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
+  $context += array('to' => '', 'cc' => '', 'bcc' => '', 'subject' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
 
   $form['to'] = array(
     '#type' => 'textfield',

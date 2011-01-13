@@ -12,7 +12,7 @@
  * Action "Send an HTML mail to a user" configuration form.
  */
 function mimemail_rules_action_mail_to_user_form($settings = array(), &$form) {
-  $settings += array('from' => '', 'subject' => '', 'message' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
+  $settings += array('from' => '', 'subject' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
   $form['settings']['from'] = array(
     '#type' => 'textfield',
     '#title' => t('Sender'),
@@ -49,10 +49,11 @@ function mimemail_rules_action_mail_to_user_form($settings = array(), &$form) {
  * Action "Send an HTML mail to an arbitrary mail address" configuration form.
  */
 function mimemail_rules_action_mail_form($settings = array(), &$form) {
+  $settings += array('to' => '', 'cc' => '', 'bcc' => '');
   $form['settings']['to'] = array(
     '#type' => 'textfield',
     '#title' => t('Recipient'),
-    '#default_value' => isset($settings['to']) ? $settings['to'] : '',
+    '#default_value' => $settings['to'],
     '#description' => t("The mail's recipient address. You may separate multiple addresses with comma."),
     '#required' => TRUE,
     '#weight' => -1,
@@ -60,7 +61,7 @@ function mimemail_rules_action_mail_form($settings = array(), &$form) {
   $form['settings']['cc'] = array(
     '#type' => 'textfield',
     '#title' => t('CC Recipient'),
-    '#default_value' => isset($settings['cc']) ? $settings['cc'] : '',
+    '#default_value' => $settings['cc'],
     '#description' => t("The mail's carbon copy address. You may separate multiple addresses with comma."),
     '#required' => FALSE,
     '#weight' => 0,
@@ -68,44 +69,12 @@ function mimemail_rules_action_mail_form($settings = array(), &$form) {
   $form['settings']['bcc'] = array(
     '#type' => 'textfield',
     '#title' => t('BCC Recipient'),
-    '#default_value' => isset($settings['bcc']) ? $settings['bcc'] : '',
+    '#default_value' => $settings['bcc'],
     '#description' => t("The mail's blind carbon copy address. You may separate multiple addresses with comma."),
     '#required' => FALSE,
     '#weight' => 0,
   );
   mimemail_rules_action_mail_to_user_form($settings, $form);
-}
-
-/**
- * Validate the configuration form.
- */
-function mimemail_rules_action_mail_validate($form, $form_state) {
-  $from = $form_state['values']['settings']['from'];
-  $to = explode(',', $form_state['values']['settings']['to']);
-  $cc = explode(',', $form_state['values']['settings']['cc']);
-  $bcc = explode(',', $form_state['values']['settings']['bcc']);
-
-  if (!empty($from) && !valid_email_address($from)) {
-      form_set_error('settings][from', t('Please enter a valid e-mail address for sender or leave it empty to use the site-wide configured address.'));
-  }
-  foreach ($to as $recipient) {
-    $recipient = trim($recipient);
-    if (!valid_email_address($recipient)) {
-      form_set_error('settings][to', t('Please enter a valid e-mail address for recipient.'));
-    }
-  }
-  foreach ($cc as $recipient) {
-    $recipient = trim($recipient);
-    if (!empty($recipient) &&!valid_email_address($recipient)) {
-      form_set_error('settings][cc', t('Please enter valid e-mail address(es) for carbon copy (CC) recipient.'));
-    }
-  }
-  foreach ($bcc as $recipient) {
-    $recipient = trim($recipient);
-    if (!empty($recipient) &&!valid_email_address($recipient)) {
-      form_set_error('settings][bcc', t('Please enter valid e-mail address(es) for blind carbon copy (BCC) recipient.'));
-    }
-  }
 }
 
 /**
