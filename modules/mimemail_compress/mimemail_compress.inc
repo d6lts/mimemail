@@ -80,16 +80,6 @@ class mimemail_compress {
 
     $xpath = new DOMXPath($doc);
 
-    // Before be begin processing the CSS file, parse the document and normalize
-    // all existing CSS attributes (changes 'DISPLAY: none' to 'display: none');
-    // we wouldn't have to do this if DOMXPath supported XPath 2.0.
-    $nodes = @$xpath->query('//*[@style]');
-    if ($nodes->length > 0) {
-      foreach ($nodes as $node) {
-        $node->setAttribute('style', preg_replace('/[A-z\-]+(?=\:)/Se', "strtolower('\\0')", $node->getAttribute('style')));
-      }
-    }
-
     // Get rid of comments.
     $css = preg_replace('/\/\*.*\*\//sU', '', $this->css);
 
@@ -115,6 +105,21 @@ class mimemail_compress {
 
     // Now sort the selectors by precedence.
     usort($all_selectors, array('self', 'sort_selector_precedence'));
+
+    // Before we begin processing the CSS file, parse the document for inline
+    // styles and append the normalized properties (i.e., 'display: none'
+    // instead of 'DISPLAY: none') as selectors with full paths (highest
+    // precedence), so they override any file-based selectors.
+    $nodes = @$xpath->query('//*[@style]');
+    if ($nodes->length > 0) {
+      foreach ($nodes as $node) {
+        $style = preg_replace('/[A-z\-]+(?=\:)/Se', "strtolower('\\0')", $node->getAttribute('style'));
+        $all_selectors[] = array(
+          'selector' => $this->calculateXPath($node),
+          'attributes' => $style,
+        );
+      }
+    }
 
     foreach ($all_selectors as $value) {
       // Query the body for the xpath selector.
@@ -178,6 +183,10 @@ class mimemail_compress {
    * @see http://plasmasturm.org/log/444/
    */
   private function css_to_xpath($selector) {
+    if (substr($selector, 0, 1) == '/') {
+      // Already an XPath expression.
+      return $selector;
+    }
     // Returns an Xpath selector.
     $search = array(
       '/\s+>\s+/', // Matches any F element that is a child of an element E.
@@ -210,5 +219,21 @@ class mimemail_compress {
       $css_styles[trim($key)] = trim($value);
     }
     return $css_styles;
+	}
+
+  // Get the full path to a DOM node.
+  // @see http://stackoverflow.com/questions/2643533/php-getting-xpath-of-a-domnode
+  function calculateXPath(DOMNode $node) {
+    $xpath = '';
+    $q = new DOMXPath($node->ownerDocument);
+
+    do {
+        $position = 1 + $q->query('preceding-sibling::*[name()="' . $node->nodeName . '"]', $node)->length;
+        $xpath    = '/' . $node->nodeName . '[' . $position . ']' . $xpath;
+        $node     = $node->parentNode;
+    }
+    while (!$node instanceof DOMDocument);
+
+    return $xpath;
   }
 }
