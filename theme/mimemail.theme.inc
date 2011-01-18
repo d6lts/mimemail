@@ -26,6 +26,18 @@ function mimemail_theme_theme() {
  */
 function template_preprocess_mimemail_message(&$variables) {
   $theme = variable_get('theme_default', NULL);
+
+  // Fetch the theme for the current domain.
+  if (module_exists('domain_theme')) {
+    // Assign the selected theme, based on the active domain.
+    global $_domain;
+    $domain_theme = domain_theme_lookup($_domain['domain_id']);
+    // The above returns -1 on failure.
+    if ($domain_theme != -1) {
+      $theme = $domain_theme['theme'];
+    }
+  }
+
   $sitestyle = variable_get('mimemail_sitestyle', 1);
   $mailstyle = drupal_get_path('theme', $theme) .'/mail.css';
 
