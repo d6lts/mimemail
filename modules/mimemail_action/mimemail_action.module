@@ -1,4 +1,5 @@
-<?php // $Id$
+<?php
+// $Id$
 
 /**
  * @file
@@ -10,16 +11,11 @@
 */
 function mimemail_action_info() {
   return array(
-    'mimemail_send_mail_action' => array(
-      'description' => t('Send an HTML e-mail'),
+    'mimemail_send_email_action' => array(
       'type' => 'system',
+      'label' => t('Send HTML e-mail'),
       'configurable' => TRUE,
-      'hooks' => array(
-        'nodeapi' => array('view', 'insert', 'update', 'delete'),
-        'comment' => array('view', 'insert', 'update', 'delete'),
-        'user' => array('view', 'insert', 'update', 'delete', 'login'),
-        'taxonomy' => array('insert', 'update', 'delete'),
-      ),
+      'triggers' => array('any'),
     ),
   );
 }
@@ -27,124 +23,67 @@ function mimemail_action_info() {
 /**
  * Implementation of a configurable Drupal action. Sends an email.
  */
-function mimemail_send_mail_action(&$object, $context = array()) {
-  global $user;
-
-  switch ($context['hook']) {
-    case 'nodeapi':
-      // Because this is not an action of type 'node' (it's an action
-      // of type 'system') the node will not be passed as $object,
-      // but it will still be available in $context.
-      $node = $context['node'];
-      break;
-    case 'comment':
-      // The comment hook provides nid, in $context.
-      $comment = $context['comment'];
-      $node = node_load($comment->nid);
-      break;
-    case 'user':
-      // Because this is not an action of type 'user' the user
-      // object is not passed as $object, but it will still be
-      // available in $context.
-      $account = $context['account'];
-      if (isset($context['node'])) {
-        $node = $context['node'];
-      }
-      elseif (strpos($context['recipient'], '%author') !== FALSE) {
-        // If we don't have a node, we don't have a node author.
-        watchdog('error', 'Cannot use %author token in this context.');
-        return;
-      }
-      break;
-    default:
-      // We are being called directly.
-      $node = $object;
+function mimemail_send_email_action($entity, $context) {
+  if (empty($context['node'])) {
+    $context['node'] = $entity;
   }
 
-  $recipient = $context['to'];
-  $subject = $context['subject'];
-  $body = $context['message_html'];
-  $text = $context['message_plaintext'];
-  $mailkey = 'mimemail_action_send_mail';
+  $recipient = token_replace($context['to'], $context);
 
-  $headers = array();
-  if (!empty($context['bcc'])) {
-    $headers['Bcc'] = $context['bcc'];
+  // If the recipient is a registered user with a language preference, use
+  // the recipient's preferred language. Otherwise, use the system default
+  // language.
+  $recipient_account = user_load_by_mail($recipient);
+  if ($recipient_account) {
+    $language = user_preferred_language($recipient_account);
   }
-  if (!empty($context['cc'])) {
-    $headers['Cc'] = $context['cc'];
+  else {
+    $language = language_default();
   }
 
   // Prepare the array of the attachments.
-  $attachments = array();
   $attachments_string = trim($context['attachments']);
   if (!empty($attachments_string)) {
-    $attachment_lines = array_filter(explode('\n', trim($attachments_string)));
+    $attachments = array();
+    $attachment_lines = array_filter(preg_split("/\n/", trim($attachments_string)));
     foreach ($attachment_lines as $key => $attachment_line) {
       $attachment = explode(':', trim($attachment_line), 2);
       $attachments[] = array(
         'filepath' => $attachment[1],
-        'filemime' => $attachment[0],
+        'filemime' =>$attachment[0],
       );
     }
   }
 
-  if (isset($node)) {
-    if (!isset($account)) {
-      $account = user_load(array('uid' => $node->uid));
-    }
-  }
+  $params = array(
+    'context' => $context,
+    'plaintext' => $context['plaintext'],
+    'attachments' => $attachments,
+  );
 
-  if (!isset($account)) {
-    $account = $user;
-  }
+  if ($context['cc']) $params['headers']['Cc'] = token_replace($context['cc'], $context);
+  if ($context['bcc']) $params['headers']['Bcc'] = token_replace($context['bcc'], $context);
 
-  // Set site wide variables.
-  $site_name = variable_get('site_name', 'Drupal');
-  $from = variable_get('site_mail', ini_get('sendmail_from'));
-
-  // Replace variables.
-  if (isset($node) && is_object($node)) {
-    $variables = array(
-      '%author' => $account->mail,
-      '%site_name' => $site_name,
-      '%username' => $account->name,
-      '%uid' => $node->uid,
-      '%node_url' => url('node/'. $node->nid, array('absolute' => TRUE)),
-      '%node_type' => $node->type,
-      '%title' => $node->title,
-      '%teaser' => $node->teaser,
-      '%body' => $node->body,
-    );
-    $recipient = strtr($recipient, $variables);
-    $subject = strtr($subject, $variables);
-    $body = strtr($body, $variables);
-    $text = strtr($text, $variables);
-  }
-
-  $status = mimemail($from, $recipient, $subject, $body, NULL, $headers, $text, $attachments, $mailkey);
-  $recipients = trim(implode(', ', array_merge(explode(',', $recipient), explode(',', $context['bcc']), explode(',', $context['cc']))), ', ');
-
-  if ($status) {
-    watchdog('action', 'Sent HTML email to %recipients', array('%recipients' => $recipients));
+  if (drupal_mail('mimemail', 'action_send_email', $recipient, $language, $params)) {
+    watchdog('action', 'Sent HTML email to %recipient', array('%recipient' => $recipient));
   }
   else {
-    watchdog('error', 'Unable to send HTML email to %recipients', array('%recipient' => $recipients));
+    watchdog('error', 'Unable to send HTML email to %recipient', array('%recipient' => $recipient));
   }
 }
 
 /**
  * Form for configurable Drupal action to send an HTML mail.
  */
-function mimemail_send_mail_action_form($context) {
-  $context += array('to' => '', 'cc' => '', 'bcc' => '', 'subject' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
+function mimemail_send_email_action_form($context) {
+  $context += array('to' => '', 'cc' => '', 'bcc' => '', 'subject' => '', 'body' => '', 'plaintext' => '', 'attachments' => '');
 
   $form['to'] = array(
     '#type' => 'textfield',
     '#title' => t('Recipient'),
     '#default_value' => $context['to'],
     '#maxlength' => 254,
-    '#description' => t("The mail's recipient address. You may separate multiple addresses with comma and use %author if the recipient is the author of the original post.", array('%author' => '%author')),
+    '#description' => t('The email address to which the message should be sent OR enter [node:author:mail], [comment:author:mail], etc. if you would like to send an e-mail to the author of the original post.'),
     '#required' => TRUE,
   );
  $form['cc'] = array(
@@ -166,19 +105,19 @@ function mimemail_send_mail_action_form($context) {
     '#title' => t('Subject'),
     '#maxlength' => 254,
     '#default_value' => $context['subject'],
-    '#description' => t("The mail's subject."),
+    '#description' => t("The subject of the message."),
   );
-  $form['message_html'] = array(
+  $form['body'] = array(
     '#type' => 'textarea',
-    '#title' => t('HTML message'),
-    '#default_value' => $context['message_html'],
-    '#description' => t("The message body in HTML format. You may include the following variables: %site_name, %username, %node_url, %node_type, %title, %teaser, %body. Not all variables will be available in all contexts."),
+    '#title' => t('Body'),
+    '#default_value' => $context['body'],
+    '#description' => t('The HTML message that should be sent. You may include placeholders like [node:title], [user:name], and [comment:body] to represent data that will be different each time message is sent. Not all placeholders will be available in all contexts.'),
   );
-  $form['message_plaintext'] = array(
+  $form['plaintext'] = array(
     '#type' => 'textarea',
-    '#title' => t('Text message'),
-    '#default_value' => $context['message_plaintext'],
-    '#description' => t("Optional plaintext portion of a multipart message."),
+    '#title' => t('Plain text body'),
+    '#default_value' => $context['plaintext'],
+    '#description' => t('Optional plaintext portion of a multipart message. You may include placeholders like [node:title], [user:name], and [comment:body] to represent data that will be different each time message is sent. Not all placeholders will be available in all contexts.'),
   );
   $form['attachments'] = array(
     '#type' => 'textarea',
@@ -193,27 +132,25 @@ function mimemail_send_mail_action_form($context) {
 /**
  * Validate the action form.
  */
-function mimemail_send_mail_action_validate($form, $form_state) {
-  $to = explode(',', $form_state['values']['to']);
-  $cc = explode(',', $form_state['values']['cc']);
-  $bcc = explode(',', $form_state['values']['bcc']);
-
-  foreach ($to as $recipient) {
-    $recipient = trim($recipient);
-    if (!valid_email_address($recipient) && $recipient != '%author') {
-      form_set_error('recipient', t('Please enter a valid e-mail address or %author.', array('%author' => '%author')));
-    }
+function mimemail_send_email_action_validate($form, $form_state) {
+  $to = trim($form_state['values']['to']);
+  if (!valid_email_address($to) && strpos($to, ':mail') === FALSE) {
+    form_set_error('to', t('Enter a valid email address or use a token e-mail address such as %author.', array('%author' => '[node:author:mail]')));
   }
+
+  $cc = explode(',', $form_state['values']['cc']);
   foreach ($cc as $recipient) {
     $recipient = trim($recipient);
-    if (!empty($recipient) && !valid_email_address($recipient) && $recipient != '%author') {
-      form_set_error('cc', t('Please enter a valid e-mail address or %author.', array('%author' => '%author')));
+    if (!empty($recipient) && !valid_email_address($recipient) && strpos($recipient, ':mail') === FALSE) {
+      form_set_error('cc', t('Enter a valid email address or use a token e-mail address such as %author.', array('%author' => '[node:author:mail]')));
     }
   }
+
+  $bcc = explode(',', $form_state['values']['bcc']);
   foreach ($bcc as $recipient) {
     $recipient = trim($recipient);
-    if (!empty($recipient) && !valid_email_address($recipient) && $recipient != '%author') {
-      form_set_error('bcc', t('Please enter a valid e-mail address or %author.', array('%author' => '%author')));
+    if (!empty($recipient) && !valid_email_address($recipient) && strpos($recipient, ':mail') === FALSE) {
+      form_set_error('bcc', t('Enter a valid email address or use a token e-mail address such as %author.', array('%author' => '[node:author:mail]')));
     }
   }
 }
@@ -221,7 +158,7 @@ function mimemail_send_mail_action_validate($form, $form_state) {
 /**
  * Handle submission of the action form.
  */
-function mimemail_send_mail_action_submit($form, $form_state) {
+function mimemail_send_email_action_submit($form, $form_state) {
   $form_values = $form_state['values'];
 
   $params = array(
@@ -229,8 +166,8 @@ function mimemail_send_mail_action_submit($form, $form_state) {
     'cc' => $form_values['cc'],
     'bcc' => $form_values['bcc'],
     'subject' => $form_values['subject'],
-    'message_html' => $form_values['message_html'],
-    'message_plaintext' => $form_values['message_plaintext'],
+    'body' => $form_values['body'],
+    'plaintext' => $form_values['plaintext'],
     'attachments' => $form_values['attachments'],
   );
 

@@ -1,11 +1,17 @@
-<?php // $Id$
+<?php
+// $Id$
 
+/**
+ * @file
+ * The theme system, which controls the output of the messages.
+ */
+ 
 function mimemail_theme_theme() {
-  $path = drupal_get_path('module', 'mimemail') .'/theme';
+  $path = drupal_get_path('module', 'mimemail') . '/theme';
 
   return array(
     'mimemail_message' => array(
-      'arguments' => array('subject' => NULL, 'body' => NULL, 'mailkey' => NULL),
+      'arguments' => array('key' => NULL, 'subject' => NULL, 'body' => NULL),
       'template' => 'mimemail-message',
       'pattern' => 'mimemail_message__',
       'file' => 'mimemail.theme.inc',
@@ -18,11 +24,11 @@ function mimemail_theme_theme() {
  * A preprocess function for theme('mimemail_message').
  *
  * The $variables array initially contains the following arguments:
+ * - $key:  The mailkey associated with the message
  * - $subject: The message subject
  * - $body:  The message body
- * - $mailkey:  The mailkey associated with the message
  *
- * See includes/mimemail.tpl.php for additional variables
+ * @see theme/mimemail-message.tpl.php for additional variables.
  */
 function template_preprocess_mimemail_message(&$variables) {
   $theme = variable_get('theme_default', NULL);
@@ -39,20 +45,20 @@ function template_preprocess_mimemail_message(&$variables) {
   }
 
   $sitestyle = variable_get('mimemail_sitestyle', 1);
-  $mailstyle = drupal_get_path('theme', $theme) .'/mail.css';
+  $mailstyle = drupal_get_path('theme', $theme) . '/mail.css';
 
-  // Check for the existence of a mail.css file in the current theme folder
+  // Check for the existence of a mail.css file in the current theme folder.
   if (@file_exists($mailstyle)) {
     $styles = $mailstyle;
   }
   // If no mail.css was found and the site style sheets including is enabled,
   // gather all style sheets and embed a version of all style definitions.
   elseif ($sitestyle) {
-    $styles = preg_replace('|<link.*href="'. base_path()
-                          .'([^"?]*)[?"].*|', '\1', drupal_get_css());
+    $styles = preg_replace('|<link.*href="' . base_path()
+                         . '([^"?]*)[?"].*|', '\1', drupal_get_css());
   }
 
-  // Process each style sheet
+  // Process each style sheet.
   $css = '';
   foreach (explode("\n", $styles) as $style) {
     if (!empty($style) && @file_exists($style)) {
@@ -67,7 +73,7 @@ function template_preprocess_mimemail_message(&$variables) {
   // Regexp to match single quoted strings.
   $single_quot = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'";
 
-  // Perform some safe CSS optimizations. (derived from core CSS aggregation)
+  // Perform some safe CSS optimizations (derived from core CSS aggregation).
   $css = preg_replace_callback(
     "<$double_quot|$single_quot|$comment>Sus",  // Match all comment blocks along
     "_mimemail_process_comment",                // with double/single quoted strings
@@ -84,8 +90,8 @@ function template_preprocess_mimemail_message(&$variables) {
   $css = wordwrap($css, 700);
   $variables['css'] = $css;
 
-   // Process mailkey to be a proper CSS class.
-  $variables['mailkey'] = 'mail-'. str_replace('_', '-', $variables['mailkey']);
+   // Process key to be a proper CSS class.
+  $variables['key'] = str_replace('_', '-', $variables['key']);
 }
 
 /**

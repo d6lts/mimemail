@@ -1,11 +1,30 @@
-<?php /* $Id$ */
+<?php
+// $Id$
 
 /**
- * Implementation of hook_disable().
+ * @file
+ * Install, update and uninstall functions for Mime Mail module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function mimemail_install() {
+  $mail_system = variable_get('mail_system');
+  $mail_system['mimemail'] = 'MimeMailSystem';
+  variable_set('mail_system', $mail_system);
+}
+
+/**
+ * Implements hook_disable().
  */
 function mimemail_disable() {
-  if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE) {
-    variable_del('smtp_library');
+  $mail_system = variable_get('mail_system');
+  $default_system = $mail_system['default-system'];
+  if ($default_system == 'MimeMailSystem') {
+    $mail_system['default-system'] = 'DefaultMailSystem';
+    variable_set('mail_system', $mail_system);
+    variable_set('mimemail_alter', FALSE);
   }
 }
 
@@ -21,6 +40,10 @@ function mimemail_uninstall() {
     'mimemail_key',
     'mimemail_textonly',
     'mimemail_sitestyle',
+    'mimemail_name',
+    'mimemail_mail',
+    'mimemail_format',
+    'mimemail_simple_address',
   );
   foreach ($variables as $variable) {
     variable_del($variable);

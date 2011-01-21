@@ -4,4 +4,6 @@ description = "Provide actions for Mime Mail."
 package = Mail
 dependencies[] = mimemail
 dependencies[] = trigger
-core = 6.x
+core = 7.x
+
+files[] = mimemail_action.module

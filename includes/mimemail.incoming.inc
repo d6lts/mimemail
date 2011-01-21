@@ -1,4 +1,5 @@
-<?php /* $Id$ */
+<?php
+// $Id$
 
 /**
  * @file
@@ -17,7 +18,7 @@
 function mimemail_post() {
   $message = $_POST['message'];
   $token   = $_POST['token'];
-  $hash    = md5(variable_get('mimemail_key', '**') . $message );
+  $hash    = md5(variable_get('mimemail_key', '**') . $message);
 
   if ($hash != $token) {
     watchdog('access denied', 'Authentication error for POST e-mail', WATCHDOG_WARNING);
@@ -33,11 +34,11 @@ function mimemail_post() {
  *   The message to parse.
  */
 function mimemail_incoming($message) {
-  require_once dirname(__FILE__) .'/mimemail.inc';
+  require_once dirname(__FILE__) . '/mimemail.inc';
   $mail = mimemail_parse($message);
 
   foreach (module_implements('mimemail_incoming_alter') as $module) {
-    call_user_func_array($module .'_mimemail_incoming_alter', $mail);
+    call_user_func_array($module . '_mimemail_incoming_alter', $mail);
   }
 
   module_invoke_all('mimemail_incoming', $mail);

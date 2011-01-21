@@ -1,4 +1,5 @@
-<?php // $Id$
+<?php
+// $Id$
 
 /**
  * @file
@@ -134,7 +135,7 @@ class mimemail_compress {
           // New styles overwrite the old styles (not technically accurate, but close enough).
           $compressed = array_merge($old_style, $new_style);
           $style = '';
-          foreach ($compressed as $k => $v) $style .= (strtolower($k) . ':' . $v . ';');
+          foreach ($compressed as $k => $v) $style .= (drupal_strtolower($k) . ':' . $v . ';');
         }
         else {
           // Otherwise create a new style.
@@ -169,7 +170,7 @@ class mimemail_compress {
     foreach ($search as $s) {
       if (trim($selector == '')) break;
       $num = 0;
-      $selector = preg_replace('/'. $s .'\w+/', '', $selector, -1, $num);
+      $selector = preg_replace('/' . $s . '\w+/', '', $selector, -1, $num);
       $precedence += ($value * $num);
       $value /= 10;
     }
@@ -206,7 +207,7 @@ class mimemail_compress {
       "(strlen('\\1') ? '\\1' : '*').'[@id=\"\\2\"]'",
       "(strlen('\\1') ? '\\1' : '*').'[contains(concat(\" \",normalize-space(@class),\" \"),concat(\" \",\"'.implode('\",\" \"))][contains(concat(\" \",normalize-space(@class),\" \"),concat(\" \",\"',explode('.',substr('\\2',1))).'\",\" \"))]'",
     );
-    return '//'. preg_replace($search, $replace, trim($selector));
+    return '//' . preg_replace($search, $replace, trim($selector));
   }
 
   private function css_style_to_array($style) {
@@ -219,7 +220,7 @@ class mimemail_compress {
       $css_styles[trim($key)] = trim($value);
     }
     return $css_styles;
-	}
+  }
 
   // Get the full path to a DOM node.
   // @see http://stackoverflow.com/questions/2643533/php-getting-xpath-of-a-domnode

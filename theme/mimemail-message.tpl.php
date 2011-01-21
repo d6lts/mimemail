@@ -6,14 +6,14 @@
  * Default theme implementation to format an HTML mail.
  *
  * Copy this file in your default theme folder to create a custom themed mail.
- * Rename it to mimemail-message--[mailkey].tpl.php to override it for a
+ * Rename it to mimemail-message--[key].tpl.php to override it for a
  * specific mail.
  *
  * Available variables:
  * - $subject: The message subject
  * - $body: The message body
  * - $css: Internal style sheets
- * - $mailkey: The message identifier
+ * - $key: The message identifier
  *
  * @see template_preprocess_mimemail_message()
  */
@@ -29,7 +29,7 @@
     </style>
     <?php endif; ?>
   </head>
-  <body id="mimemail-body" <?php if ($mailkey): print 'class="'. $mailkey .'"'; endif; ?>>
+  <body id="mimemail-body" <?php if ($key): print 'class="'. $key .'"'; endif; ?>>
     <div id="center">
       <div id="main">
         <?php print $body ?>

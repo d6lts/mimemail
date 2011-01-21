@@ -1,4 +1,4 @@
-$Id$
+// $Id$
 
 INSTALLATION
   Hopefully, you know the drill by now :)
