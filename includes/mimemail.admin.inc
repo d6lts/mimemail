@@ -147,7 +147,7 @@ function mimemail_admin_settings() {
  * Handle submission of the configuration form.
  */
 function mimemail_admin_settings_form_submit($form, &$form_state) {
-  $mail_system = variable_get('mail_system');
+  $mail_system = variable_get('mail_system', array('default-system' => 'DefaultMailSystem'));
   $default_system = $mail_system['default-system'];
   $mimemail_alter = $form_state['values']['mimemail_alter'];
   // Set as default mail system if Mime Mail is chosen to handle all mail.

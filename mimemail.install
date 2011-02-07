@@ -10,7 +10,7 @@
  * Implements hook_install().
  */
 function mimemail_install() {
-  $mail_system = variable_get('mail_system');
+  $mail_system = variable_get('mail_system', array('default-system' => 'DefaultMailSystem'));
   $mail_system['mimemail'] = 'MimeMailSystem';
   variable_set('mail_system', $mail_system);
 }
@@ -19,7 +19,7 @@ function mimemail_install() {
  * Implements hook_disable().
  */
 function mimemail_disable() {
-  $mail_system = variable_get('mail_system');
+  $mail_system = variable_get('mail_system', array('default-system' => 'DefaultMailSystem'));
   $default_system = $mail_system['default-system'];
   if ($default_system == 'MimeMailSystem') {
     $mail_system['default-system'] = 'DefaultMailSystem';
