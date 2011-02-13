@@ -8,36 +8,55 @@ INSTALLATION
      installation of Drupal and you want this module to be specific to a
      particular site in your installation.
   3. Enable the Mime Mail module by navigating to:
-     Administer > Site building > Modules
+     Administration > Modules
   4. Adjust settings by navigating to:
-     Administer > Site configuration > Mime Mail
+     Administration > Configuration > Mime Mail
 
 USAGE
-  This module may be required by other modules, but is not terribly
-  useful by itself. Once installed, any module can send messages by
-  calling the mimemail() function:
+  This module may be required by other modules, but in favor of the recently
+  added system actions and Rules integration, it can be useful by itself too.
 
-  $sender      - a user object, text email address or an array with name, mail
-  $recipient   - a user object, text email address or an array with name, mail
-  $subject     - subject line
-  $body        - body text in HTML format
-  $plaintext   - boolean, whether to send messages in plaintext-only (default FALSE)
-  $headers     - a keyed array with headers (optional)
-  $text        - plaintext portion of a multipart e-mail (optional)
-  $attachments - array of arrays with the file's path, MIME type (optional)
-  $mailkey     - message identifier
+  Once installed, any module can send MIME-encoded messages by specifing
+  MimeMailSystem as the responsible mail system for a particular message
+  or all mail sent by one module.
 
-  return       - an array containing the MIME encoded message
+  This is done by modifying the $mail_system variable like this: 
+
+  array(
+    'default-system' => 'DefaultMailSystem',
+    '{$module}_{$key}' => 'MimeMailSystem', // Just messages with $key sent by $module.
+    '{$module}' => 'MimeMailSystem', // All messages sent by $module.
+  );
+  
+  WARNING! Make sure to not overwrite the variable just append your mail to it!
+
+  You can use the following optional parameters to build the e-mail:
+    'plain':
+      Boolean, whether to send messages in plaintext-only (optional, default is FALSE). 
+    'plaintext':
+      Plaintext portion of a multipart e-mail (optional).
+    'attachments':
+      Array of arrays with the path, name and MIME type of the file (optional).
+    'headers':
+      A keyed array with headers (optional). 
+
+  You can set these in $params either before calling drupal_mail() or in hook_mail()
+  and of course hook_mail_alter().
+
+  Normally, Mime Mail uses email addresses in the form of "name" <address@host.com>,
+  but PHP running on Windows servers requires extra SMTP handling to use this format.
+  If you are running your site on a Windows server and don't have an SMTP solution such
+  as the SMTP module installed, you may need to set the 'Use the simple format of
+  user@example.com for all email addresses' option on the configuration settings page.
 
   This module creates a user preference for receiving plaintext-only messages.
-  This preference will be honored by all calls to mimemail() if the format is not
-  explicitly set.
+  This preference will be honored by all messages if the format is not explicitly set.
 
-  E-mail messages are formatted using the mimemail-message.tpl.php template.
+  Email messages are formatted using the mimemail-message.tpl.php template.
   This includes a CSS style sheet and uses an HTML version of the text.
   The included CSS is either:
     the mail.css file found in your default theme or
-    the combined CSS style sheets of your default theme.
+    the combined CSS style sheets of your default theme if enabled.
 
   To create a custom mail template copy the mimemail-message.tpl.php file from
   the mimemail/theme directory into your default theme's folder. Both general and
@@ -47,11 +66,12 @@ USAGE
   Note that if you are using a different administration theme than your default theme,
   you should place the same template files into that theme folder too.
 
-  Images with absolute path will be available as remote content. To embed images
-  into emails you have to use relative paths.
+  Images with absolute URL will be available as remote content. To embed images
+  into emails you have to use a relative URL or an internal path.
   For example:
     instead of http://www.mysite.com/sites/default/files/mypicture.jpg
-    use /sites/default/files/mypicture.jpg
+    use /home/www/public_html/drupal/sites/default/files/mypicture.jpg
+    or /sites/default/files/mypicture.jpg
 
   Since some email clients (namely Outlook 2007 and GMail) is tend to only regard
   inline CSS, you can use the Compressor to convert CSS styles into inline style
