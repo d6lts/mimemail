@@ -1,4 +1,3 @@
-; $Id$
 name = Mime Mail
 description = Send MIME-encoded emails with embedded images and attachments.
 package = Mail

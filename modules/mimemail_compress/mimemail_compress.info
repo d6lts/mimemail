@@ -1,4 +1,3 @@
-; $Id$
 name = Mime Mail CSS Compressor
 description = Converts CSS to inline styles in an HTML message. (Requires the PHP DOM extension.)
 package = Mail
