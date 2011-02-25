@@ -1,4 +1,3 @@
-; $Id$
 name = "Mime Mail Action"
 description = "Provide actions for Mime Mail."
 package = Mail
