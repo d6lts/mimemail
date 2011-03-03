@@ -16,11 +16,11 @@ function mimemail_admin_settings() {
   // override the smtp_library value if mimemail is chosen to handle all mail
   // this will cause drupal_mail to call mimemail()
   if (variable_get('mimemail_alter', 0)) {
-    if (strpos(variable_get('smtp_library', ''), 'mimemail') === FALSE) {
+    if (variable_get('smtp_library', '') != drupal_get_filename('module', 'mimemail')) {
       variable_set('smtp_library', drupal_get_filename('module', 'mimemail'));
     }
   }
-  elseif (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE) {
+  elseif (variable_get('smtp_library', '') == drupal_get_filename('module', 'mimemail')) {
     variable_del('smtp_library');
   }
 
