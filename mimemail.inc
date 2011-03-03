@@ -120,21 +120,27 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
   static $filenames = array();
 
   if ($url) {
-    $url = _mimemail_url($url, 'TRUE');
-
-    // If the $url is absolute, we're done here.
-    if (strpos($url, '://') !== FALSE || preg_match('!mailto:!', $url)) {
-      return $url;
+    // The file exists on the server as-is. Allows for non-web-accessible files.
+    if (@is_file($url)) {
+      $file = $url;
     }
-    // The $url is a relative file path, continue processing.
     else {
-      // Download method is private, and the $url needs conversion.
-      if (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PRIVATE && strpos($url, 'system/files/') !== FALSE) {
-        $file = file_create_path(drupal_substr($url, (strpos($url, 'system/files/') + drupal_strlen('system/files/'))));
+      $url = _mimemail_url($url, 'TRUE');
+
+      // If the $url is absolute, we're done here.
+      if (strpos($url, '://') !== FALSE || preg_match('!mailto:!', $url)) {
+        return $url;
       }
-      // Download method is public.
+      // The $url is a relative file path, continue processing.
       else {
-        $file = $url;
+        // Download method is private, and the $url needs conversion.
+        if (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PRIVATE && strpos($url, 'system/files/') !== FALSE) {
+          $file = file_create_path(drupal_substr($url, (strpos($url, 'system/files/') + drupal_strlen('system/files/'))));
+        }
+        // Download method is public.
+        else {
+          $file = $url;
+        }
       }
     }
   }
