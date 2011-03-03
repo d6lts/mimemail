@@ -45,7 +45,7 @@ function mimemail_user($op, &$edit, &$account, $category = '') {
     $form['mimemail']['mimemail_textonly'] = array(
       '#type'           => 'checkbox',
       '#title'           => t('Plaintext email only'),
-      '#default_value'   => $account->mimemail_textonly,
+      '#default_value'   => isset($account->mimemail_textonly) ? $account->mimemail_textonly : 0,
       '#description'     => t('Check this option if you do not wish to receive email messages with graphics and styles'),
     );
     return $form;
