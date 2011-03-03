@@ -105,13 +105,17 @@ function _mimemail_replace_files($matches) {
 }
 
 /**
- * Helper function to extract local files
+ * Helper function to extract local files.
  *
- * @param $url a URL to a file
+ * @param $url
+ *   The URL of the file.
+ * @param $content
+ *   The actual file content.
  *
- * @return an absolute :
+ * @return
+ *   The Content-ID and/or an array of the files on success or the URL on failure. 
  */
-function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'related') {
+function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'related') {
   static $files = array();
   static $filenames = array();
 
@@ -134,30 +138,34 @@ function _mimemail_file($url = NULL, $name = '', $type = '', $disposition = 'rel
       }
     }
   }
+  // We have the actual content.
+  elseif ($content) {
+    $file = $content;
+  }
 
-  if (isset($file) && @file_exists($file)) {
+  if (isset($file) && (@is_file($file) || $content)) {
+
+    if (!$name) $name = (@is_file($file)) ? basename($file) : 'attachment.dat';
+    if (!$type) $type = ($name) ? file_get_mimetype($name) : file_get_mimetype($file);
+
     // Prevent duplicate items.
-    if (isset($filenames[$file])) return 'cid:'. $filenames[$file];
-
-    $content_id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
-
-    if (!$name) $name = drupal_substr($file, strrpos($file, '/') + 1);
+    if (isset($filenames[$name])) return 'cid:'. $filenames[$name];
+    $content_id = md5($name) .'@'. $_SERVER['HTTP_HOST'];
 
     $new_file = array(
       'name' => $name,
       'file' => $file,
       'Content-ID' => $content_id,
       'Content-Disposition' => $disposition,
+      'Content-Type' => $type,
     );
-
-    $new_file['Content-Type'] = (!empty($name)) ? file_get_mimetype($name) : file_get_mimetype($file);
 
     $files[] = $new_file;
     $filenames[$file] = $content_id;
 
     return 'cid:'. $content_id;
   }
-  // The $file is not exist, return the $url if possible.
+  // The $file does not exist and no $content, return the $url if possible.
   elseif ($url) {
     return $url;
   }
@@ -260,7 +268,8 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
       }
 
       if (isset($part['file'])) {
-        $part_body = chunk_split(base64_encode(file_get_contents($part['file'])));
+        $file = (is_file($part['file'])) ? file_get_contents($part['file']) : $part['file'];
+        $part_body = chunk_split(base64_encode($file));
       }
     }
 
@@ -344,8 +353,8 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
   foreach ($attachments as $a) {
     $a = (object) $a;
     // Check the list parameter if its set or ignore it (Upload module support).
-    if(!isset($a->list) || $a->list) {
-      _mimemail_file($a->filepath, $a->filename, $a->filemime, 'attachment');
+    if (!isset($a->list) || $a->list) {
+      _mimemail_file($a->filepath, $a->filecontent, $a->filename, $a->filemime, 'attachment');
       $parts = array_merge($parts, _mimemail_file());
     }
   }
