@@ -584,13 +584,14 @@ function _mimemail_url($url, $embed_file = NULL) {
  *   A formatted address string or FALSE.
  */
 function mimemail_address($address) {
+  $simple_address = variable_get('mimemail_simple_address', 0);
 
   if (is_array($address)) {
 
     // it's an array containing 'mail' and/or 'name'
     if (isset($address['mail'])) {
       $output = '';
-      if (empty($address['name'])) {
+      if (empty($address['name']) || $simple_address) {
         return $address['mail'];
       }
       else {
@@ -608,7 +609,7 @@ function mimemail_address($address) {
 
   // it's a user object
   if (is_object($address) && isset($address->mail)) {
-    if (empty($address->name)) {
+    if (empty($address->name) || $simple_address) {
       return $address->mail;
     }
     else {

@@ -58,6 +58,12 @@ function mimemail_admin_settings() {
     '#default_value' => variable_get('mimemail_alter', 0),
     '#description'   => t('Use the mime mail module to deliver all site messages.  With this option, system emails will have styles and formatting'),
   );
+  $form['mimemail']['mimemail_simple_address'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Use simple address format'),
+    '#default_value' => variable_get('mimemail_simple_address', 0),
+    '#description' => t('Use the simple format of user@example.com for all email addresses.'),
+  );
   $form['mimemail']['mimemail_sitestyle'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Include site style sheets'),
