@@ -53,8 +53,17 @@ function template_preprocess_mimemail_message(&$variables) {
   // If no mail.css was found and the site style sheets including is enabled,
   // gather all style sheets and embed a version of all style definitions.
   elseif ($sitestyle) {
+    $css_all = drupal_add_css();
+    $css_files = array();
+    foreach ($css_all as $media => $types) {
+      foreach ($types as $type => $file) {
+        if ($type == 'theme' && ($media == 'all' || $media == 'screen')) {
+          $css_files[$media][$type] = $file;
+        }
+      }
+    }
     $styles = preg_replace('|<link.*href="' . base_path()
-                         . '([^"?]*)[?"].*|', '\1', drupal_get_css());
+                         . '([^"?]*)[?"].*|', '\1', drupal_get_css($css_files));
   }
 
   // Process each style sheet.
