@@ -38,8 +38,10 @@ function template_preprocess_mimemail_message(&$variables) {
     }
   }
 
+  $themepath = drupal_get_path('theme', $theme);
+
   $sitestyle = variable_get('mimemail_sitestyle', 1);
-  $mailstyle = drupal_get_path('theme', $theme) .'/mail.css';
+  $mailstyle = $themepath .'/mail.css';
 
   // Check for the existence of a mail.css file in the current theme folder
   if (@file_exists($mailstyle)) {
@@ -56,6 +58,11 @@ function template_preprocess_mimemail_message(&$variables) {
           $css_files[$media][$type] = $file;
         }
       }
+    }
+    // Grab local.css if it exists (support for Fusion based themes).
+    $local = $themepath . '/css/local.css';
+    if (@file_exists($local)) {
+      $css_files['all']['theme'][$local] = TRUE;
     }
     $styles = preg_replace('|<link.*href="'. base_path()
                           .'([^"?]*)[?"].*|', '\1', drupal_get_css($css_files));
