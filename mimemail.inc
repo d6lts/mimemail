@@ -319,7 +319,7 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
     }
   }
   else {
-    $content_type = 'multipart/related; type="multipart/alternative"';
+    $content_type = 'multipart/mixed';
 
     $plaintext_part = array('Content-Type' => 'text/plain; charset=utf-8', 'content' => $plaintext);
 
@@ -335,6 +335,8 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
 
     if ($mime_parts) {
       $parts = array_merge($parts, $mime_parts);
+      $content = mimemail_multipart_body($parts, 'multipart/related; type="multipart/alternative"', TRUE);
+      $parts = array(array('Content-Type' => $content['headers']['Content-Type'], 'content' => $content['body']));
     }
   }
 
