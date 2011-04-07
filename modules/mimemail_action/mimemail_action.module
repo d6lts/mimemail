@@ -168,7 +168,7 @@ function mimemail_send_mail_action_form($context) {
     '#default_value' => $context['subject'],
     '#description' => t("The mail's subject."),
   );
-  $form['message_html'] = array(
+  $form['message_html_filter']['message_html'] = array(
     '#type' => 'textarea',
     '#title' => t('HTML message'),
     '#default_value' => $context['message_html'],
@@ -186,6 +186,8 @@ function mimemail_send_mail_action_form($context) {
     '#default_value' => $context['attachments'],
     '#description' => t('A list of attachments, one file per line like [mimetype]:[path] e.g. "image/png:/files/images/mypic.png".'),
   );
+
+  $form['message_html_filter']['format'] = filter_form(variable_get('mimemail_format', FILTER_FORMAT_DEFAULT));
 
   return $form;
 }

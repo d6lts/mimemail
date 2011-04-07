@@ -42,7 +42,7 @@ function mimemail_rules_action_mail_to_user($user, $settings) {
   $settings = mimemail_rules_form_settings_process($settings);
   $from = $settings['from'];
   $subject = $settings['subject'];
-  $body = $settings['message_html'];
+  $body = $settings['message_html_filter']['message_html'];
   $plaintext = $settings['message_plaintext'];
   $attachments = $settings['attachments'];
   $mailkey = 'mimemail_rules_action_mail';
@@ -94,7 +94,7 @@ function mimemail_rules_action_mail_to_users_of_role($settings) {
   $settings = mimemail_rules_form_settings_process($settings);
   $from = $settings['from'];
   $subject = $settings['subject'];
-  $body = $settings['message_html'];
+  $body = $settings['message_html_filter']['message_html'];
   $plaintext = $settings['message_plaintext'];
   $attachments = $settings['attachments'];
   $mailkey = 'mimemail_rules_action_role_mail';

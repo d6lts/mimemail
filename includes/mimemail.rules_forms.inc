@@ -25,7 +25,7 @@ function mimemail_rules_action_mail_to_user_form($settings = array(), &$form) {
     '#default_value' => $settings['subject'],
     '#description' => t("The mail's subject."),
   );
-  $form['settings']['message_html'] = array(
+  $form['settings']['message_html_filter']['message_html'] = array(
     '#type' => 'textarea',
     '#title' => t('HTML message'),
     '#default_value' => $settings['message_html'],
@@ -43,6 +43,8 @@ function mimemail_rules_action_mail_to_user_form($settings = array(), &$form) {
     '#default_value' => $settings['attachments'],
     '#description' => t('A list of attachments, one file per line like [mimetype]:[path] e.g. "image/png:/files/images/mypic.png".'),
   );
+
+  $form['settings']['message_html_filter']['format'] = filter_form(variable_get('mimemail_format', FILTER_FORMAT_DEFAULT));
 }
 
 /**
