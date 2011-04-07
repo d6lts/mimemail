@@ -25,8 +25,9 @@ USAGE
   $text        - plaintext portion of a multipart e-mail (optional)
   $attachments - array of arrays with the file's path, MIME type (optional)
   $mailkey     - message identifier
+  $send        - boolean, whether to send or only prepare the message (default TRUE)
 
-  return       - an array containing the MIME encoded message
+  return       - an array containing the MIME encoded message, including headers and body
 
   This module creates a user preference for receiving plaintext-only messages.
   This preference will be honored by all calls to mimemail() if the format is not

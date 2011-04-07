@@ -62,55 +62,13 @@ function mimemail_theme() {
 }
 
 /**
- * Sends a mime-encoded e-mail.
+ * Default engine's prepare function.
  *
- * This function first determines the mail engine to use, then prepares the
- * message by calling the mail engine's prepare function, or
- * mimemail_prepare_message() if another one does not exist, then sends the message.
- *
- * @param $sender
- *   The email address or user object who is sending the message.
- * @param $recipient+
- *   An email address or user object who is receiving the message.
- * @param $subject
- *   A subject line string.
- * @param $body
- *   The message body in HTML format.
- * @param $plaintext
- *   Whether to send the message as plaintext only or HTML. If set to 1, Yes
- *   or TRUE, then the message will be sent as plaintext.
- * @param $headers
- *   Optional e-mail headers in a keyed array.
- * @param $text
- *   Optional plaintext portion of a multipart e-mail.
- * @param $attachments
- *   An array of arrays which describe one or more attachments.
- *   Existing files can be added by path, dinamically-generated files
- *   can be added by content. The internal array consists of the following parts:
- *   - 'filepath':
- *      Relative Drupal path to an existing file (filecontent is NULL).
- *   - 'filecontent':
- *      The actual content of the file (filepath is NULL).
- *   - 'filename':
- *      The filename of the file.
- *   - 'filemime':
- *      The MIME type of the file.
- *   The array of arrays looks something like this:
- *   Array
- *   (
- *     [0] => Array
- *       (
- *         [filepath] => '/sites/default/files/attachment.txt'
- *         [filecontent] => 'My attachment.'
- *         [filename] => 'attachment.txt'
- *         [filemime] => 'text/plain'
- *       )
- *   )
- * @param $mailkey
- *   An identifier for the message.
+ * @param
+ *   Same parameters as mimemail() except $send.
  *
  * @return
- *   An array containing the MIME encoded message, including headers and body.
+ *   The $message array structure containing all details of the message.
  */
 function mimemail_prepare_message($sender, $recipient, $subject, $body, $plaintext = NULL, $headers = array(), $text = NULL, $attachments = array(), $mailkey = '') {
   module_load_include('inc', 'mimemail');
@@ -168,7 +126,79 @@ function mimemail_prepare_message($sender, $recipient, $subject, $body, $plainte
   return $message;
 }
 
-function mimemail($sender, $recipient, $subject, $body, $plaintext = NULL, $headers = array(), $text = NULL, $attachments = array(), $mailkey = '') {
+/**
+ * Send a MIME-encoded e-mail message.
+ *
+ * @param $message
+ *   The message array.
+ *
+ * @return
+ *   TRUE if the mail was successfully accepted for delivery, FALSE otherwise.
+ */
+function mimemail_send_message($message) {
+  $engine = variable_get('mimemail_engine', 'mimemail');
+  $mailengine = $engine .'_mailengine';
+
+  if (!$engine || !function_exists($mailengine)) {
+     return FALSE;
+  }
+
+  return $mailengine('send', $message);
+}
+
+/**
+ * Compose and optionally send a MIME-encoded e-mail message.
+ *
+ * Determines the mail engine to use, then prepares the message by calling
+ * it's prepare function. Uses the default engine, If another one does not exist.
+ *
+ * @param $sender
+ *   The email address or user object who is sending the message.
+ * @param $recipient
+ *   An email address or user object who is receiving the message.
+ * @param $subject
+ *   A subject line string.
+ * @param $body
+ *   The message body in HTML format.
+ * @param $plaintext
+ *   Whether to send the message as plaintext only or HTML. If set to 1, Yes
+ *   or TRUE, then the message will be sent as plaintext.
+ * @param $headers
+ *   Optional e-mail headers in a keyed array.
+ * @param $text
+ *   Optional plaintext portion of a multipart e-mail.
+ * @param $attachments
+ *   An array of arrays which describe one or more attachments.
+ *   Existing files can be added by path, dinamically-generated files
+ *   can be added by content. The internal array consists of the following parts:
+ *   - 'filepath':
+ *      Relative Drupal path to an existing file (filecontent is NULL).
+ *   - 'filecontent':
+ *      The actual content of the file (filepath is NULL).
+ *   - 'filename':
+ *      The filename of the file.
+ *   - 'filemime':
+ *      The MIME type of the file.
+ *   The array of arrays looks something like this:
+ *   Array
+ *   (
+ *     [0] => Array
+ *       (
+ *         [filepath] => '/sites/default/files/attachment.txt'
+ *         [filecontent] => 'My attachment.'
+ *         [filename] => 'attachment.txt'
+ *         [filemime] => 'text/plain'
+ *       )
+ *   )
+ * @param $mailkey
+ *   An identifier for the message.
+ * @param $send
+ *   Send the message directly.
+ *
+ * @return
+ *   An array containing the MIME encoded message, including headers and body.
+ */
+function mimemail($sender, $recipient, $subject, $body, $plaintext = NULL, $headers = array(), $text = NULL, $attachments = array(), $mailkey = '', $send = TRUE) {
   $engine = variable_get('mimemail_engine', 'mimemail');
   $mailengine = $engine .'_mailengine';
   $engine_prepare_message = $engine .'_prepare_message';
@@ -184,7 +214,12 @@ function mimemail($sender, $recipient, $subject, $body, $plaintext = NULL, $head
     $message = mimemail_prepare_message($sender, $recipient, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey);
   }
 
-  return $mailengine('send', $message);
+  // Optionally send e-mail.
+  if ($send) {
+    $message['result'] = mimemail_send_message($message);
+  }
+
+  return $message;
 }
 
 /**
