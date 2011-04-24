@@ -90,7 +90,7 @@ function mimemail_requirements($phase) {
  * @see mimemail_requirements().
  */
 function mimemail_update_7000() {
-  if ($requirements = smtp_requirements('runtime')) {
-    throw new DrupalUpdateException($requirements['smtp_mailsystem']['description']);
+  if ($requirements = mimemail_requirements('runtime')) {
+    throw new DrupalUpdateException($requirements['mimemail_mailsystem']['description']);
   }
 }
