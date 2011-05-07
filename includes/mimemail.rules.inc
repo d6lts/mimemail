@@ -38,29 +38,32 @@ function mimemail_rules_action_info() {
  * Action Implementation: Send a mail to a user and to an arbitrary mail address.
  */
 function mimemail_rules_action_mail_to_user($user, $settings) {
+  global $language;
+
   // Process settings.
   $settings = mimemail_rules_form_settings_process($settings);
   $from = $settings['from'];
-  $subject = $settings['subject'];
-  $body = $settings['message_html_filter']['message_html'];
-  $plaintext = $settings['message_plaintext'];
-  $attachments = $settings['attachments'];
-  $mailkey = 'mimemail_rules_action_mail';
 
   // If recipient field is empty send it to given user object.
   $to = empty($settings['to']) ? $user->mail : implode(',', $settings['to']);
 
-  $headers = array();
-  if (!empty($settings['bcc'])) {
-    $headers['Bcc'] = implode(',', $settings['bcc']);
-  }
-  if (!empty($settings['cc'])) {
-    $headers['Cc'] = implode(',', $settings['cc']);
-  }
+  // Prepare the message but not send.
+  $message = drupal_mail('mimemail', 'rules_action_mail', $to, $language, $settings, $from, FALSE);
 
-  $status = mimemail($from, $to, $subject, $body, NULL , $headers, $plaintext, $attachments, $mailkey);
+  // Send the prepared message.
+  $message = mimemail(
+    $message['from'],
+    $message['to'],
+    $message['subject'],
+    $message['body'],
+    NULL ,
+    $message['headers'],
+    $message['params']['plaintext'],
+    $message['params']['attachments'],
+    $message['id']
+  );
 
-  if (!empty($status)) {
+  if ($message['result']) {
     $recipients = array_merge(explode(',', $to), $settings['bcc'], $settings['cc']);
     watchdog('rules', 'HTML mail successfully sent to %recipient', array('%recipient' => implode(', ', $recipients)));
   }
@@ -92,19 +95,23 @@ function mimemail_rules_action_mail_to_users_of_role($settings) {
 
   // Process settings.
   $settings = mimemail_rules_form_settings_process($settings);
-  $from = $settings['from'];
-  $subject = $settings['subject'];
-  $body = $settings['message_html_filter']['message_html'];
-  $plaintext = $settings['message_plaintext'];
-  $attachments = $settings['attachments'];
-  $mailkey = 'mimemail_rules_action_role_mail';
 
   // Now, actually send the mails.
-  $status = TRUE;
-  while (($account = db_fetch_object($result)) && !empty($status)) {
-    $status = mimemail($from, $account->mail, $subject, $body, NULL, array(), $plaintext, $attachments, $mailkey);
+  while (($account = db_fetch_object($result))) {
+    $message = drupal_mail('mimemail', 'rules_action_role_mail',  $account->mail, user_preferred_language($account), array(), NULL, FALSE);
+    $message = mimemail(
+      $message['from'],
+      $message['to'],
+      $message['subject'],
+      $message['body'],
+      NULL ,
+      $message['headers'],
+      $message['params']['plaintext'],
+      $message['params']['attachments'],
+      $message['id']
+    );
   }
-  if (!empty($status)) {
+  if ($message['result']) {
     $roles = array_intersect_key(user_roles(TRUE), drupal_map_assoc($recipients));
     watchdog('rules', 'HTML mail successfully sent to role(s) %roles.', array('%roles' => implode(', ', $roles)));
   }
@@ -131,21 +138,6 @@ function mimemail_rules_form_settings_process($settings) {
   }
 
   $settings['from'] = str_replace(array("\r", "\n"), '', $settings['from']);
-  $settings['subject'] = str_replace(array("\r", "\n"), '', $settings['subject']);
-
-  $attachments = array();
-  $attachments_string = trim($settings['attachments']);
-  if (!empty($attachments_string)) {
-    $attachment_lines = array_filter(explode("\n", trim($attachments_string)));
-    foreach ($attachment_lines as $key => $attachment_line) {
-      $attachment = explode(":", trim($attachment_line), 2);
-      $attachments[] = array(
-        'filepath' => $attachment[1],
-        'filemime' => $attachment[0],
-      );
-    }
-  }
-  $settings['attachments'] = empty($attachments[0]['filepath']) ? array() : $attachments;
 
   return $settings;
 }

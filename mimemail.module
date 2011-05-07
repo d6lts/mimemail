@@ -62,6 +62,66 @@ function mimemail_theme() {
 }
 
 /**
+ * Implementation of hook_mail().
+ *
+ * Set's the message subject and body as configured in the $settings of the action.
+ */
+function mimemail_mail($key, &$message, $params) {
+  $account = $params['account'];
+  $variables = array(
+    '%site_name' => variable_get('site_name', 'Drupal'),
+    '%username' => $account->name,
+  );
+  // Replace variables.
+  if (isset($params['node']) && is_object($params['node'])) {
+    $node = $params['node'];
+    $variables += array(
+      '%author' => $account->mail,
+      '%uid' => $node->uid,
+      '%node_url' => url('node/'. $node->nid, array('absolute' => TRUE)),
+      '%node_type' => $node->type,
+      '%title' => $node->title,
+      '%teaser' => $node->teaser,
+      '%body' => $node->body,
+    );
+  }
+
+  // Prepare the array of the attachments.
+  $attachments = array();
+  $attachments_string = trim($params['attachments']);
+  if (!empty($attachments_string)) {
+    $attachment_lines = array_filter(explode('\n', trim($attachments_string)));
+    foreach ($attachment_lines as $key => $attachment_line) {
+      $attachment = explode(':', trim($attachment_line), 2);
+      $attachments[] = array(
+        'filepath' => $attachment[1],
+        'filemime' => $attachment[0],
+      );
+    }
+  }
+
+  // We also handle CC and BCC if it's set.
+  $params['cc'] = empty($params['cc']) ? array() : explode(',', $params['cc']);
+  $params['bcc'] = empty($params['bcc']) ? array() : explode(',', $params['bcc']);
+
+  if (!empty($params['cc'])) foreach ($params['cc'] as $key => $address) {
+    $params['cc'][$key] = str_replace(array("\r", "\n"), '', trim($address));
+    $message['headers']['Cc'] = implode(',', $params['cc']);
+  }
+  if (!empty($params['bcc'])) foreach ($params['bcc'] as $key => $address) {
+    $params['bcc'][$key] = str_replace(array("\r", "\n"), '', trim($address));
+    $message['headers']['Bcc'] = implode(',', $params['bcc']);
+  }
+
+  $message['to'] = strtr($message['to'], $variables);
+  $message['subject'] = strtr($params['subject'], $variables);
+  $message['body'][] = strtr(filter_xss_admin($params['message_html']), $variables);
+
+  $message['params']['plaintext'] = strtr($params['message_plaintext'], $variables);
+  $message['params']['attachments'] = $attachments;
+}
+
+/**
  * Default engine's prepare function.
  *
  * @param
