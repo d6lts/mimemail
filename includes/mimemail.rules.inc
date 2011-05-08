@@ -48,6 +48,9 @@ function mimemail_rules_action_mail_to_user($user, $settings) {
   // Prepare the message but not send.
   $message = drupal_mail('mimemail', 'rules_action_mail', $to, $language, $settings, $from, FALSE);
 
+  $format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
+  $message['body'] = check_markup($message['body'], $format, FALSE);
+
   // Send the prepared message.
   $message = mimemail(
     $message['from'],
@@ -97,6 +100,9 @@ function mimemail_rules_action_mail_to_users_of_role($settings) {
   while (($account = db_fetch_object($result))) {
     // Prepare the message but not send.
     $message = drupal_mail('mimemail', 'rules_action_role_mail',  $account->mail, user_preferred_language($account), $settings, $from, FALSE);
+
+    $format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
+    $message['body'] = check_markup($message['body'], $format, FALSE);
 
     // Send the prepared message.
     $message = mimemail(

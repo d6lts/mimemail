@@ -82,6 +82,10 @@ function mimemail_send_mail_action(&$object, $context = array()) {
   }
 
   $message = drupal_mail('mimemail', 'action_send_mail', $to, user_preferred_language($account), $params, NULL, FALSE);
+
+  $format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
+  $message['body'] = check_markup($message['body'], $format, FALSE);
+
   $message = mimemail(
     $message['from'],
     $message['to'],
