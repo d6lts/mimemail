@@ -40,10 +40,8 @@ function mimemail_rules_action_info() {
 function mimemail_rules_action_mail_to_user($user, $settings) {
   global $language;
 
-  // Process settings.
-  $settings = mimemail_rules_form_settings_process($settings);
+  // Set the from address.
   $from = $settings['from'];
-
   // If recipient field is empty send it to given user object.
   $to = empty($settings['to']) ? $user->mail : implode(',', $settings['to']);
 
@@ -93,12 +91,14 @@ function mimemail_rules_action_mail_to_users_of_role($settings) {
     $result = db_query('SELECT DISTINCT u.mail FROM {users} u INNER JOIN {users_roles} r ON u.uid = r.uid WHERE r.rid IN ('. $rids .')');
   }
 
-  // Process settings.
-  $settings = mimemail_rules_form_settings_process($settings);
+  // Set the from address.
+  $from = $settings['from'];
 
-  // Now, actually send the mails.
   while (($account = db_fetch_object($result))) {
-    $message = drupal_mail('mimemail', 'rules_action_role_mail',  $account->mail, user_preferred_language($account), array(), NULL, FALSE);
+    // Prepare the message but not send.
+    $message = drupal_mail('mimemail', 'rules_action_role_mail',  $account->mail, user_preferred_language($account), $settings, $from, FALSE);
+
+    // Send the prepared message.
     $message = mimemail(
       $message['from'],
       $message['to'],
@@ -115,31 +115,6 @@ function mimemail_rules_action_mail_to_users_of_role($settings) {
     $roles = array_intersect_key(user_roles(TRUE), drupal_map_assoc($recipients));
     watchdog('rules', 'HTML mail successfully sent to role(s) %roles.', array('%roles' => implode(', ', $roles)));
   }
-}
-
-/*
- * Helper function for processing form settings on execution time,
- * so that tokens and input evaluators apply.
- */
-function mimemail_rules_form_settings_process($settings) {
-  // We also handle CC and BCC if it's set.
-  $settings['to'] = empty($settings['to']) ? array() : explode(',', $settings['to']);
-  $settings['cc'] = empty($settings['cc']) ? array() : explode(',', $settings['cc']);
-  $settings['bcc'] = empty($settings['bcc']) ? array() : explode(',', $settings['bcc']);
-
-  foreach ($settings['to'] as $key => $address) {
-    $settings['to'][$key] = str_replace(array("\r", "\n"), '', trim($address));
-  }
-  foreach ($settings['cc'] as $key => $address) {
-    $settings['cc'][$key] = str_replace(array("\r", "\n"), '', trim($address));
-  }
-  foreach ($settings['bcc'] as $key => $address) {
-    $settings['bcc'][$key] = str_replace(array("\r", "\n"), '', trim($address));
-  }
-
-  $settings['from'] = str_replace(array("\r", "\n"), '', $settings['from']);
-
-  return $settings;
 }
 
 /**
