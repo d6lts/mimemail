@@ -12,12 +12,18 @@
  * Action "Send an HTML mail to a user" configuration form.
  */
 function mimemail_rules_action_mail_to_user_form($settings = array(), &$form) {
-  $settings += array('from' => '', 'subject' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
+  $settings += array('sender' => '', 'from' => '', 'subject' => '', 'message_html' => '', 'message_plaintext' => '', 'attachments' => '');
+  $form['settings']['sender'] = array(
+     '#type' => 'textfield',
+    '#title' => t('Sender name'),
+    '#default_value' => $settings['sender'],
+    '#description' => t("The sender's name. Leave it empty to use the site-wide configured name."),
+  );
   $form['settings']['from'] = array(
     '#type' => 'textfield',
-    '#title' => t('Sender'),
+    '#title' => t('Sender e-mail address'),
     '#default_value' => $settings['from'],
-    '#description' => t("The mail's from address. Leave it empty to use the site-wide configured address."),
+    '#description' => t("The sender's address. Leave it empty to use the site-wide configured address."),
   );
   $form['settings']['subject'] = array(
     '#type' => 'textfield',

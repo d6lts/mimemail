@@ -19,17 +19,17 @@ function mimemail_rules_action_info() {
         'user' => array('type' => 'user', 'label' => t('Recipient')),
       ),
       'module' => 'Mime Mail',
-      'eval input' => array('from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
+      'eval input' => array('sender', 'from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
     ),
     'mimemail_rules_action_mail' => array(
       'label' => t('Send an HTML mail to an arbitrary mail address'),
       'module' => 'Mime Mail',
-      'eval input' => array('from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
+      'eval input' => array('sender', 'from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
     ),
     'mimemail_rules_action_mail_to_users_of_role' => array(
       'label' => t('Send an HTML mail to all users of a role'),
       'module' => 'Mime Mail',
-      'eval input' => array('from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
+      'eval input' => array('sender', 'from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
     ),
   );
 }
@@ -40,8 +40,17 @@ function mimemail_rules_action_info() {
 function mimemail_rules_action_mail_to_user($user, $settings) {
   global $language;
 
-  // Set the from address.
-  $from = $settings['from'];
+  // Set the sender name and from address.
+  if (empty($settings['sender']) && empty($settings['from'])) {
+    $from = NULL;
+  }
+  else {
+    $from = array(
+      'name' => $settings['sender'],
+      'mail' => $settings['from'],
+    );
+  }
+
   // If recipient field is empty send it to given user object.
   $to = empty($settings['to']) ? $user->mail : implode(',', $settings['to']);
 
@@ -94,8 +103,16 @@ function mimemail_rules_action_mail_to_users_of_role($settings) {
     $result = db_query('SELECT DISTINCT u.mail FROM {users} u INNER JOIN {users_roles} r ON u.uid = r.uid WHERE r.rid IN ('. $rids .')');
   }
 
-  // Set the from address.
-  $from = $settings['from'];
+  // Set the sender name and from address.
+  if (empty($settings['sender']) && empty($settings['from'])) {
+    $from = NULL;
+  }
+  else {
+    $from = array(
+      'name' => $settings['sender'],
+      'mail' => $settings['from'],
+    );
+  }
 
   while (($account = db_fetch_object($result))) {
     // Prepare the message but not send.
@@ -117,6 +134,7 @@ function mimemail_rules_action_mail_to_users_of_role($settings) {
       $message['id']
     );
   }
+
   if ($message['result']) {
     $roles = array_intersect_key(user_roles(TRUE), drupal_map_assoc($recipients));
     watchdog('rules', 'HTML mail successfully sent to role(s) %roles.', array('%roles' => implode(', ', $roles)));

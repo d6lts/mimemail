@@ -137,12 +137,21 @@ function mimemail_prepare_message($sender, $recipient, $subject, $body, $plainte
   $site_mail = variable_get('site_mail', ini_get('sendmail_from'));
 
   // Override site mails default sender when using default engine.
-  if ((empty($sender) || $sender == $site_mail)
-      && variable_get('mimemail_engine', 'mimemail') == 'mimemail') {
-    $sender = array(
-      'name' => variable_get('mimemail_name', $site_name),
-      'mail' => variable_get('mimemail_mail', $site_mail),
-    );
+  if (variable_get('mimemail_engine', 'mimemail') == 'mimemail') {
+    if ((empty($sender) || $sender == $site_mail)) {
+      $sender = array(
+        'name' => variable_get('mimemail_name', $site_name),
+        'mail' => variable_get('mimemail_mail', $site_mail),
+      );
+    }
+    elseif (is_array($sender)) {
+      if (empty($sender['name'])) {
+        $sender['name'] = variable_get('mimemail_name', $site_name);
+      }
+      if (empty($sender['mail'])) {
+        $sender['mail'] = variable_get('mimemail_mail', $site_mail);
+      }
+    }
   }
 
   // Body is empty, this is a plaintext message.
