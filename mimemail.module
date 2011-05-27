@@ -365,8 +365,6 @@ function mimemail_mailengine($op, $message = array()) {
 /**
  * Overrides Drupal's default mail sending process.
  *
- * @param $mailkey
- *   An identifier for the message.
  * @param $to
  *   An email address or user object who is receiving the message.
  * @param $subject
@@ -375,8 +373,18 @@ function mimemail_mailengine($op, $message = array()) {
  *   The message body in HTML format.
  * @param $from
  *   The email address or user object who is sending the message.
+ * @param $plaintext
+ *   Whether to send the message as plaintext only or HTML. If set to 1, Yes
+ *   or TRUE, then the message will be sent as plaintext.
  * @param $headers
  *   Optional e-mail headers in a keyed array.
+ * @param $text
+ *   Optional plaintext portion of a multipart e-mail.
+ * @param $attachments
+ *   An array of arrays which describe one or more attachments.
+ * @param $mailkey
+ *   An identifier for the message.
+ *
  * @return
  *   Returns the resultss of the call to mimemail().
  */
@@ -394,9 +402,11 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE
     else {
       $body = $message['body'];
     }
+    $plaintext = isset($message['plaintext']) ? $message['plaintext'] : NULL;
     $headers = isset($message['headers']) ? $message['headers'] : array();
+    $text =  isset($message['text']) ? $message['text'] : NULL;
     $attachments = isset($message['attachments']) ? $message['attachments'] : array();
     $mailkey = isset($message['id']) ? $message['id'] : '';
-    return mimemail($from, $to, $subject, $body, NULL, $headers, NULL, $attachments, $mailkey);
+    return mimemail($from, $to, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey);
   }
 }
