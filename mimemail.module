@@ -386,7 +386,7 @@ function mimemail_mailengine($op, $message = array()) {
  *   An identifier for the message.
  *
  * @return
- *   Returns the resultss of the call to mimemail().
+ *   Returns TRUE if the mail was successfully accepted for delivery, FALSE otherwise.
  */
 if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE
   && !function_exists('drupal_mail_wrapper')) {
@@ -395,6 +395,7 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE
     $from = $message['from'];
     $to = $message['to'];
     $subject = $message['subject'];
+
     if (preg_match('/plain/',$message['headers']['Content-Type'])) {
       $format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
       $body = check_markup($message['body'], $format, FALSE);
@@ -402,11 +403,15 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE
     else {
       $body = $message['body'];
     }
+
     $plaintext = isset($message['plaintext']) ? $message['plaintext'] : NULL;
     $headers = isset($message['headers']) ? $message['headers'] : array();
     $text =  isset($message['text']) ? $message['text'] : NULL;
     $attachments = isset($message['attachments']) ? $message['attachments'] : array();
     $mailkey = isset($message['id']) ? $message['id'] : '';
-    return mimemail($from, $to, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey);
+
+    $message = mimemail($from, $to, $subject, $body, $plaintext, $headers, $text, $attachments, $mailkey); 
+
+    return $message['result'];
   }
 }
