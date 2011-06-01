@@ -346,16 +346,46 @@ function mimemail_mailengine($op, $message = array()) {
       if (!is_array($message['address'])) {
         $message['address'] = array($message['address']);
       }
-      $status = TRUE;
-      foreach ($message['address'] as $a) {
-        $status = mail(
-          $a,
-          $message['subject'],
-          $message['body'],
-          mimemail_rfc_headers($message['headers'])
-        ) && $status;
 
+      // If 'Return-Path' isn't already set in php.ini, we pass it separately
+      // as an additional parameter instead of in the header.
+      // However, if PHP's 'safe_mode' is on, this is not allowed.
+      if (isset($message['headers']['Return-Path']) && !ini_get('safe_mode')) {
+        $return_path_set = strpos(ini_get('sendmail_path'), ' -f');
+        if (!$return_path_set) {
+          $return_path = trim($message['headers']['Return-Path'], '<,>');
+          unset($message['headers']['Return-Path']);
+        }
       }
+
+      $status = TRUE;
+      foreach ($message['address'] as $to) {
+        $subject = $message['subject'];
+        $body = $message['body'];
+        $headers = mimemail_rfc_headers($message['headers']);
+        if (isset($return_path)) {
+          if (isset($_SERVER['WINDIR']) || strpos($_SERVER['SERVER_SOFTWARE'], 'Win32') !== FALSE) {
+            // On Windows, PHP will use the value of sendmail_from for the
+            // Return-Path header.
+            $old_from = ini_get('sendmail_from');
+            ini_set('sendmail_from', $return_path);
+            $status = @mail($to, $subject, $body, $headers) && $status;
+            ini_set('sendmail_from', $old_from);
+          }
+          else {
+            // On most non-Windows systems, the "-f" option to the sendmail command
+            // is used to set the Return-Path.
+            $status = @mail($to, $subject, $body, $headers, '-f ' . $return_path) && $status;
+          }
+        }
+        else {
+          // The optional $additional_parameters argument to mail() is not allowed
+          // if safe_mode is enabled. Passing any value throws a PHP warning and
+          // makes mail() return FALSE.
+          $status = @mail($to, $subject, $body, $headers) && $status;
+        }
+      }
+
       return $status;
   }
 
