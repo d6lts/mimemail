@@ -38,7 +38,7 @@ function template_preprocess_mimemail_message(&$variables) {
     }
   }
 
-  $themepath = drupal_get_path('theme', $theme);
+  $themepath = (function_exists('path_to_subtheme')) ? path_to_subtheme() : drupal_get_path('theme', $theme);
 
   $sitestyle = variable_get('mimemail_sitestyle', 1);
   $mailstyle = $themepath .'/mail.css';
