@@ -375,7 +375,7 @@ function mimemail_mailengine($op, $message = array()) {
           else {
             // On most non-Windows systems, the "-f" option to the sendmail command
             // is used to set the Return-Path.
-            $status = @mail($to, $subject, $body, $headers, '-f ' . $return_path) && $status;
+            $status = @mail($to, $subject, $body, $headers, '-f' . $return_path) && $status;
           }
         }
         else {
