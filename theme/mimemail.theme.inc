@@ -43,34 +43,39 @@ function template_preprocess_mimemail_message(&$variables) {
   $sitestyle = variable_get('mimemail_sitestyle', 1);
   $mailstyle = $themepath .'/mail.css';
 
-  // Check for the existence of a mail.css file in the current theme folder
-  if (@file_exists($mailstyle)) {
-    $styles = $mailstyle;
-  }
-  // If no mail.css was found and the site style sheets including is enabled,
-  // gather all style sheets and embed a version of all style definitions.
-  elseif ($sitestyle) {
-    $css_all = drupal_add_css();
-    $css_files = array();
-    foreach ($css_all as $media => $types) {
-      foreach ($types as $type => $file) {
-        if ($type == 'theme' && ($media == 'all' || $media == 'screen')) {
-          $css_files[$media][$type] = $file;
-        }
+  $css_all = drupal_add_css();
+  $css_files_mail = $css_files_screen = array();
+  foreach ($css_all as $media => $types) {
+    foreach ($types as $type => $file) {
+      // Gather and always include CSS files with 'email' media.
+      if ($media == 'email') {
+        $css_files_mail[$media][$type] = $file;
+      }
+      // Gather and include other site style sheets if enabled.
+      elseif ($type == 'theme' && ($media == 'all' || $media == 'screen')) {
+        $css_files_screen[$media][$type] = $file;
       }
     }
+  }
+  $styles = _mimemail_css_file_paths($css_files_mail);
+
+  // Check for the existence of a mail.css file in the current theme folder.
+  if (@file_exists($mailstyle)) {
+    array_push($styles, $mailstyle);
+  }
+  // When no mail.css was found, include site style sheets if enabled.
+  elseif ($sitestyle) {
     // Grab local.css if it exists (support for Fusion based themes).
     $local = $themepath . '/css/local.css';
     if (@file_exists($local)) {
-      $css_files['all']['theme'][$local] = TRUE;
+      $css_files_screen['all']['theme'][$local] = TRUE;
     }
-    $styles = preg_replace('|<link.*href="'. base_path()
-                          .'([^"?]*)[?"].*|', '\1', drupal_get_css($css_files));
+    $styles = array_merge($styles, _mimemail_css_file_paths($css_files_screen));
   }
 
   // Process each style sheet
   $css = '';
-  foreach (explode("\n", $styles) as $style) {
+  foreach ($styles as $style) {
     if (!empty($style) && @file_exists($style)) {
       $css .= @file_get_contents($style);
     }
@@ -134,4 +139,12 @@ function _mimemail_process_comment($matches) {
       // Single line IE-Mac hack.
       return '/*\_*/';
   }
+}
+
+/**
+ * Convert an array of CSS files to an array of file paths.
+ */
+function _mimemail_css_file_paths($css) {
+  return explode("\n", preg_replace('|<link.*href="'. base_path()
+                        .'([^"?]*)[?"].*|', '\1', drupal_get_css($css)));
 }
