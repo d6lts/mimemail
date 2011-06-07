@@ -89,6 +89,20 @@ function mimemail_rules_action_mail_form($settings = array(), &$form) {
  * Handle submission for action "Send an HTML mail to a user" configuration form.
  */
 function mimemail_rules_action_mail_submit(&$settings, $form, $form_state) {
+  mimemail_rules_action_form_submit(&$settings, $form, $form_state);
+}
+
+/**
+ * Handle submission for action "Send an HTML mail to an arbitrary mail address" configuration form.
+ */
+function mimemail_rules_action_mail_to_user_submit(&$settings, $form, $form_state) {
+  mimemail_rules_action_form_submit(&$settings, $form, $form_state);
+}
+
+/**
+ * Handle submission for action configuration forms.
+ */
+function mimemail_rules_action_form_submit(&$settings, $form, $form_state) {
   // Unwrap the HTML message from the input filter wrapper.
   $settings['message_html'] = $settings['message_html_filter']['message_html'];
   unset($settings['message_html_filter']);

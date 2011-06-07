@@ -52,7 +52,7 @@ function mimemail_rules_action_mail_to_user($user, $settings) {
   }
 
   // If recipient field is empty send it to given user object.
-  $to = empty($settings['to']) ? $user->mail : implode(',', $settings['to']);
+  $to = empty($settings['to']) ? $user->mail : $settings['to'];
 
   // Prepare the message but not send.
   $message = drupal_mail('mimemail', 'rules_action_mail', $to, $language, $settings, $from, FALSE);
@@ -66,7 +66,7 @@ function mimemail_rules_action_mail_to_user($user, $settings) {
     $message['to'],
     $message['subject'],
     $message['body'],
-    NULL ,
+    NULL,
     $message['headers'],
     $message['params']['plaintext'],
     $message['params']['attachments'],
@@ -74,8 +74,9 @@ function mimemail_rules_action_mail_to_user($user, $settings) {
   );
 
   if ($message['result']) {
-    $recipients = array_merge(explode(',', $to), $settings['bcc'], $settings['cc']);
-    watchdog('rules', 'HTML mail successfully sent to %recipient', array('%recipient' => implode(', ', $recipients)));
+    if (!empty($settings['bcc'])) $to .= ", " . $settings['bcc'];
+    if (!empty($settings['cc'])) $to .= ", " . $settings['cc'];
+    watchdog('rules', 'HTML mail successfully sent to %recipient', array('%recipient' => $to));
   }
 }
 
