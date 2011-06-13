@@ -100,6 +100,13 @@ function mimemail_rules_action_mail_to_user_submit(&$settings, $form, $form_stat
 }
 
 /**
+ * Handle submission for action "Send an HTML mail to all users of a role" configuration form.
+ */
+function mimemail_rules_action_mail_to_users_of_role_submit(&$settings, $form, $form_state) {
+  mimemail_rules_action_form_submit(&$settings, $form, $form_state);
+}
+
+/**
  * Handle submission for action configuration forms.
  */
 function mimemail_rules_action_form_submit(&$settings, $form, $form_state) {
