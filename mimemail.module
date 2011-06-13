@@ -90,7 +90,7 @@ function mimemail_mail($key, &$message, $params) {
   $attachments = array();
   $attachments_string = trim($params['attachments']);
   if (!empty($attachments_string)) {
-    $attachment_lines = array_filter(explode('\n', trim($attachments_string)));
+    $attachment_lines = array_filter(explode("\n", trim($attachments_string)));
     foreach ($attachment_lines as $key => $attachment_line) {
       $attachment = explode(':', trim($attachment_line), 2);
       $attachments[] = array(
