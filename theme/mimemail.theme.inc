@@ -1,4 +1,9 @@
-<?php // $Id$
+<?php
+
+/**
+ * @file
+ * The theme system, which controls the output of the messages.
+ */
 
 function mimemail_theme_theme() {
   $path = drupal_get_path('module', 'mimemail') .'/theme';

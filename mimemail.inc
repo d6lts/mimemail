@@ -55,7 +55,7 @@ function mimemail_headers($headers, $from = NULL) {
 
   // Run all headers through mime_header_encode() to convert non-ascii
   // characters to an rfc compliant string, similar to drupal_mail().
-  foreach($headers as $key => $value) {
+  foreach ($headers as $key => $value) {
     $headers[$key] = mime_header_encode($value);
   }
 

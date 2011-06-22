@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ * Install, update and uninstall functions for the Mime Mail Compress module.
+ */
 
 /**
  * Implementation of hook_requirements().
