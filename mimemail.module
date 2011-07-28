@@ -115,7 +115,9 @@ function mimemail_mail($key, &$message, $params) {
 
   $message['to'] = strtr($message['to'], $variables);
   $message['subject'] = strtr($params['subject'], $variables);
-  $message['body'][] = strtr(filter_xss_admin($params['message_html']), $variables);
+  $message['body'] = strtr(filter_xss_admin($params['message_html']), $variables);
+
+  $message['body'] = check_markup($message['body'], $params['message_html_filter'], FALSE);
 
   $message['params']['plaintext'] = strtr($params['message_plaintext'], $variables);
   $message['params']['attachments'] = $attachments;
