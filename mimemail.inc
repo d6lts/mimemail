@@ -47,7 +47,7 @@ function mimemail_headers($headers, $from = NULL) {
   // Note: This may not work. The MTA may rewrite the Return-Path, and Errors-To is deprecated.
 
   // Allow a mail to overwrite standard headers.
-  if (!is_null($from)) {
+  if (!empty($from)) {
     preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
     $from_email = $matches[0];
     $headers = array_merge($headers, array('From' => $from, 'Sender' => $from, 'Return-Path' => "<$from_email>", 'Errors-To' => $from));
