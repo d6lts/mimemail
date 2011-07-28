@@ -349,12 +349,14 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
     }
   }
 
-  foreach ($attachments as $a) {
-    $a = (object) $a;
-    $name = isset($a->filename) ? $a->filename : 'attachment.dat';
-    $type = isset($a->filemime) ? $a->filemime : 'application/octet-stream';
-    _mimemail_file($a->filepath, $a->filecontent, $a->filename, $a->filemime, 'attachment');
-    $parts = array_merge($parts, _mimemail_file());
+  if (is_array($attachments) && !empty($attachments)) {
+    foreach ($attachments as $a) {
+      $a = (object) $a;
+      $name = isset($a->filename) ? $a->filename : 'attachment.dat';
+      $type = isset($a->filemime) ? $a->filemime : 'application/octet-stream';
+      _mimemail_file($a->filepath, $a->filecontent, $a->filename, $a->filemime, 'attachment');
+      $parts = array_merge($parts, _mimemail_file());
+    }
   }
 
   return mimemail_multipart_body($parts, $content_type);
