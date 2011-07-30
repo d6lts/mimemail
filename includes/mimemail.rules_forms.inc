@@ -90,21 +90,21 @@ function mimemail_rules_action_mail_form($settings = array(), &$form) {
  * Handle submission for action "Send an HTML mail to a user" configuration form.
  */
 function mimemail_rules_action_mail_submit(&$settings, $form, $form_state) {
-  mimemail_rules_action_form_submit(&$settings, $form, $form_state);
+  mimemail_rules_action_form_submit($settings, $form, $form_state);
 }
 
 /**
  * Handle submission for action "Send an HTML mail to an arbitrary mail address" configuration form.
  */
 function mimemail_rules_action_mail_to_user_submit(&$settings, $form, $form_state) {
-  mimemail_rules_action_form_submit(&$settings, $form, $form_state);
+  mimemail_rules_action_form_submit($settings, $form, $form_state);
 }
 
 /**
  * Handle submission for action "Send an HTML mail to all users of a role" configuration form.
  */
 function mimemail_rules_action_mail_to_users_of_role_submit(&$settings, $form, $form_state) {
-  mimemail_rules_action_form_submit(&$settings, $form, $form_state);
+  mimemail_rules_action_form_submit($settings, $form, $form_state);
 }
 
 /**
