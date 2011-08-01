@@ -150,6 +150,6 @@ function _mimemail_process_comment($matches) {
  * Convert an array of CSS files to an array of file paths.
  */
 function _mimemail_css_file_paths($css) {
-  return explode("\n", preg_replace('|<link.*href="'. base_path()
-                        .'([^"?]*)[?"].*|', '\1', drupal_get_css($css)));
+  return explode("\n", preg_replace('|<link.*href="(' . $GLOBALS['base_url'] . ')?' . base_path()
+                        . '([^"?]*)[?"].*|', '\2', drupal_get_css($css)));
 }
