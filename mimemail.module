@@ -241,9 +241,11 @@ function mimemail_prepare_message($message) {
   // Override site mails default sender when using default engine.
   if ((empty($from) || $from == $site_mail)
       && variable_get('mimemail_engine', 'mimemail') == 'mimemail') {
+    $mimemail_name = variable_get('mimemail_name', $site_name);
+    $mimemail_mail = variable_get('mimemail_mail', $site_mail);
     $from = array(
-      'name' => variable_get('mimemail_name', $site_name),
-      'mail' => variable_get('mimemail_mail', $site_mail),
+      'name' => !empty($mimemail_name) ? $mimemail_name : $site_name,
+      'mail' => !empty($mimemail_mail) ? $mimemail_mail : $site_mail,
     );
   }
 
