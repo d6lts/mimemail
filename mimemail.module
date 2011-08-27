@@ -142,7 +142,7 @@ function mimemail_mailengine($op, $message = array()) {
       if (isset($message['headers']['Return-Path']) && !ini_get('safe_mode')) {
         $return_path_set = strpos(ini_get('sendmail_path'), ' -f');
         if (!$return_path_set) {
-          $message['Return-Path'] = $message['headers']['Return-Path'];
+          $message['Return-Path'] = trim($message['headers']['Return-Path'], '<>');
           unset($message['headers']['Return-Path']);
         }
       }
