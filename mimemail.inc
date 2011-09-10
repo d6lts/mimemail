@@ -238,7 +238,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
     if (isset($part['Content-Disposition'])) {
       $part_headers['Content-Disposition'] = $part['Content-Disposition'];
     }
-    else {
+    elseif (strpos($part['Content-Type'], 'multipart/alternative') === FALSE) {
       $part_headers['Content-Disposition'] = 'inline';
     }
 
