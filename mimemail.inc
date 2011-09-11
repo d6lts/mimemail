@@ -107,7 +107,7 @@ function _mimemail_replace_files($matches) {
  * Helper function to extract local files.
  *
  * @param $url
- *   The URL of the file.
+ *   The URI or the absolute URL to the file.
  * @param $content
  *   The actual file content.
  *
@@ -126,12 +126,13 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     else {
       $url = _mimemail_url($url, 'TRUE');
       // The $url is absolute, we're done here.
-      if (strpos($url, '://') !== FALSE || preg_match('!mailto:!', $url)) {
+      $scheme = file_uri_scheme($url);
+      if ($scheme == 'http' || $scheme == 'https' || preg_match('!mailto:!', $url)) {
         return $url;
       }
-      // The $url is a relative file path, continue processing.
+      // The $url is a non-local URI that needs to be converted to a URL.
       else {
-        $file = drupal_realpath($url);
+        $file = (drupal_realpath($url)) ? drupal_realpath($url) : file_create_url($url);
       }
     }
   }
@@ -355,7 +356,7 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
       $content = isset($a->filecontent) ? $a->content : NULL;
       $name = isset($a->filename) ? $a->filename : 'attachment.dat';
       $type = isset($a->filemime) ? $a->filemime : 'application/octet-stream';
-      _mimemail_file($a->filepath, $content, $name, $type, 'attachment');
+      _mimemail_file($a->uri, $content, $name, $type, 'attachment');
       $parts = array_merge($parts, _mimemail_file());
     }
   }

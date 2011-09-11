@@ -96,7 +96,7 @@ function mimemail_mail($key, &$message, $params) {
     foreach ($attachment_lines as $key => $attachment_line) {
       $attachment = explode(':', trim($attachment_line), 2);
       $attachments[] = array(
-        'filepath' => $attachment[1],
+        'uri' => $attachment[1],
         'filemime' => $attachment[0],
       );
     }
