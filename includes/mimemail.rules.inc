@@ -127,13 +127,13 @@ function mimemail_rules_action_info() {
  */
 function rules_action_mimemail($to, $cc = NULL, $bcc = NULL, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
   // Set the sender name and from address.
-  if (empty($from_name) && empty($from_mail)) {
+  if (empty($from_mail)) {
     $from = NULL;
   }
   else {
     $from = array(
-      'name' => $settings['sender'],
-      'mail' => $settings['from'],
+      'name' => $from_name,
+      'mail' => $from_mail,
     );
   }
 
