@@ -43,13 +43,13 @@ function mimemail_rfc_headers($headers) {
  * @return header string.
  */
 function mimemail_headers($headers, $from = NULL) {
-  // Note: This may not work. The MTA may rewrite the Return-Path, and Errors-To is deprecated.
+  // Note: This may not work. The MTA may rewrite the Return-Path.
 
   // Allow a mail to overwrite standard headers.
   if (!empty($from)) {
     preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
     $from_email = $matches[0];
-    $headers = array_merge($headers, array('From' => $from, 'Sender' => $from, 'Return-Path' => "<$from_email>", 'Errors-To' => $from));
+    $headers = array_merge($headers, array('From' => $from, 'Sender' => $from, 'Return-Path' => "<$from_email>"));
   }
 
   // Run all headers through mime_header_encode() to convert non-ascii
@@ -229,7 +229,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
     if (isset($part['Content-Disposition'])) {
       $part_headers['Content-Disposition'] = $part['Content-Disposition'];
     }
-    else {
+    elseif (strpos($part['Content-Type'], 'multipart/alternative') === FALSE) {
       $part_headers['Content-Disposition'] = 'inline';
     }
 
@@ -352,9 +352,10 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
   if (is_array($attachments) && !empty($attachments)) {
     foreach ($attachments as $a) {
       $a = (object) $a;
+      $content = isset($a->filecontent) ? $a->content : NULL;
       $name = isset($a->filename) ? $a->filename : 'attachment.dat';
       $type = isset($a->filemime) ? $a->filemime : 'application/octet-stream';
-      _mimemail_file($a->filepath, $a->filecontent, $a->filename, $a->filemime, 'attachment');
+      _mimemail_file($a->filepath, $content, $name, $type, 'attachment');
       $parts = array_merge($parts, _mimemail_file());
     }
   }
