@@ -141,14 +141,14 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     $file = $content;
   }
 
-  if (isset($file) && @is_file($file)) {
+  if (isset($file) && (@is_file($file) || $content)) {
 
     if (!$name) $name = (@is_file($file)) ? basename($file) : 'attachment.dat';
     if (!$type) $type = ($name) ? file_get_mimetype($name) : file_get_mimetype($file);
 
     // Prevent duplicate items.
-    if (isset($filenames[$file])) return 'cid:' . $filenames[$file];
-    $content_id = md5($file) . '@' . $_SERVER['HTTP_HOST'];
+    if (isset($filenames[$name])) return 'cid:' . $filenames[$file];
+    $content_id = md5($name) . '@' . $_SERVER['HTTP_HOST'];
 
     $new_file = array(
       'name' => $name,
@@ -353,7 +353,7 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
   if (is_array($attachments) && !empty($attachments)) {
     foreach ($attachments as $a) {
       $a = (object) $a;
-      $content = isset($a->filecontent) ? $a->content : NULL;
+      $content = isset($a->filecontent) ? $a->filecontent : NULL;
       $name = isset($a->filename) ? $a->filename : 'attachment.dat';
       $type = isset($a->filemime) ? $a->filemime : 'application/octet-stream';
       _mimemail_file($a->uri, $content, $name, $type, 'attachment');
