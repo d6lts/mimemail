@@ -147,7 +147,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     if (!$type) $type = ($name) ? file_get_mimetype($name) : file_get_mimetype($file);
 
     // Prevent duplicate items.
-    if (isset($filenames[$name])) return 'cid:' . $filenames[$file];
+    if (isset($filenames[$name])) return 'cid:' . $filenames[$name];
     $content_id = md5($name) . '@' . $_SERVER['HTTP_HOST'];
 
     $new_file = array(
@@ -159,7 +159,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     );
 
     $files[] = $new_file;
-    $filenames[$file] = $content_id;
+    $filenames[$name] = $content_id;
 
     return 'cid:' . $content_id;
   }
