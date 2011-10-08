@@ -57,8 +57,17 @@ function rules_action_mimemail($to, $cc = NULL, $bcc = NULL, $from_name = NULL, 
 /**
  * Action: Send HTML mail to all users of a specific role group(s).
  */
-function rules_action_mimemail_to_users_of_role($roles, $from = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
-  $from = !empty($from) ? str_replace(array("\r", "\n"), '', $from) : NULL;
+function rules_action_mimemail_to_users_of_role($roles, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
+  // Set the sender name and from address.
+  if (empty($from_mail)) {
+    $from = NULL;
+  }
+  else {
+    $from = array(
+      'name' => $from_name,
+      'mail' => $from_mail,
+    );
+  }
 
   // All authenticated users, which is everybody.
   if (in_array(DRUPAL_AUTHENTICATED_RID, $roles)) {
@@ -73,7 +82,7 @@ function rules_action_mimemail_to_users_of_role($roles, $from = NULL, $subject, 
   $params = array(
     'context' => array(
       'subject' => $subject,
-      'body' => $body,
+      'body' => $body['value'],
       'action' => $element,
       'state' => $state,
     ),
