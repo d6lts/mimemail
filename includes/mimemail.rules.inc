@@ -41,7 +41,7 @@ function mimemail_rules_action_mail_to_user($user, $settings) {
   global $language;
 
   // Set the sender name and from address.
-  if (empty($settings['sender']) && empty($settings['from'])) {
+  if (empty($settings['from'])) {
     $from = NULL;
   }
   else {
@@ -102,7 +102,7 @@ function mimemail_rules_action_mail_to_users_of_role($settings) {
   }
 
   // Set the sender name and from address.
-  if (empty($settings['sender']) && empty($settings['from'])) {
+  if (empty($settings['from'])) {
     $from = NULL;
   }
   else {
