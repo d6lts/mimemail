@@ -49,7 +49,7 @@ function mimemail_headers($headers, $from = NULL) {
   if (!empty($from)) {
     preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
     $from_email = $matches[0];
-    $headers = array_merge(array('From' => $from, 'Sender' => $from, 'Return-Path' => "<$from_email>"), $headers);
+    $headers = array_merge($headers, array('From' => $from, 'Sender' => $from, 'Return-Path' => "<$from_email>"));
   }
 
   // Run all headers through mime_header_encode() to convert non-ascii
