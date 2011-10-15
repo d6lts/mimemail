@@ -31,16 +31,24 @@ function mimemail_menu() {
 }
 
 /**
+ * Implements hook_perm().
+ */
+function mimemail_perm() {
+  return array('edit mimemail user settings');
+}
+
+/**
  * Implements hook_user().
  */
 function mimemail_user($op, &$edit, &$account, $category = '') {
   if ($op == 'form' && $category == 'account') {
     $form = array();
     $form['mimemail'] = array(
-        '#type'          => 'fieldset',
-        '#title'         => t('Email settings'),
-        '#weight'        => 5,
-        '#collapsible' => TRUE,
+      '#type'          => 'fieldset',
+      '#title'         => t('Email settings'),
+      '#weight'        => 5,
+      '#collapsible' => TRUE,
+      '#access' => user_access('edit mimemail user settings'),
     );
     $form['mimemail']['mimemail_textonly'] = array(
       '#type'           => 'checkbox',

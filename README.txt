@@ -31,7 +31,7 @@ USAGE
 
   This module creates a user preference for receiving plaintext-only messages.
   This preference will be honored by all calls to mimemail() if the format is not
-  explicitly set.
+  explicitly set and the user has access to edit this preference (allowed by default).
 
   E-mail messages are formatted using the mimemail-message.tpl.php template.
   This includes a CSS style sheet and uses an HTML version of the text.
