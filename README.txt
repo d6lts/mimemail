@@ -61,7 +61,7 @@
     'plaintext':
       Plaintext portion of a multipart e-mail (optional).
     'attachments':
-      Array of arrays with the path, name and MIME type of the file (optional).
+      Array of arrays with the path or content, name and MIME type of the file (optional).
     'headers':
       A keyed array with headers (optional). 
 
