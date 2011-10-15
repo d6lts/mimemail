@@ -236,7 +236,7 @@ function mimemail_mail($key, &$message, $params) {
 
   $message['to'] = token_replace($message['to'], $context);
   $message['subject'] = token_replace($context['subject'], $context);
-  $message['body'] = token_replace($context['body'], $context);
+  $message['body'][] = token_replace($context['body'], $context);
   $message['params']['plaintext'] = token_replace($params['plaintext'], $context);
   $message['params']['attachments'] = $attachments;
 }
