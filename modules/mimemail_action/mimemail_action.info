@@ -1,5 +1,5 @@
-name = "Mime Mail Action"
-description = "Provide actions for Mime Mail."
+name = Mime Mail Action
+description = Provides actions for Mime Mail.
 package = Mail
 dependencies[] = mimemail
 dependencies[] = trigger

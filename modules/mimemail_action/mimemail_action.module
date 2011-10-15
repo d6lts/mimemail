@@ -6,8 +6,8 @@
  */
 
 /**
-* Implementation of hook_action_info().
-*/
+ * Implements hook_action_info().
+ */
 function mimemail_action_info() {
   return array(
     'mimemail_send_mail_action' => array(
@@ -25,7 +25,7 @@ function mimemail_action_info() {
 }
 
 /**
- * Implementation of a configurable Drupal action. Sends an email.
+ * Implements a configurable Drupal action. Sends an email.
  */
 function mimemail_send_mail_action(&$object, $context = array()) {
   global $user;
@@ -119,7 +119,7 @@ function mimemail_send_mail_action_form($context) {
     '#description' => t("The mail's recipient address. You may separate multiple addresses with comma and use %author if the recipient is the author of the original post.", array('%author' => '%author')),
     '#required' => TRUE,
   );
- $form['cc'] = array(
+  $form['cc'] = array(
     '#type' => 'textfield',
     '#title' => t('CC Recipient'),
     '#default_value' => $context['cc'],

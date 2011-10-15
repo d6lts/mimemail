@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_disable().
+ * Implements hook_disable().
  */
 function mimemail_disable() {
   if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE) {
@@ -15,7 +15,7 @@ function mimemail_disable() {
 }
 
 /**
- * Implementation of hook_uninstall()
+ * Implements hook_uninstall().
  */
 function mimemail_uninstall() {
   $variables = array(

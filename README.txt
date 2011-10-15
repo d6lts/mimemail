@@ -27,7 +27,7 @@ USAGE
   $mailkey     - message identifier
   $send        - boolean, whether to send or only prepare the message (default TRUE)
 
-  return       - an array containing the MIME encoded message, including headers and body
+  return       - an array containing the MIME-encoded message, including headers and body
 
   This module creates a user preference for receiving plaintext-only messages.
   This preference will be honored by all calls to mimemail() if the format is not

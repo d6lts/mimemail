@@ -2,19 +2,14 @@
 
 /**
  * @file
- * Admin settings pages for sending Mime-encoded emails.
+ * Admin settings pages for sending MIME-encoded emails.
  */
 
 /**
- * Administration settings.
- *
- * @return
- *   The administration from.
+ * Module configuration form.
  */
 function mimemail_admin_settings() {
-
-  // override the smtp_library value if mimemail is chosen to handle all mail
-  // this will cause drupal_mail to call mimemail()
+  // Override the smtp_library value if Mime Mail is chosen to handle all mail.
   if (variable_get('mimemail_alter', 0)) {
     if (variable_get('smtp_library', '') != drupal_get_filename('module', 'mimemail')) {
       variable_set('smtp_library', drupal_get_filename('module', 'mimemail'));
@@ -102,7 +97,7 @@ function mimemail_admin_settings() {
     '#description'   => t('This string will be used to validate incoming messages.  It can be anything, but must be used on both sides of the transfer'),
   );
 
-  // hide the settings if only 1 engine is available
+  // Hide the settings if only one engine is available.
   if (count($engines) == 1) {
     variable_set('mimemail_engine', key($engines));
     $form['mimemail_engine'] = array(
