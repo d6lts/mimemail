@@ -31,6 +31,18 @@ function mimemail_menu() {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function mimemail_permission() {
+  return array(
+    'edit mimemail user settings' => array(
+      'title' => t('Edit Mime Mail user settings'),
+      'description' => t('Edit user specific settings for Mime Mail.'),
+    ),
+  );
+}
+
+/**
  * Access callback to process incoming messages.
  */
 function mimemail_incoming_access() {
@@ -50,6 +62,7 @@ function mimemail_form_user_profile_form_alter(&$form, &$form_state) {
       '#title' => t('Email settings'),
       '#weight' => 5,
       '#collapsible' => TRUE,
+      '#access' => user_access('edit mimemail user settings'),
     );
     $form['mimemail']['mimemail_textonly'] = array(
       '#type' => 'checkbox',
