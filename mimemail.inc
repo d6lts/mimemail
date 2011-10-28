@@ -125,13 +125,16 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     }
     else {
       $url = _mimemail_url($url, 'TRUE');
-
       // If the url is absolute, we're done here.
       if (strpos($url, '://') !== FALSE || preg_match('!mailto:!', $url)) {
         return $url;
       }
       // The url is a relative file path, continue processing.
       else {
+         // Make sure ImageCache images are existing before trying to attach.
+        if (module_exists('imagecache') && strpos($url, 'imagecache') !== FALSE) {
+            _mimemail_imagecache($url);
+        }
         // Download method is private, and the URL needs conversion.
         if (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PRIVATE && strpos($url, 'system/files/') !== FALSE) {
           $file = file_create_path(drupal_substr($url, (strpos($url, 'system/files/') + drupal_strlen('system/files/'))));
@@ -179,6 +182,31 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
   $files = array();
   $filenames = array();
   return $ret;
+}
+
+/**
+ * Helper function to ensure that ImageCache files are created before attaching.
+ */
+function _mimemail_imagecache($url) {
+  static $urls = array();
+
+  // Prevent rechecking.
+  if (isset($urls[$url])) {
+    return;
+  }
+
+  $segments = explode('/', $url);
+
+  // Extract the preset from the path.
+  $key = array_search('imagecache', $segments);
+  $preset = $segments[$key+1];
+
+  // Remove unnecessary segments to get the original path.
+  unset($segments[$key], $segments[$key+1]);
+  $path = implode('/', $segments);
+
+  $urls[$url] = TRUE;
+  return imagecache_generate_image($preset, $path);
 }
 
 /**
