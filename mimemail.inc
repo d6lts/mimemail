@@ -611,9 +611,34 @@ function _mimemail_url($url, $embed_file = NULL) {
     return '#'. $fragment;
   }
 
-  // If we have not yet returned, then let's clean things up and leave.
-  $url = url($path, array('query' => $query, 'fragment' => $fragment, 'absolute' => TRUE));
+  // Get a list of enabled languages.
+  $languages = language_list('enabled');
+  $languages = $languages[1];
 
+  // Default language settings.
+  $prefix = '';
+  $language = language_default();
+
+  // Check for language prefix.
+  $args = explode('/', $path);
+  foreach (array_keys($languages) as $lang) {
+    if ($args[0] == $lang) {
+      $prefix = array_shift($args) . '/';
+      $language = $languages[$lang];
+      $path = implode('/', $args);
+      break;
+    }
+  }
+
+  $options = array(
+    'query' => $query,
+    'fragment' => $fragment,
+    'absolute' => TRUE,
+    'language' => $language,
+    'prefix' => $prefix,
+  );
+
+  $url = url($path, $options);
 
   // If url() added a ?q= where there should not be one, remove it.
   if ($strip_clean) $url = preg_replace('!\?q=!', '', $url);
