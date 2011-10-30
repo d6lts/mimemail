@@ -66,6 +66,12 @@ function mimemail_admin_settings() {
     '#description'   => t('Gather all style sheets when no mail.css found in the default theme directory.'),
     '#disabled'      => $disable_sitestyle,
   );
+  $form['mimemail']['mimemail_linkonly'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => t('Link images only'),
+    '#default_value' => variable_get('mimemail_linkonly', 0),
+    '#description'   => t('This option disables the embedding of images. All image will be available as external content. This can make email messages much smaller.'),
+  );
 
   $filter_format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
   $form['mimemail']['mimemail_format'] =  filter_form($filter_format, NULL, array("mimemail_format"));
