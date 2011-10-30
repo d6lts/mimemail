@@ -22,12 +22,19 @@ function mimemail_menu() {
   );
   $items['mimemail'] = array(
     'page callback' => 'mimemail_post',
-    'access callback' => variable_get('mimemail_incoming', FALSE),
+    'access callback' => 'mimemail_incoming_access',
     'type' => MENU_CALLBACK,
     'file' => 'mimemail.incoming.inc',
     'file path' => $path,
   );
   return $items;
+}
+
+/**
+ * Access callback to process incoming messages.
+ */
+function mimemail_incoming_access() {
+  return variable_get('mimemail_incoming', FALSE);
 }
 
 /**
