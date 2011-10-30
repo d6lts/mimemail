@@ -597,8 +597,8 @@ function _mimemail_url($url, $embed_file = NULL) {
   }
 
   $url = str_replace('?q=', '', $url);
-  list($url, $fragment) = explode('#', $url, 2);
-  list($path, $query) = explode('?', $url, 2);
+  @list($url, $fragment) = explode('#', $url, 2);
+  @list($path, $query) = explode('?', $url, 2);
 
   // If we're dealing with an intra-document reference, return it.
   if (empty($path) && !empty($fragment)) {
