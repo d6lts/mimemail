@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Rules actions for sending Mime-encoded emails (settings forms).
+ * Rules actions for sending MIME-encoded e-mails (settings forms).
  *
  * @addtogroup rules
  * @{

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Component module for sending Mime-encoded emails.
+ * Component module for sending MIME-encoded emails.
  */
 
 /**

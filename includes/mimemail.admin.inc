@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Admin settings pages for sending MIME-encoded emails.
+ * Admin settings pages for sending MIME-encoded e-mails.
  */
 
 /**
@@ -72,16 +72,15 @@ function mimemail_admin_settings() {
     '#default_value' => variable_get('mimemail_linkonly', 0),
     '#description'   => t('This option disables the embedding of images. All image will be available as external content. This can make email messages much smaller.'),
   );
-
-  $filter_format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
-  $form['mimemail']['mimemail_format'] =  filter_form($filter_format, NULL, array("mimemail_format"));
-
   $form['mimemail']['mimemail_textonly'] = array(
     '#type'          => 'checkbox',
     '#title'         => t('Plaintext email only'),
     '#default_value' => variable_get('mimemail_textonly', 0),
     '#description'   => t('This option disables the use of email messages with graphics and styles.  All messages will be converted to plain text.'),
   );
+
+  $filter_format = variable_get('mimemail_format', FILTER_FORMAT_DEFAULT);
+  $form['mimemail']['mimemail_format'] =  filter_form($filter_format, NULL, array("mimemail_format"));
 
   $form['mimemail']['incoming'] = array(
     '#type'          => 'fieldset',

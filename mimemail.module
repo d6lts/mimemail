@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Component module for sending Mime-encoded emails.
+ * Component module for sending MIME-encoded e-mails.
  */
 
 /**
@@ -185,7 +185,7 @@ function mimemail_prepare_message($sender, $recipient, $subject, $body, $plainte
     elseif (is_string($recipient) && valid_email_address($recipient)) {
       if (is_object($r = user_load(array('mail' => $recipient))) && isset($r->mimemail_textonly)) {
         $plaintext = $r->mimemail_textonly;
-        $recipient = $r; //Pass the user object to the address function.
+        $recipient = $r; // Pass the user object to the address function.
       }
     }
   }
@@ -278,7 +278,7 @@ function mimemail_send_message($message) {
  *   Send the message directly.
  *
  * @return
- *   An array containing the MIME encoded message, including headers and body.
+ *   An array containing the MIME-encoded message, including headers and body.
  */
 function mimemail($sender, $recipient, $subject, $body, $plaintext = NULL, $headers = array(), $text = NULL, $attachments = array(), $mailkey = '', $send = TRUE) {
   $engine = variable_get('mimemail_engine', 'mimemail');

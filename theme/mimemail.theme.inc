@@ -25,8 +25,6 @@ function mimemail_theme_theme() {
  * - $body: The message body in HTML format.
  * - $mailkey: The mailkey associated with the message.
  * - $recipient: An email address or user object who is receiving the message.
- *
- * See includes/mimemail.tpl.php for additional variables.
  */
 function template_preprocess_mimemail_message(&$variables) {
   $theme = variable_get('theme_default', NULL);
