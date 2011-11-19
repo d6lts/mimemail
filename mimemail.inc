@@ -182,7 +182,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     );
 
     $files[] = $new_file;
-    $filenames[$file] = $content_id;
+    $filenames[$name] = $content_id;
 
     return 'cid:'. $content_id;
   }
