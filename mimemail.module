@@ -93,7 +93,7 @@ function mimemail_theme() {
  */
 function mimemail_theme_registry_alter(&$theme_registry) {
   module_load_include('inc', 'mimemail', 'theme/mimemail.theme');
-  return mimemail_theme_theme_registry_alter(&$theme_registry);
+  return mimemail_theme_theme_registry_alter($theme_registry);
 }
 
 /**
