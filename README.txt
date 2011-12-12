@@ -36,8 +36,8 @@ USAGE
   E-mail messages are formatted using the mimemail-message.tpl.php template.
   This includes a CSS style sheet and uses an HTML version of the text.
   The included CSS is either:
-    the mail.css file found in your default theme or
-    the combined CSS style sheets of your default theme and
+    the mail.css file found anywhere in your default theme folder or
+    the combined CSS style sheets of your default theme.
 
   CSS style sheets with "email" media are always included.
 
