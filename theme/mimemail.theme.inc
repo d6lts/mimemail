@@ -43,7 +43,7 @@ function template_preprocess_mimemail_message(&$variables) {
   $themepath = (function_exists('path_to_subtheme')) ? path_to_subtheme() : drupal_get_path('theme', $theme);
 
   $sitestyle = variable_get('mimemail_sitestyle', 1);
-  $mailstyles = file_scan_directory($themepath, '#^mail\.css*$#');
+  $mailstyles = file_scan_directory($themepath, '^mail\.css*$');
 
   $css_all = drupal_add_css();
   $css_files_mail = $css_files_screen = array();
