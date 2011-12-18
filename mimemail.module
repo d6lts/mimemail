@@ -200,7 +200,7 @@ function mimemail_rules_action_info() {
         'attachments' => array(
           'type' => 'text',
           'label' => t('Attachments'),
-          'description' => t("The mail's attachments, one file per line like [mimetype]:[uri] e.g. \"image/png:/files/images/mypic.png\"."),
+          'description' => t("The mail's attachments, one file per line e.g. \"files/images/mypic.png\"."),
           'optional' => TRUE,
         ),
       ),
@@ -247,7 +247,7 @@ function mimemail_rules_action_info() {
         'attachments' => array(
           'type' => 'text',
           'label' => t('Attachments'),
-          'description' => t("The mail's attachments, one file per line like [mimetype]:[uri] e.g. \"image/png:/files/images/mypic.png\"."),
+          'description' => t("The mail's attachments, one file per line e.g. \"files/images/mypic.png\"."),
           'optional' => TRUE,
         ),
       ),
@@ -268,11 +268,9 @@ function mimemail_mail($key, &$message, $params) {
   $attachments_string = trim($params['attachments']);
   if (!empty($attachments_string)) {
     $attachment_lines = array_filter(explode("\n", trim($attachments_string)));
-    foreach ($attachment_lines as $key => $attachment_line) {
-      $attachment = explode(':', trim($attachment_line), 2);
+    foreach ($attachment_lines as $filepath) {
       $attachments[] = array(
-        'filepath' => $attachment[1],
-        'filemime' => $attachment[0],
+        'filepath' => trim($filepath),
       );
     }
   }
