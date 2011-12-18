@@ -97,7 +97,7 @@ function template_preprocess_mimemail_message(&$variables) {
   // Check recursively for the existence of a mail.css file in the theme folder.
   if (!empty($mailstyles)) {
     foreach ($mailstyles as $mailstyle) {
-      $styles = $mailstyle->filename;
+      $styles = $mailstyle->uri;
     }
   }
   // If no mail.css was found and the site style sheets including is enabled,
