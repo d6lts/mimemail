@@ -367,7 +367,7 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
   if (is_array($attachments) && !empty($attachments)) {
     foreach ($attachments as $a) {
       $a = (object) $a;
-      $path = isset($a->uri) ? $a->uri : isset($a->filepath) ? $a->filepath : NULL;
+      $path = isset($a->uri) ? $a->uri : (isset($a->filepath) ? $a->filepath : NULL);
       $content = isset($a->filecontent) ? $a->filecontent : NULL;
       $name = isset($a->filename) ? $a->filename : NULL;
       $type = isset($a->filemime) ? $a->filemime : NULL;
