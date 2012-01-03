@@ -47,14 +47,14 @@ function mimemail_headers($headers, $from = NULL) {
 
   // Overwrite standard headers.
   if ($from) {
-    if ($headers['From'] == $default_from) {
+    if (!isset($headers['From']) || $headers['From'] == $default_from) {
       $headers['From'] = $from;
     }
-    if ($headers['Sender'] == $default_from) {
+    if (!isset($headers['Sender']) || $headers['Sender'] == $default_from) {
       $headers['Sender'] = $from;
     }
     // This may not work. The MTA may rewrite the Return-Path.
-    if ($headers['Return-Path'] == $default_from) {
+    if (!isset($headers['Return-Path']) || $headers['Return-Path'] == $default_from) {
       preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
       $headers['Return-Path'] = "<$matches[0]>";
     }
