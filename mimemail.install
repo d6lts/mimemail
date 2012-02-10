@@ -102,3 +102,11 @@ function mimemail_update_7000() {
     throw new DrupalUpdateException($requirements['mimemail_mailsystem']['description']);
   }
 }
+
+/**
+* Deletes useless variables.
+*/
+function mimemail_update_7001() {
+  variable_del('mimemail_theme');
+}
+
