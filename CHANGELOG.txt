@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1432502 by El Bandito: Quotations are not needed to specify an attachment.
 - #1349728 by jherencia: Added Possibility to configure the theme that will render the email.
 - #1391680 by marcdecaluwe: Headers not correctly set.
 - #1283620 by Cyberwolf: Expose email settings user field to field API.

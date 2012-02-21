@@ -192,7 +192,7 @@ function mimemail_rules_action_info() {
         'attachments' => array(
           'type' => 'text',
           'label' => t('Attachments'),
-          'description' => t("The mail's attachments, one file per line e.g. \"files/images/mypic.png\"."),
+          'description' => t("The mail's attachments, one file per line e.g. \"files/images/mypic.png\" without quotes."),
           'optional' => TRUE,
         ),
       ),
@@ -239,7 +239,7 @@ function mimemail_rules_action_info() {
         'attachments' => array(
           'type' => 'text',
           'label' => t('Attachments'),
-          'description' => t("The mail's attachments, one file per line e.g. \"files/images/mypic.png\"."),
+          'description' => t("The mail's attachments, one file per line e.g. \"files/images/mypic.png\" without quotes."),
           'optional' => TRUE,
         ),
       ),
