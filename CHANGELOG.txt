@@ -1,5 +1,6 @@
 Mime Mail 6.x-1.x, xxxx-xx-xx
 -----------------------
+- #1432502 by El Bandito: Quotations are not needed to specify an attachment.
 - #1391680 by marcdecaluwe: Headers not correctly set.
 - #1372660 by eueco: Set the proper line ending when calling chunk_split().
 - #1275734 by gnindl: Scan recursively for mail.css.
