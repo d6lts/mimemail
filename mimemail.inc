@@ -55,7 +55,7 @@ function mimemail_headers($headers, $from = NULL) {
     }
     // This may not work. The MTA may rewrite the Return-Path.
     if (!isset($headers['Return-Path']) || $headers['Return-Path'] == $default_from) {
-      preg_match('/[a-z0-9\-\.]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
+      preg_match('/[a-z0-9\-\.\+_]+@{1}[a-z0-9\-\.]+/i', $from, $matches);
       $headers['Return-Path'] = "<$matches[0]>";
     }
   }
