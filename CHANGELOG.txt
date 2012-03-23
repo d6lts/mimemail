@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1475664 by sgabe | pumpkinkid: Fixed Getting 'Array to string conversion' error.
 - #1301876 by sean_fremouw: Fixed Regex in mimemail_headers() strips allowed characters.
 - #1432502 by El Bandito: Quotations are not needed to specify an attachment.
 - #1349728 by jherencia: Added Possibility to configure the theme that will render the email.
