@@ -93,9 +93,7 @@ function mimemail_requirements($phase) {
 }
 
 /**
- * Implements hook_update_N().
- *
- * @see mimemail_requirements().
+ * Check installation requirements.
  */
 function mimemail_update_7000() {
   if ($requirements = mimemail_requirements('runtime')) {
