@@ -16,7 +16,7 @@
  */
 function mimemail_rfc_headers($headers) {
   $header = '';
-  $crlf = variable_get('mimemail_crlf', "\n");
+  $crlf = variable_get('mimemail_crlf', MAIL_LINE_ENDINGS);
   foreach ($headers as $key => $value) {
     $key = trim($key);
     // collapse spaces and get rid of newline characters

@@ -347,9 +347,11 @@ function mimemail_mailengine($op, $message = array()) {
         }
       }
 
+      $crlf = variable_get('mimemail_crlf', MAIL_LINE_ENDINGS);
+
       $recipients = (!is_array($message['to'])) ? array($message['to']) : $message['to'];
       $subject = mime_header_encode($message['subject']);
-      $body = $message['body'];
+      $body = preg_replace('@\r?\n@', $crlf, $message['body']);
       $headers = mimemail_rfc_headers($message['headers']);
 
       $result = TRUE;
