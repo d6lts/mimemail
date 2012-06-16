@@ -635,7 +635,7 @@ function _mimemail_url($url, $embed_file = FALSE) {
   // If url() added a ?q= where there should not be one, remove it.
   if ($strip_clean) $url = preg_replace('!\?q=!', '', $url);
 
-  $url = str_replace('+', '%20', $url);
+  $url = str_replace('+', '%2B', $url);
   return $url;
 }
 
