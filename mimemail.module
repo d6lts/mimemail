@@ -250,6 +250,65 @@ function mimemail_rules_action_info() {
 }
 
 /**
+ * Implements hook_rules_action_base_upgrade_map_name().
+ */
+function mimemail_rules_action_mail_upgrade_map_name($element) {
+  return 'mimemail';
+}
+
+/**
+ * Implements hook_rules_action_base_upgrade_map_name().
+ */
+function mimemail_rules_action_mail_to_user_upgrade_map_name($element) {
+  return 'mimemail';
+}
+
+
+/**
+ * Implements hook_rules_action_base_upgrade_map_name().
+ */
+function mimemail_rules_action_mail_to_users_of_role_upgrade_map_name($element) {
+  return 'mimemail_to_users_of_role';
+}
+
+/**
+ * Implements hook_rules_action_base_upgrade().
+ */
+function mimemail_rules_action_mail_upgrade($element, RulesPlugin $target) {
+  $target->settings['from_name'] = $element['#settings']['sender'];
+  $target->settings['from_mail'] = $element['#settings']['from'];
+  $target->settings['body'] = $element['#settings']['message_html'];
+  $target->settings['plaintext'] = $element['#settings']['message_plaintext'];
+}
+
+/**
+ * Implements hook_rules_action_base_upgrade().
+ */
+function mimemail_rules_action_mail_to_user_upgrade($element, RulesPlugin $target) {
+  switch ($element['#settings']['#argument map']['user']) {
+    case 'author':
+        $token = 'node:author';
+      break;
+    case 'author_unchanged':
+        $token = 'node-unchanged:author';
+      break;
+    case 'user':
+        $token = 'site:current-user';
+      break;
+  }
+  $target->settings['to:select'] = $token . ':mail';
+  mimemail_rules_action_mail_upgrade($element, $target);
+}
+
+/**
+ * Implements hook_rules_action_base_upgrade().
+ */
+function mimemail_rules_action_mail_to_users_of_role_upgrade($element, RulesPlugin $target) {
+  $target->settings['roles'] = $element['#settings']['recipients'];
+  mimemail_rules_action_mail_upgrade($element, $target);
+}
+
+/**
  * Implements hook_mail().
  */
 function mimemail_mail($key, &$message, $params) {
