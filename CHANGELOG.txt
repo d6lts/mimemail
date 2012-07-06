@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1605230 by sgabe | mrbubbs: Fixed Extra space in subject caused by wordwrap.
 - #1662682 by sgabe, itamar: Fixed Value may be left unset in requirements check.
 - #1504782 by rjkuyvenhoven: Fixed Update support for Fusion based themes.
 - #1597896 by sgabe | joewickert: Fixed Plus symbol encoded as space in URLs.
