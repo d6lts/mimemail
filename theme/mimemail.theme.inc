@@ -47,18 +47,20 @@ function template_preprocess_mimemail_message(&$variables) {
   // If no mail.css was found and the site style sheets including is enabled,
   // gather all style sheets and embed a version of all style definitions.
   elseif ($sitestyle) {
-    $css_all = drupal_add_css();
+    // Grab local.css if it exists (support for Fusion based themes).
+    $local = $themepath . '/css/local.css';
+    if (@file_exists($local)) {
+      $css_all = drupal_add_css($local, array('group' => CSS_THEME));
+    }
+    else {
+      $css_all = drupal_add_css();
+    }
     $css_files = array();
     foreach ($css_all as $key => $options) {
       if ($options['group'] == CSS_THEME && $options['type'] == 'file' &&
          ($options['media'] == 'all' || $options['media'] == 'screen')) {
         $css_files[$key] = $options;
       }
-    }
-    // Grab local.css if it exists (support for Fusion based themes).
-    $local = $themepath . '/css/local.css';
-    if (@file_exists($local)) {
-      $css_files['all']['theme'][$local] = TRUE;
     }
     if (variable_get('preprocess_css', FALSE)) {
       $pattern = '|<link.*href="' . $GLOBALS['base_url'] . '/([^"?]*)[?"].*|';
