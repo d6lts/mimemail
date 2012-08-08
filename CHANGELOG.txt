@@ -1,21 +1,21 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
-- #1643750 by sgabe | MRV: Added Remove class attributes from the compressed message.
-- #321026 by sgabe, LUTi | attiks: Fixed HTML messages are broken by line breaks.
-- #1605230 by sgabe | mrbubbs: Fixed Extra space in subject caused by wordwrap.
-- #1662682 by sgabe, itamar: Fixed Value may be left unset in requirements check.
-- #1504782 by rjkuyvenhoven: Fixed Update support for Fusion based themes.
-- #1597896 by sgabe | joewickert: Fixed Plus symbol encoded as space in URLs.
-- #1515660 by sgabe | philsward: Fixed Missing upgrade path for Rules actions.
-- #81707 by sgabe | FredCK, Peters196: Fixed Auto-detect appropriate line endings.
-- #1475664 by sgabe | pumpkinkid: Fixed Getting 'Array to string conversion' error.
-- #1301876 by sean_fremouw: Fixed Regex in mimemail_headers() strips allowed characters.
+- #1643750 by sgabe | MRV: Remove class attributes from the compressed message.
+- #321026 by sgabe, LUTi | attiks: HTML messages are broken by line breaks.
+- #1605230 by sgabe | mrbubbs: Extra space in subject caused by wordwrap.
+- #1662682 by sgabe, itamar: Value may be left unset in requirements check.
+- #1504782 by rjkuyvenhoven: Update support for Fusion based themes.
+- #1597896 by sgabe | joewickert: Plus symbol encoded as space in URLs.
+- #1515660 by sgabe | philsward: Missing upgrade path for Rules actions.
+- #81707 by sgabe | FredCK, Peters196: Auto-detect appropriate line endings.
+- #1475664 by sgabe | pumpkinkid: Getting 'Array to string conversion' error.
+- #1301876 by sean_fremouw: Regex in mimemail_headers() strips allowed characters.
 - #1432502 by El Bandito: Quotations are not needed to specify an attachment.
-- #1349728 by jherencia: Added Possibility to configure the theme that will render the email.
+- #1349728 by jherencia: Possibility to configure the theme that will render the email.
 - #1391680 by marcdecaluwe: Headers not correctly set.
 - #1283620 by Cyberwolf: Expose email settings user field to field API.
 - #1372660 by eueco: Set the proper line ending when calling chunk_split().
-- #1388786 by tostinni: Fixed mimemail_html_body() fails to retrieve file's URI.
+- #1388786 by tostinni: mimemail_html_body() fails to retrieve file's URI.
 
 Mime Mail 7.x-1.0-alpha1, 2011-12-18
 -----------------------
