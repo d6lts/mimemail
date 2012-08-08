@@ -63,6 +63,14 @@ function mimemail_admin_settings() {
     '#default_value' => variable_get('mimemail_linkonly', 0),
     '#description'   => t('This option disables the embedding of images. All image will be available as external content. This can make email messages much smaller.'),
   );
+  if (module_exists('mimemail_compress')) {
+    $form['mimemail']['mimemail_preserve_class'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Preserve class attributes'),
+      '#default_value' => variable_get('mimemail_preserve_class', 0),
+      '#description' => t('This option disables the removing of class attributes from the message source. Useful for debugging the style of the message.'),
+    );
+  }
 
   // Get a list of all formats.
   $formats = filter_formats();
