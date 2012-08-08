@@ -41,7 +41,7 @@ function mimemail_incoming_access() {
  * Implements hook_perm().
  */
 function mimemail_perm() {
-  return array('edit mimemail user settings');
+  return array('send arbitrary files - Warning: has security implications!', 'edit mimemail user settings');
 }
 
 /**

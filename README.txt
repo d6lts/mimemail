@@ -61,6 +61,10 @@ USAGE
   CSS definitions into tags within the HTML based on the CSS selectors. To use the
   Compressor, just enable it.
 
+  The 'send arbitrary files' permission allows you to attach or embed files located
+  outside Drupal's public files directory. Note that this has security implications:
+  arbitrary means even your settings.php! Give to trusted roles only!
+
 CREDITS
 
   MAINTAINER: Allie Micka < allie at pajunas dot com >
