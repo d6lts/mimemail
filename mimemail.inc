@@ -96,12 +96,24 @@ function mimemail_headers($headers, $from = NULL) {
  */
 function mimemail_extract_files($html) {
   $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |[\s]src=[\'"]?)([^\'>"]+)([\'"]?)/mis';
-  $html = preg_replace_callback($pattern, '_mimemail_replace_files', $html);
+  $content = preg_replace_callback($pattern, '_mimemail_replace_files', $html);
+
+  $encoding = '8Bit';
+  $body = split("\n", $content);
+  foreach ($body as $line) {
+    if (strlen($line) > 998) {
+      $encoding = 'base64';
+      break;
+    }
+  }
+  if ($encoding == 'base64') {
+    $content = rtrim(chunk_split(base64_encode($content)));
+  }
 
   $document = array(array(
     'Content-Type' => "text/html; charset=utf-8",
-    'Content-Transfer-Encoding' => '8bit',
-    'content' => $html,
+    'Content-Transfer-Encoding' => $encoding,
+    'content' => $content,
   ));
 
   $files = _mimemail_file();
