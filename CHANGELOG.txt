@@ -1,5 +1,6 @@
 Mime Mail 6.x-1.x, xxxx-xx-xx
 -----------------------
+- #1643750 by sgabe | MRV: Added Remove class attributes from the compressed message.
 - #321026 by sgabe, LUTi | attiks: Fixed HTML messages are broken by line breaks.
 - #1605230 by sgabe | mrbubbs: Fixed Extra space in subject caused by wordwrap.
 - #1597896 by sgabe | joewickert: Fixed Plus symbol encoded as space in URLs.
