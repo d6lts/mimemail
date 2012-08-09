@@ -29,7 +29,7 @@ function mimemail_theme_theme() {
  * - $subject: The message subject
  * - $body:  The message body
  *
- * @see theme/mimemail-message.tpl.php for additional variables.
+ * @see mimemail-message.tpl.php
  */
 function template_preprocess_mimemail_message(&$variables) {
   $theme = mailsystem_get_mail_theme();
@@ -58,7 +58,7 @@ function template_preprocess_mimemail_message(&$variables) {
     $css_files = array();
     foreach ($css_all as $key => $options) {
       if ($options['group'] == CSS_THEME && $options['type'] == 'file' &&
-         ($options['media'] == 'all' || $options['media'] == 'screen')) {
+        ($options['media'] == 'all' || $options['media'] == 'screen')) {
         $css_files[$key] = $options;
       }
     }

@@ -42,7 +42,15 @@ function mimemail_incoming($message) {
   module_invoke_all('mimemail_incoming', $mail);
 }
 
-
+/**
+ * Parses a message into its parts.
+ *
+ * @param string $message
+ *   The message to parse.
+ *
+ * @return array
+ *   The parts of the message.
+ */
 function mimemail_parse($message) {
   // Provides a "headers", "content-type" and "body" element.
   $mail = mimemail_parse_headers($message);
@@ -63,7 +71,7 @@ function mimemail_parse($message) {
     $part = mimemail_parse_headers($part_body);
     $sub_parts = mimemail_parse_boundary($part);
 
-    // Content is encoded in a multipart/alternative section
+    // Content is encoded in a multipart/alternative section.
     if (count($sub_parts) > 1) {
       foreach ($sub_parts as $j => $sub_part_body) {
         $sub_part = mimemail_parse_headers($sub_part_body);
@@ -90,7 +98,7 @@ function mimemail_parse($message) {
     }
   }
 
-  // Make sure our text and html parts are accounted for
+  // Make sure our text and html parts are accounted for.
   if (isset($mail['html']) && !isset($mail['text'])) {
     $mail['text'] = preg_replace('|<style.*</style>|mis', '', $mail['html']);
     $mail['text'] = drupal_html_to_text($mail['text']);
@@ -99,7 +107,7 @@ function mimemail_parse($message) {
     $mail['html'] = check_markup($mail['text'], variable_get('mimemail_format', filter_fallback_format()));
   }
 
-  // Last ditch attempt - use the body as-is
+  // Last ditch attempt - use the body as-is.
   if (!isset($mail['text'])) {
     $mail['text'] = mimemail_parse_content($mail);
     $mail['html'] = check_markup($mail['text'], variable_get('mimemail_format', filter_fallback_format()));
@@ -108,8 +116,8 @@ function mimemail_parse($message) {
   return $mail;
 }
 
-/*
- * Split a multi-part message using mime boundaries
+/**
+ * Split a multi-part message using MIME boundaries.
  */
 function mimemail_parse_boundary($part) {
   $m = array();
@@ -121,8 +129,8 @@ function mimemail_parse_boundary($part) {
   return array($part['body']);
 }
 
-/*
- * Split a message (or message part) into its headers and body section
+/**
+ * Split a message (or message part) into its headers and body section.
  */
 function mimemail_parse_headers($message) {
   // Split out body and headers.
@@ -135,9 +143,9 @@ function mimemail_parse_headers($message) {
 
   $headers = array();
   foreach (explode("\n", trim($hdr)) as $row) {
-    $split = strpos( $row, ':' );
+    $split = strpos($row, ':');
     $name = trim(drupal_substr($row, 0, $split));
-    $val  = trim(drupal_substr($row, $split+1));
+    $val = trim(drupal_substr($row, $split+1));
     $headers[$name] = $val;
   }
 
@@ -146,8 +154,8 @@ function mimemail_parse_headers($message) {
   return array('headers' => $headers, 'body' => $body, 'content-type' => $type);
 }
 
-/*
- * Return a decoded mime part in UTF8
+/**
+ * Return a decoded MIME part in UTF-8.
  */
 function mimemail_parse_content($part) {
   $content = $part['body'];
@@ -161,7 +169,8 @@ function mimemail_parse_content($part) {
       case 'quoted-printable':
         $content = quoted_printable_decode($content);
         break;
-      case '7bit':  // 7bit is the RFC default
+      // 7bit is the RFC default.
+      case '7bit':
         break;
     }
   }
@@ -174,8 +183,8 @@ function mimemail_parse_content($part) {
   return $content;
 }
 
-/*
- * Convert a mime part into a file array.
+/**
+ * Convert a MIME part into a file array.
  */
 function mimemail_parse_attachment($part) {
   $m = array();

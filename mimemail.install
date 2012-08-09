@@ -34,7 +34,7 @@ function mimemail_disable() {
 }
 
 /**
- * Implementation of hook_uninstall()
+ * Implements hook_uninstall().
  */
 function mimemail_uninstall() {
   $variables = array(
@@ -103,8 +103,8 @@ function mimemail_update_7000() {
 }
 
 /**
-* Deletes useless variables.
-*/
+ * Deletes useless variables.
+ */
 function mimemail_update_7001() {
   variable_del('mimemail_theme');
 }
