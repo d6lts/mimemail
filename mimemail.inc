@@ -99,7 +99,7 @@ function mimemail_extract_files($html) {
   $content = preg_replace_callback($pattern, '_mimemail_replace_files', $html);
 
   $encoding = '8Bit';
-  $body = split("\n", $content);
+  $body = explode("\n", $content);
   foreach ($body as $line) {
     if (strlen($line) > 998) {
       $encoding = 'base64';
