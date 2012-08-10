@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1722188 by sgabe | christian death: Split has been deprecated.
 - #1643750 by sgabe | MRV: Remove class attributes from the compressed message.
 - #321026 by sgabe, LUTi | attiks: HTML messages are broken by line breaks.
 - #1605230 by sgabe | mrbubbs: Extra space in subject caused by wordwrap.
