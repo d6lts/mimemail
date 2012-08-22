@@ -2,7 +2,7 @@ Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
 
 
-Mime Mail 7.x-1.x, 2012-08-22
+Mime Mail 7.x-1.0-alpha2, 2012-08-22
 -----------------------
 - #1722188 by sgabe | christian death: Split has been deprecated.
 - #1643750 by sgabe | MRV: Remove class attributes from the compressed message.
