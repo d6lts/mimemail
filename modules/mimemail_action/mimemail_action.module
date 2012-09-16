@@ -47,6 +47,7 @@ function mimemail_send_email_action($entity, $context) {
     ),
     'cc' => $context['cc'],
     'bcc' => $context['bcc'],
+    'reply-to' => $context['reply-to'],
     'plaintext' => $context['plaintext'],
     'attachments' => $context['attachments'],
   );
@@ -62,6 +63,7 @@ function mimemail_send_email_action_form($context) {
     'to' => '',
     'cc' => '',
     'bcc' => '',
+    'reply-to' => '',
     'subject' => '',
     'body' => '',
     'format' => filter_fallback_format(),
@@ -89,6 +91,13 @@ function mimemail_send_email_action_form($context) {
     '#title' => t('BCC Recipient'),
     '#default_value' => $context['bcc'],
     '#description' => t("The mail's blind carbon copy address. You may separate multiple addresses with comma."),
+    '#required' => FALSE,
+  );
+  $form['reply-to'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reply e-mail address'),
+    '#default_value' => $context['reply-to'],
+    '#description' => t("The address to reply to. Leave it empty to use the sender's address."),
     '#required' => FALSE,
   );
   $form['subject'] = array(
@@ -145,6 +154,11 @@ function mimemail_send_email_action_validate($form, $form_state) {
       form_set_error('bcc', t('Enter a valid email address or use a token e-mail address such as %author.', array('%author' => '[node:author:mail]')));
     }
   }
+
+  $reply_to = trim($form_state['values']['reply-to']);
+  if (!empty($reply_to) && !valid_email_address($reply_to) && strpos($reply_to, ':mail') === FALSE) {
+    form_set_error('reply-to', t('Enter a valid email address or use a token e-mail address such as %author.', array('%author' => '[node:author:mail]')));
+  }
 }
 
 /**
@@ -157,6 +171,7 @@ function mimemail_send_email_action_submit($form, $form_state) {
     'to' => $form_values['to'],
     'cc' => $form_values['cc'],
     'bcc' => $form_values['bcc'],
+    'reply-to' => $form_values['reply-to'],
     'subject' => $form_values['subject'],
     'body' => $form_values['body']['value'],
     'format' => $form_values['body']['format'],

@@ -46,6 +46,12 @@ function mimemail_rules_action_info() {
           'description' => t("The sender's address. Leave it empty to use the site-wide configured address."),
           'optional' => TRUE,
         ),
+        'reply_to' => array(
+          'type' => 'text',
+          'label' => t('Reply e-mail address'),
+          'description' => t("The address to reply to. Leave it empty to use the sender's address."),
+          'optional' => TRUE,
+        ),
         'subject' => array(
           'type' => 'text',
           'label' => t('Subject'),
@@ -183,7 +189,7 @@ function mimemail_rules_action_mail_to_users_of_role_upgrade($element, RulesPlug
 /**
  * Action Implementation: Send HTML mail.
  */
-function rules_action_mimemail($to, $cc = NULL, $bcc = NULL, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
+function rules_action_mimemail($to, $cc = NULL, $bcc = NULL, $from_name = NULL, $from_mail = NULL, $reply_to = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
   // Set the sender name and from address.
   if (empty($from_mail)) {
     $from = NULL;
@@ -215,6 +221,7 @@ function rules_action_mimemail($to, $cc = NULL, $bcc = NULL, $from_name = NULL, 
     ),
     'cc' => $cc,
     'bcc' => $bcc,
+    'reply-to' => $reply_to,
     'plaintext' => $plaintext,
     'attachments' => $attachments,
   );
