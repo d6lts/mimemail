@@ -16,6 +16,7 @@ function mimemail_rules_action_mail_to_user_form($settings = array(), &$form) {
     'key' => '',
     'sender' => '',
     'from' => '',
+    'reply_to' => '',
     'subject' => '',
     'message_html' => '',
     'message_html_filter' => FILTER_FORMAT_DEFAULT,
@@ -41,6 +42,12 @@ function mimemail_rules_action_mail_to_user_form($settings = array(), &$form) {
     '#title' => t('Sender e-mail address'),
     '#default_value' => $settings['from'],
     '#description' => t("The sender's address. Leave it empty to use the site-wide configured address."),
+  );
+  $form['settings']['reply_to'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Reply e-mail address'),
+    '#default_value' => $settings['reply_to'],
+    '#description' => t("The address to reply to. Leave it empty to use the sender's address."),
   );
   $form['settings']['subject'] = array(
     '#type' => 'textfield',

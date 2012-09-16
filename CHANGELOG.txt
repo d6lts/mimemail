@@ -1,5 +1,6 @@
 Mime Mail 6.x-1.x, xxxx-xx-xx
 -----------------------
+- #1469022 by sgabe, das-peter | MI: Add 'Reply-to' field to Rules and system actions.
 - #962226 by sgabe | rchuber: Allow custom mailkeys for system and Rules action messages.
 - #1722188 by sgabe | christian death: Split has been deprecated.
 

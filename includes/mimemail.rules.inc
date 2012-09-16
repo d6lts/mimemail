@@ -19,17 +19,17 @@ function mimemail_rules_action_info() {
         'user' => array('type' => 'user', 'label' => t('Recipient')),
       ),
       'module' => 'Mime Mail',
-      'eval input' => array('key', 'sender', 'from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
+      'eval input' => array('key', 'sender', 'from', 'to', 'cc', 'bcc', 'reply_to', 'subject', 'message_html', 'message_plaintext', 'attachments'),
     ),
     'mimemail_rules_action_mail' => array(
       'label' => t('Send an HTML mail to an arbitrary mail address'),
       'module' => 'Mime Mail',
-      'eval input' => array('key', 'sender', 'from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
+      'eval input' => array('key', 'sender', 'from', 'to', 'cc', 'bcc', 'reply_to', 'subject', 'message_html', 'message_plaintext', 'attachments'),
     ),
     'mimemail_rules_action_mail_to_users_of_role' => array(
       'label' => t('Send an HTML mail to all users of a role'),
       'module' => 'Mime Mail',
-      'eval input' => array('key', 'sender', 'from', 'to', 'cc', 'bcc', 'subject', 'message_html', 'message_plaintext', 'attachments'),
+      'eval input' => array('key', 'sender', 'from', 'to', 'cc', 'bcc', 'reply_to', 'subject', 'message_html', 'message_plaintext', 'attachments'),
     ),
   );
 }
