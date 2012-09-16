@@ -113,6 +113,9 @@ function template_preprocess_mimemail_message(&$variables) {
   // Set styles for the message.
   $variables['css'] = $css;
 
+  // Set template alternatives.
+  $variables['theme_hook_suggestions'][] = 'mimemail_message__' . str_replace('-', '_', $variables['key']);
+
    // Process key to be a proper CSS class.
   $variables['key'] = str_replace('_', '-', $variables['key']);
 }
