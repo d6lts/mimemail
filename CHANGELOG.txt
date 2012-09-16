@@ -1,6 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
-
+- #1585546 by kotnik, bojanz: Rules actions must be in root module directory.
 
 Mime Mail 7.x-1.0-alpha2, 2012-08-22
 -----------------------
