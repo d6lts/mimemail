@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1813348 by sgabe | jdhildeb: Sendmail invoked with empty Return-Path.
 - #1469022 by sgabe, das-peter | MI: Add 'Reply-to' field to Rules and system actions.
 - #1773698 by jherencia: Alternatives for mimemail-message.tpl.php do not work.
 - #1585546 by kotnik, bojanz: Rules actions must be in root module directory.

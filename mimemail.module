@@ -240,7 +240,7 @@ function mimemail_mailengine($op, $message = array()) {
 
       $result = TRUE;
       foreach ($recipients as $to) {
-        if (isset($return_path)) {
+        if (isset($return_path) && !empty($return_path)) {
           if (isset($_SERVER['WINDIR']) || strpos($_SERVER['SERVER_SOFTWARE'], 'Win32') !== FALSE) {
             // On Windows, PHP will use the value of sendmail_from for the
             // Return-Path header.
