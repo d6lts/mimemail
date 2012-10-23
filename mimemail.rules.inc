@@ -61,6 +61,7 @@ function mimemail_rules_action_info() {
           'type' => 'text',
           'label' => t('Body'),
           'description' => t("The mail's message HTML body."),
+          'sanitize' => TRUE,
         ),
         'plaintext' => array(
           'type' => 'text',
