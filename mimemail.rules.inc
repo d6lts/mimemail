@@ -89,6 +89,11 @@ function mimemail_rules_action_info() {
           'options list' => 'entity_metadata_user_roles',
           'description' => t('Select the roles whose users should receive the mail.'),
         ),
+        'active' => array(
+          'type' => 'boolean',
+          'label' =>('Send to active users'),
+          'description' => t('Send mail only to active users.'),
+        ),
         'from_name' => array(
           'type' => 'text',
           'label' => t('Sender name'),
@@ -237,7 +242,7 @@ function rules_action_mimemail($to, $cc = NULL, $bcc = NULL, $from_name = NULL, 
 /**
  * Action: Send HTML mail to all users of a specific role group(s).
  */
-function rules_action_mimemail_to_users_of_role($roles, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
+function rules_action_mimemail_to_users_of_role($roles, $active, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
   // Set the sender name and from address.
   if (empty($from_mail)) {
     $from = NULL;
@@ -249,15 +254,23 @@ function rules_action_mimemail_to_users_of_role($roles, $from_name = NULL, $from
     );
   }
 
-  // All authenticated users, which is everybody.
+  $query = db_select('users', 'u');
+  $query->addField('u', 'mail');
+
+  if ($active) {
+    $query->condition('u.status', 1, '=');
+  }
+
   if (in_array(DRUPAL_AUTHENTICATED_RID, $roles)) {
-    $result = db_query('SELECT mail FROM {users} WHERE uid > 0');
+    $query->condition('u.uid', 0, '>');
   }
   else {
-    $rids = implode(',', $roles);
-    // Avoid sending emails to members of two or more target role groups.
-    $result = db_query('SELECT DISTINCT u.mail FROM {users} u INNER JOIN {users_roles} r ON u.uid = r.uid WHERE r.rid IN (' . $rids . ')');
+    $query->join('users_roles', 'r', 'u.uid = r.uid');
+    $query->condition('r.rid', $roles, 'IN');
+    $query->distinct();
   }
+
+  $result = $query->execute();
 
   $params = array(
     'context' => array(
