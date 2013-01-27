@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1898140 by MiroslavBanov: Engine variable set to NULL on settings page.
 - #1780412 by sgabe, kid_icarus: Option to exclude blocked users from a role.
 - #1814922 by marcusx: Rule sanitizes the $body if populated by a parameter.
 - #1813348 by sgabe | jdhildeb: Sendmail invoked with empty Return-Path.
