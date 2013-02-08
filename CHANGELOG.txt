@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1911558 by Simon Georges: Remove useless files[] directive from .info files.
 - #1877928 by sgabe | parasite: Replacing underscore in key is not needed.
 - #1898140 by MiroslavBanov: Engine variable set to NULL on settings page.
 - #1780412 by sgabe, kid_icarus: Option to exclude blocked users from a role.

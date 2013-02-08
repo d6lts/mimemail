@@ -6,12 +6,4 @@ core = 7.x
 
 configure = admin/config/system/mimemail
 
-files[] = mimemail.inc
-files[] = mimemail.install
-files[] = mimemail.module
-files[] = mimemail.rules.inc
-files[] = includes/mimemail.admin.inc
 files[] = includes/mimemail.mail.inc
-files[] = includes/mimemail.incoming.inc
-files[] = theme/mimemail-message.tpl.php
-files[] = theme/mimemail.theme.inc
