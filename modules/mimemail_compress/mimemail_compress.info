@@ -5,5 +5,3 @@ dependencies[] = mimemail
 core = 7.x
 
 files[] = mimemail_compress.inc
-files[] = mimemail_compress.install
-files[] = mimemail_compress.module
