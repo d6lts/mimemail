@@ -153,7 +153,7 @@ function _mimemail_replace_files($matches) {
  *   (optional) The content disposition. Defaults to related.
  *
  * @return
- *   The Content-ID and/or an array of the files on success or the URL on failure. 
+ *   The Content-ID and/or an array of the files on success or the URL on failure.
  */
 function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'related') {
   static $files = array();
@@ -310,7 +310,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
       if (isset($part['file'])) {
         $file = (is_file($part['file'])) ? file_get_contents($part['file']) : $part['file'];
         $part_body = chunk_split(base64_encode($file), 76, variable_get('mimemail_crlf', "\n"));
-        
+
       }
     }
 
@@ -430,7 +430,7 @@ function _mimemail_url($url, $embed_file = NULL) {
   $url = urldecode($url);
 
   // If the URL is absolute or a mailto, return it as-is.
-  if (strpos($url, '://') !== FALSE || preg_match('!(mailto|callto|tel')\:!, $url)) {
+  if (strpos($url, '://') !== FALSE || preg_match('!(mailto|callto|tel)\:!', $url)) {
     $url = str_replace(' ', '%20', $url);
     return $url;
   }
@@ -501,7 +501,7 @@ function _mimemail_url($url, $embed_file = NULL) {
 
 /**
  * Formats an address string.
- * 
+ *
  * @todo Could use some enhancement and stress testing.
  *
  * @param mixed $address
