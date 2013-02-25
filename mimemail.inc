@@ -137,7 +137,7 @@ function _mimemail_replace_files($matches) {
  *   The actual file content.
  *
  * @return
- *   The Content-ID and/or an array of the files on success or the URL on failure. 
+ *   The Content-ID and/or an array of the files on success or the URL on failure.
  */
 function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'related') {
   static $files = array();
@@ -151,7 +151,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     else {
       $url = _mimemail_url($url, 'TRUE');
       // If the url is absolute, we're done here.
-      if (strpos($url, '://') !== FALSE || preg_match('!mailto:!', $url)) {
+      if (strpos($url, '://') !== FALSE || preg_match('!(mailto|callto|tel)\:!', $url)) {
         return $url;
       }
       // The url is a relative file path, continue processing.
@@ -427,7 +427,7 @@ function mimemail_html_body($body, $subject, $plaintext = FALSE, $text = NULL, $
 }
 
 /*
- * Parse an incoming message. 
+ * Parse an incoming message.
  */
 function mimemail_parse($message) {
   // Provides a "headers", "content-type" and "body" element.
@@ -592,7 +592,7 @@ function _mimemail_url($url, $embed_file = FALSE) {
   $url = urldecode($url);
 
   // If the URL is absolute or a mailto, return it as-is.
-  if (strpos($url, '://') !== FALSE || preg_match('!(mailto|callto|tel')\:!, $url)) {
+  if (strpos($url, '://') !== FALSE || preg_match('!(mailto|callto|tel)\:!', $url)) {
     $url = str_replace(' ', '%20', $url);
     return $url;
   }
