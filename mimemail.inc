@@ -430,7 +430,7 @@ function _mimemail_url($url, $embed_file = NULL) {
   $url = urldecode($url);
 
   // If the URL is absolute or a mailto, return it as-is.
-  if (strpos($url, '://') !== FALSE || preg_match('!mailto:!', $url)) {
+  if (strpos($url, '://') !== FALSE || preg_match('!(mailto|callto|tel')\:!, $url)) {
     $url = str_replace(' ', '%20', $url);
     return $url;
   }
