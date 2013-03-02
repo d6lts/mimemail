@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1719256 by lirantal, sgabe: Handle different files with the same file name.
 - #1922530 by berliner: Callto links in mail body wrongly replaced.
 - #1911558 by Simon Georges, JulienD: Remove useless files[] directive from .info files.
 - #1877928 by sgabe | parasite: Replacing underscore in key is not needed.

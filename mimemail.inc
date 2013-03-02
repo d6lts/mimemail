@@ -157,7 +157,7 @@ function _mimemail_replace_files($matches) {
  */
 function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'related') {
   static $files = array();
-  static $filenames = array();
+  static $ids = array();
 
   if ($url) {
     // The file exists on the server as-is. Allows for non-web-accessible files.
@@ -191,25 +191,25 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
       $type = ($name) ? file_get_mimetype($name) : file_get_mimetype($file);
     }
 
-    // Prevent duplicate items.
-    if (isset($filenames[$name])) {
-      return 'cid:' . $filenames[$name];
-    }
+    $id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
 
-    $content_id = md5($name) . '@' . $_SERVER['HTTP_HOST'];
+    // Prevent duplicate items.
+    if (isset($ids[$id])) {
+      return 'cid:'. $ids[$id];
+    }
 
     $new_file = array(
       'name' => $name,
       'file' => $file,
-      'Content-ID' => $content_id,
+      'Content-ID' => $id,
       'Content-Disposition' => $disposition,
       'Content-Type' => $type,
     );
 
     $files[] = $new_file;
-    $filenames[$name] = $content_id;
+    $ids[$id] = $id;
 
-    return 'cid:' . $content_id;
+    return 'cid:' . $id;
   }
   // The $file does not exist and no $content, return the $url if possible.
   elseif ($url) {
@@ -218,7 +218,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
 
   $ret = $files;
   $files = array();
-  $filenames = array();
+  $ids = array();
 
   return $ret;
 }
