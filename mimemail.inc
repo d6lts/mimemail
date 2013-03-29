@@ -160,8 +160,10 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
   static $ids = array();
 
   if ($url) {
+    $image = preg_match('!\.(png|gif|jpg|jpeg)$!i', $url);
+    $linkonly = variable_get('mimemail_linkonly', 0);
     // The file exists on the server as-is. Allows for non-web-accessible files.
-    if (@is_file($url)) {
+    if (@is_file($url) && $image && !$linkonly) {
       $file = $url;
     }
     else {

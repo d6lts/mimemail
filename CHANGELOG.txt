@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1439918 by sgabe | Lukas von Blarer: 'Link images only' is not working if the file exists as-is.
 - #1538004 by sgabe | djg_tram: Change template naming logic to use module as well.
 - #1719256 by lirantal, sgabe: Handle different files with the same file name.
 - #1922530 by berliner: Callto links in mail body wrongly replaced.
