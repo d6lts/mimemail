@@ -302,6 +302,7 @@ function mimemail_mailengine($op, $message = array()) {
 function mimemail_prepare_message($message) {
   module_load_include('inc', 'mimemail');
 
+  $module = $message['module'];
   $key = $message['key'];
   $to = $message['to'];
   $from = $message['from'];
@@ -346,8 +347,21 @@ function mimemail_prepare_message($message) {
   }
 
   $subject = str_replace(array(" \n", "\n"), '', trim(drupal_html_to_text($subject)));
-  $variables = array('key' => $key, 'recipient' => $to, 'subject' => $subject, 'body' => $body);
-  $body = theme('mimemail_message__' . $key, $variables);
+
+  $hook = array(
+    'mimemail_message__' . $key,
+    'mimemail_message__' . $module .'__'. $key,
+  );
+
+  $variables = array(
+    'module' => $module,
+    'key' => $key,
+    'recipient' => $to,
+    'subject' => $subject,
+    'body' => $body
+  );
+
+  $body = theme($hook, $variables);
 
   foreach (module_implements('mail_post_process') as $module) {
     $function = $module . '_mail_post_process';
