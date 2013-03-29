@@ -42,13 +42,13 @@ function mimemail_send_email_action($entity, $context) {
 
   $params = array(
     'context' => array(
-      'subject' => $context['subject'],
-      'body' => $context['body'],
+      'subject' => token_replace($context['subject'], $context),
+      'body' => token_replace($context['body'], $context),
     ),
     'cc' => $context['cc'],
     'bcc' => $context['bcc'],
     'reply-to' => $context['reply-to'],
-    'plaintext' => $context['plaintext'],
+    'plaintext' => token_replace($context['plaintext'], $context),
     'attachments' => $context['attachments'],
   );
 
