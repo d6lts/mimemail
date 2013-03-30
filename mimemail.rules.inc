@@ -17,6 +17,11 @@ function mimemail_rules_action_info() {
       'label' => t('Send HTML e-mail'),
       'group' => t('System'),
       'parameter' => array(
+        'key' => array(
+          'type' => 'text',
+          'label' => t('Key'),
+          'description' => t('A key to identify the e-mail sent.'),
+        ),
         'to' => array(
           'type' => 'text',
           'label' => t('To'),
@@ -83,6 +88,11 @@ function mimemail_rules_action_info() {
       'label' => t('Send HTML mail to all users of a role'),
       'group' => t('System'),
       'parameter' => array(
+        'key' => array(
+          'type' => 'text',
+          'label' => t('Key'),
+          'description' => t('A key to identify the e-mail sent.'),
+        ),
         'roles' => array(
           'type' => 'list<integer>',
           'label' => t('Roles'),
@@ -159,6 +169,7 @@ function mimemail_rules_action_mail_to_users_of_role_upgrade_map_name($element) 
  * Implements hook_rules_action_base_upgrade().
  */
 function mimemail_rules_action_mail_upgrade($element, RulesPlugin $target) {
+  $target->settings['key'] = $element['#settings']['key'];
   $target->settings['from_name'] = $element['#settings']['sender'];
   $target->settings['from_mail'] = $element['#settings']['from'];
   $target->settings['body'] = $element['#settings']['message_html'];
@@ -195,7 +206,7 @@ function mimemail_rules_action_mail_to_users_of_role_upgrade($element, RulesPlug
 /**
  * Action Implementation: Send HTML mail.
  */
-function rules_action_mimemail($to, $cc = NULL, $bcc = NULL, $from_name = NULL, $from_mail = NULL, $reply_to = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
+function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = NULL, $from_mail = NULL, $reply_to = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
   // Set the sender name and from address.
   if (empty($from_mail)) {
     $from = NULL;
@@ -232,17 +243,13 @@ function rules_action_mimemail($to, $cc = NULL, $bcc = NULL, $from_name = NULL, 
     'attachments' => $attachments,
   );
 
-  // Set a unique key for this mail.
-  $name = isset($element->root()->name) ? $element->root()->name : 'unnamed';
-  $key = 'rules_action_mimemail_' . $name . '_' . $element->elementId();
-
   drupal_mail('mimemail', $key, $to, $language, $params, $from);
 }
 
 /**
  * Action: Send HTML mail to all users of a specific role group(s).
  */
-function rules_action_mimemail_to_users_of_role($roles, $active, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
+function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
   // Set the sender name and from address.
   if (empty($from_mail)) {
     $from = NULL;
@@ -282,10 +289,6 @@ function rules_action_mimemail_to_users_of_role($roles, $active, $from_name = NU
     'plaintext' => $plaintext,
     'attachments' => $attachments,
   );
-
-  // Set a unique key for this mail.
-  $name = isset($element->root()->name) ? $element->root()->name : 'unnamed';
-  $key = 'rules_action_mimemail_to_users_of_role_' . $name . '_' . $element->elementId();
 
   $message = array('result' => TRUE);
   foreach ($result as $row) {
