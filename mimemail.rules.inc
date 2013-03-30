@@ -67,6 +67,7 @@ function mimemail_rules_action_info() {
           'label' => t('Body'),
           'description' => t("The mail's message HTML body."),
           'sanitize' => TRUE,
+          'optional' => TRUE
         ),
         'plaintext' => array(
           'type' => 'text',
@@ -125,11 +126,13 @@ function mimemail_rules_action_info() {
           'type' => 'text',
           'label' => t('Body'),
           'description' => t("The mail's message HTML body."),
+          'optional' => TRUE,
         ),
         'plaintext' => array(
           'type' => 'text',
           'label' => t('Plaintext body'),
           'description' => t("The mail's message plaintext body."),
+          'optional' => TRUE,
         ),
         'attachments' => array(
           'type' => 'text',
