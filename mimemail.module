@@ -316,6 +316,7 @@ function mimemail_prepare_message($message) {
 
   $site_name = variable_get('site_name', 'Drupal');
   $site_mail = variable_get('site_mail', ini_get('sendmail_from'));
+  $simple_address = variable_get('mimemail_simple_address', 0);
 
   // Override site mails default sender when using default engine.
   if ((empty($from) || $from == $site_mail)
@@ -373,7 +374,7 @@ function mimemail_prepare_message($message) {
   $mail = mimemail_html_body($body, $subject, $plain, $plaintext, $attachments);
   $headers = array_merge($message['headers'], $headers, $mail['headers']);
 
-  $message['to'] = mimemail_address($to);
+  $message['to'] = mimemail_address($to, $simple_address);
   $message['from'] = $from;
   $message['subject'] = $subject;
   $message['body'] = $mail['body'];

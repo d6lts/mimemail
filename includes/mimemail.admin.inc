@@ -42,7 +42,7 @@ function mimemail_admin_settings() {
     '#type'          => 'checkbox',
     '#title'         => t('Use simple address format'),
     '#default_value' => variable_get('mimemail_simple_address', FALSE),
-    '#description' => t('Use the simple format of user@example.com for all email addresses.'),
+    '#description' => t('Use the simple format of user@example.com for all recipient email addresses.'),
   );
   $form['mimemail']['mimemail_sitestyle'] = array(
     '#type'          => 'checkbox',

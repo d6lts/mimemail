@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1469828 by sgabe | shadowhitman: Allow to use simple address format only for recipient.
 - #1947018 by sgabe | bendev: Allow sending plain text messages with Rules.
 - #962226 by sgabe | rchuber: Allow custom mailkeys for system and Rules action messages.
 - #1873348 by sgabe | tutumlum: Cannot use tokens in subject and body of HTML email action.

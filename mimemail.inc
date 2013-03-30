@@ -508,18 +508,18 @@ function _mimemail_url($url, $embed_file = NULL) {
  *
  * @param mixed $address
  *   A user object, a text email address or an array containing name, mail.
+ * @param boolean $simplify
+ *   Determines if the address needs to be simplified. Defaults to FALSE.
  *
  * @return string
  *   A formatted address string or FALSE.
  */
-function mimemail_address($address) {
-  $simple_address = variable_get('mimemail_simple_address', 0);
-
+function mimemail_address($address, $simplify = FALSE) {
   if (is_array($address)) {
     // It's an array containing 'mail' and/or 'name'.
     if (isset($address['mail'])) {
       $output = '';
-      if (empty($address['name']) || $simple_address) {
+      if (empty($address['name']) || $simplify) {
         return $address['mail'];
       }
       else {
@@ -536,7 +536,7 @@ function mimemail_address($address) {
 
   // It's a user object.
   if (is_object($address) && isset($address->mail)) {
-    if (empty($address->name) || $simple_address) {
+    if (empty($address->name) || $simplify) {
       return $address->mail;
     }
     else {
