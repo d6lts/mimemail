@@ -7,3 +7,8 @@ core = 7.x
 configure = admin/config/system/mimemail
 
 files[] = includes/mimemail.mail.inc
+
+; Tests
+files[] = tests/mimemail.test
+files[] = tests/mimemail_rules.test
+files[] = tests/mimemail_compress.test
