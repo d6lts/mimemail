@@ -139,7 +139,7 @@ function _mimemail_replace_files($matches) {
  * @return
  *   The Content-ID and/or an array of the files on success or the URL on failure.
  */
-function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'related') {
+function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'inline') {
   static $files = array();
   static $ids = array();
 
