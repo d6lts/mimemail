@@ -26,6 +26,9 @@ class MimeMailUnitTestCase extends DrupalUnitTestCase {
     parent::setUp();
   }
 
-
+  function testUrl() {
+    $result = _mimemail_url('#');
+    $this->assertIdentical($result, '#', 'Hash mark URL without fragment left intact.');
+  }
 
 }
