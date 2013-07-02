@@ -620,7 +620,7 @@ function _mimemail_url($url, $embed_file = FALSE) {
   @list($path, $query) = explode('?', $url, 2);
 
   // If we're dealing with an intra-document reference, return it.
-  if (empty($path) && !empty($fragment)) {
+  if (empty($path)) {
     return '#'. $fragment;
   }
 
