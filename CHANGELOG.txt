@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1790098 by sgabe | edb, Shellingfox: Custom 'from' address comes out as 'Array'.
 - #1979776 by sgabe | cswolf: Hash mark link gets replaced with site URL.
 - #1963412 by sgabe | djg_tram: Content-Disposition should default to 'inline'.
 - #1469828 by sgabe | shadowhitman: Allow to use simple address format only for recipient.

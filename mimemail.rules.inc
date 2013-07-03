@@ -210,6 +210,8 @@ function mimemail_rules_action_mail_to_users_of_role_upgrade($element, RulesPlug
  * Action Implementation: Send HTML mail.
  */
 function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = NULL, $from_mail = NULL, $reply_to = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
+  module_load_include('inc', 'mimemail');
+
   // Set the sender name and from address.
   if (empty($from_mail)) {
     $from = NULL;
@@ -219,6 +221,8 @@ function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = 
       'name' => $from_name,
       'mail' => $from_mail,
     );
+    // Create an address string.
+    $from = mimemail_address($from);
   }
 
   // If the recipient is a registered user with a language preference, use
@@ -253,6 +257,8 @@ function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = 
  * Action: Send HTML mail to all users of a specific role group(s).
  */
 function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
+  module_load_include('inc', 'mimemail');
+
   // Set the sender name and from address.
   if (empty($from_mail)) {
     $from = NULL;
@@ -262,6 +268,8 @@ function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_nam
       'name' => $from_name,
       'mail' => $from_mail,
     );
+    // Create an address string.
+    $from = mimemail_address($from);
   }
 
   $query = db_select('users', 'u');
