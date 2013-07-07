@@ -1,5 +1,6 @@
 Mime Mail 6.x-1.x, xxxx-xx-xx
 -----------------------
+- #1798324 by sgabe, kienan | ShaneOnABike: Return-Path is incorrectly using sender name.
 - #1979776 by sgabe | cswolf: Hash mark link gets replaced with site URL.
 - #1963412 by sgabe | djg_tram: Content-Disposition should default to 'inline'.
 - #1719256 by lirantal, sgabe: Handle different files with the same file name.
