@@ -267,7 +267,7 @@ function _mimemail_imagecache($url) {
  *   - body: A string containing the mime encoded multipart body of a mail.
  */
 function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; charset=utf-8', $sub_part = FALSE) {
-  $boundary = md5(uniqid(time()));
+  $boundary = md5(uniqid(time(), TRUE));
   $body = '';
 
   $headers = array(
