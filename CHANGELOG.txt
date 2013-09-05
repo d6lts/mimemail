@@ -1,6 +1,5 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
-- #2020875 by das-peter, Propaganistas: Provide option to set language in Rules actions.
 - #2045699 by sgabe | Punk_UnDeaD: Boundaries are not unique on Windows.
 - #1798324 by sgabe, kienan | ShaneOnABike: Return-Path is incorrectly using sender name.
 - #1790098 by sgabe | edb, Shellingfox: Custom 'from' address comes out as 'Array'.

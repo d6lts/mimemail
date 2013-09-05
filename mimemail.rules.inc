@@ -61,37 +61,25 @@ function mimemail_rules_action_info() {
           'type' => 'text',
           'label' => t('Subject'),
           'description' => t("The mail's subject."),
-          'translatable' => TRUE,
         ),
         'body' => array(
           'type' => 'text',
           'label' => t('Body'),
           'description' => t("The mail's message HTML body."),
           'sanitize' => TRUE,
-          'optional' => TRUE,
-          'translatable' => TRUE,
+          'optional' => TRUE
         ),
         'plaintext' => array(
           'type' => 'text',
           'label' => t('Plain text body'),
           'description' => t("The mail's message plaintext body."),
           'optional' => TRUE,
-          'translatable' => TRUE,
         ),
         'attachments' => array(
           'type' => 'text',
           'label' => t('Attachments'),
           'description' => t("The mail's attachments, one file per line e.g. \"files/images/mypic.png\" without quotes."),
           'optional' => TRUE,
-        ),
-        'language' => array(
-          'type' => 'token',
-          'label' => t('Language'),
-          'description' => t('If specified, the language used for getting the mail message and subject.'),
-          'options list' => 'entity_metadata_language_list',
-          'optional' => TRUE,
-          'default value' => LANGUAGE_NONE,
-          'default mode' => 'selector',
         ),
       ),
       'base' => 'rules_action_mimemail',
@@ -133,41 +121,24 @@ function mimemail_rules_action_info() {
           'type' => 'text',
           'label' => t('Subject'),
           'description' => t("The mail's subject."),
-          'translatable' => TRUE,
         ),
         'body' => array(
           'type' => 'text',
           'label' => t('Body'),
           'description' => t("The mail's message HTML body."),
           'optional' => TRUE,
-          'translatable' => TRUE,
         ),
         'plaintext' => array(
           'type' => 'text',
           'label' => t('Plaintext body'),
           'description' => t("The mail's message plaintext body."),
           'optional' => TRUE,
-          'translatable' => TRUE,
         ),
         'attachments' => array(
           'type' => 'text',
           'label' => t('Attachments'),
           'description' => t("The mail's attachments, one file per line e.g. \"files/images/mypic.png\" without quotes."),
           'optional' => TRUE,
-        ),
-        'language_user' => array(
-          'type' => 'boolean',
-          'label' => t("Send mail in each recipient's language"),
-          'description' => t("If checked, the mail message and subject will be sent in each user's preferred language. <strong>You can safely leave the language selector below empty if this option is selected.</strong>"),
-        ),
-        'language' => array(
-          'type' => 'token',
-          'label' => t('Fixed language'),
-          'description' => t('If specified, the fixed language used for getting the mail message and subject.'),
-          'options list' => 'entity_metadata_language_list',
-          'optional' => TRUE,
-          'default value' => LANGUAGE_NONE,
-          'default mode' => 'selector',
         ),
       ),
       'base' => 'rules_action_mimemail_to_users_of_role',
@@ -238,7 +209,7 @@ function mimemail_rules_action_mail_to_users_of_role_upgrade($element, RulesPlug
 /**
  * Action Implementation: Send HTML mail.
  */
-function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = NULL, $from_mail = NULL, $reply_to = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $langcode, $settings, RulesState $state, RulesPlugin $element) {
+function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = NULL, $from_mail = NULL, $reply_to = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
   module_load_include('inc', 'mimemail');
 
   // Set the sender name and from address.
@@ -254,9 +225,16 @@ function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = 
     $from = mimemail_address($from);
   }
 
-  // Figure out the language to use - fallback is the system default.
-  $languages = language_list();
-  $language = isset($languages[$langcode]) ? $languages[$langcode] : language_default();
+  // If the recipient is a registered user with a language preference, use
+  // the recipient's preferred language. Otherwise, use the system default
+  // language.
+  $account = user_load_by_mail($to);
+  if ($account) {
+    $language = user_preferred_language($account);
+  }
+  else {
+    $language = language_default();
+  }
 
   $params = array(
     'context' => array(
@@ -278,7 +256,7 @@ function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = 
 /**
  * Action: Send HTML mail to all users of a specific role group(s).
  */
-function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $use_userlang = FALSE, $langcode= NULL, $settings, RulesState $state, RulesPlugin $element) {
+function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $settings, RulesState $state, RulesPlugin $element) {
   module_load_include('inc', 'mimemail');
 
   // Set the sender name and from address.
@@ -295,7 +273,7 @@ function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_nam
   }
 
   $query = db_select('users', 'u');
-  $query->fields('u', array('mail', 'language'));
+  $query->addField('u', 'mail');
 
   if ($active) {
     $query->condition('u.status', 1, '=');
@@ -323,20 +301,9 @@ function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_nam
     'attachments' => $attachments,
   );
 
-  // Create language list before initializing foreach.
-  $languages = language_list();
-
   $message = array('result' => TRUE);
   foreach ($result as $row) {
-    // Decide which language to use.
-    if (!$use_userlang || empty($row->language) || !isset($languages[$row->language])) {
-      $language = isset($languages[$langcode]) ? $languages[$langcode] : language_default();
-    }
-    else {
-      $language = $languages[$row->language];
-    }
-
-    $message = drupal_mail('mimemail', $key, $row->mail, $language, $params, $from);
+    $message = drupal_mail('mimemail', $key, $row->mail, language_default(), $params, $from);
     if (!$message['result']) {
       break;
     }
