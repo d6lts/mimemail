@@ -185,6 +185,12 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
   }
 
   if (isset($file) && (@is_file($file) || $content)) {
+    $public_path = file_default_scheme() . '://';
+    $no_access = !user_access('send arbitrary files');
+    $not_in_public_path = strpos(drupal_realpath($file), drupal_realpath($public_path)) === FALSE;
+    if (@is_file($file) && $not_in_public_path && $no_access) {
+      return $url;
+    }
 
     if (!$name) {
       $name = (@is_file($file)) ? basename($file) : 'attachment.dat';

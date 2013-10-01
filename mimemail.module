@@ -39,6 +39,11 @@ function mimemail_permission() {
       'title' => t('Edit Mime Mail user settings'),
       'description' => t('Edit user specific settings for Mime Mail.'),
     ),
+    'send arbitrary files' => array(
+      'title' => t('Send arbitrary files'),
+      'description' => t('Attach or embed files located outside the public files directory.'),
+      'restrict access' => TRUE,
+    ),
   );
 }
 
