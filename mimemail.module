@@ -138,6 +138,7 @@ function mimemail_theme() {
  */
 function mimemail_mail($key, &$message, $params) {
   $context = $params['context'];
+  $options = array('clear' => TRUE);
 
   // Prepare the array of the attachments.
   $attachments = array();
@@ -161,16 +162,16 @@ function mimemail_mail($key, &$message, $params) {
     $params[$param_key] = empty($params[$param_key]) ? array() : explode(',', $params[$param_key]);
     if (!empty($params[$param_key])) {
       foreach ($params[$param_key] as $key => $address) {
-        $params[$param_key][$key] = token_replace($address, $context);
+        $params[$param_key][$key] = token_replace($address, $context, $options);
       }
       $message['headers'][$address_header] = implode(',', $params[$param_key]);
     }
   }
 
-  $message['to'] = token_replace($message['to'], $context);
-  $message['subject'] = token_replace($context['subject'], $context);
-  $message['body'][] = token_replace($context['body'], $context);
-  $message['params']['plaintext'] = token_replace($params['plaintext'], $context);
+  $message['to'] = token_replace($message['to'], $context, $options);
+  $message['subject'] = token_replace($context['subject'], $context, $options);
+  $message['body'][] = token_replace($context['body'], $context, $options);
+  $message['params']['plaintext'] = token_replace($params['plaintext'], $context, $options);
   $message['params']['attachments'] = $attachments;
 }
 
