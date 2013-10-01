@@ -179,7 +179,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
   if (isset($file) && (@is_file($file) || $content)) {
     $public_path = file_directory_path();
     $no_access = !user_access('send arbitrary files - Warning: has security implications!');
-    $not_in_public_path = strpos(realpath($file), $public_path) === FALSE;
+    $not_in_public_path = strpos(realpath($file), realpath($public_path)) === FALSE;
     if (@is_file($file) && $not_in_public_path && $no_access) {
       return $url;
     }
