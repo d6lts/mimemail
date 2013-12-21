@@ -444,7 +444,7 @@ function _mimemail_url($url, $embed_file = NULL) {
     return $url;
   }
   // If the image embedding is disabled, return the absolute URL for the image.
-  elseif (variable_get('mimemail_linkonly', 0) && preg_match('!\.(png|gif|jpg|jpeg)$!i', $url)) {
+  elseif (variable_get('mimemail_linkonly', 0) && preg_match('!\.(png|gif|jpg|jpeg)!i', $url)) {
     $url = $base_url . $url;
     $url = str_replace(' ', '%20', $url);
     return $url;
