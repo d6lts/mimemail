@@ -49,10 +49,6 @@ class MimeMailUnitTestCase extends DrupalUnitTestCase {
  * Tests functions from the Mime Mail module.
  */
 class MimeMailWebTestCase extends DrupalWebTestCase {
-  /**
-   * The user with administration permissions.
-   * @var object
-   */
   protected $adminUser;
 
   public static function getInfo() {
@@ -63,11 +59,8 @@ class MimeMailWebTestCase extends DrupalWebTestCase {
     );
   }
 
-  public function setUp(array $modules = array()) {
-    parent::setUp(array(
-      'mailsystem',
-      'mimemail',
-    ));
+  public function setUp() {
+    parent::setUp('mailsystem', 'mimemail');
 
     // Create and login user.
     $this->adminUser = $this->drupalCreateUser(array(
