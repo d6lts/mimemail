@@ -26,16 +26,18 @@ function mimemail_rfc_headers($headers) {
     // Collapse spaces and get rid of newline characters.
     $value = preg_replace('/(\s+|\n|\r|^\s|\s$)/', ' ', $value);
     // Fold headers if they're too long.
+    // A CRLF may be inserted before any WSP.
+    // @see http://tools.ietf.org/html/rfc2822#section-2.2.3
     if (drupal_strlen($value) > 60) {
       // If there's a semicolon, use that to separate.
       if (count($array = preg_split('/;\s*/', $value)) > 1) {
-        $value = trim(join(";$crlf    ", $array));
+        $value = trim(join(";$crlf ", $array));
       }
       else {
-        $value = wordwrap($value, 50, "$crlf    ", FALSE);
+        $value = wordwrap($value, 50, "$crlf ", FALSE);
       }
     }
-    $header .= "$key: $value$crlf";
+    $header .= $key . ":" . $value . $crlf;
   }
   return trim($header);
 }
