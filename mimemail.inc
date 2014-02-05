@@ -259,7 +259,10 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
  *   - headers: An array that includes some headers for the mail to be sent.
  */
 function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; charset=utf-8', $sub_part = FALSE) {
-  $boundary = md5(uniqid($_SERVER['REQUEST_TIME'], TRUE));
+  // Control variable to avoid boundary collision.
+  static $part_num = 0;
+
+  $boundary = sha1(uniqid($_SERVER['REQUEST_TIME'], TRUE)) . $part_num++;
   $body = '';
   $headers = array(
     'Content-Type' => "$content_type; boundary=\"$boundary\"",
