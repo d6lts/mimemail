@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2145659 by sgabe, fatherguddha | raincloud: Images with 'itok' token are not embedded.
 - #2119613 by sgabe, david_garcia_garcia: Further improve boundary collision avoidance.
 - #2185909 by cyrus_bt5, ekidman: Extra space in long header fields.
 - #2152705 by gargsuchi: Images with 'itok' token not showing up.

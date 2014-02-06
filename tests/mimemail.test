@@ -41,6 +41,11 @@ class MimeMailUnitTestCase extends DrupalUnitTestCase {
   function testUrl() {
     $result = _mimemail_url('#');
     $this->assertIdentical($result, '#', 'Hash mark URL without fragment left intact.');
+
+    $url = '/sites/default/files/styles/thumbnail/public/image.jpg?itok=Wrl6Qi9U';
+    $result = _mimemail_url($url, TRUE);
+    $expected = 'sites/default/files/styles/thumbnail/public/image.jpg';
+    $this->assertIdentical($result, $expected, 'Security token removed from styled image URL.');
   }
 
 }

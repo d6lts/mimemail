@@ -459,7 +459,9 @@ function _mimemail_url($url, $embed_file = NULL) {
 
   // If we're processing to embed the file, we're done here so return.
   if ($embed_file) {
-    return $url;
+    // Remove security token from URL, this allows for styled image embedding.
+    // @see https://drupal.org/drupal-7.20-release-notes
+    return preg_replace('/\\?itok=.*$/', '', $url);
   }
 
   if (!preg_match('!^\?q=*!', $url)) {
