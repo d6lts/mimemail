@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2087913 by sgabe | alancsilver: Allow spaces in attachment filenames.
 - #1852694 by clemens.tolboom | Pixelstyle: Convert float to align for images.
 - #2145659 by sgabe, fatherguddha | raincloud: Images with 'itok' token are not embedded.
 - #2119613 by sgabe, david_garcia_garcia: Further improve boundary collision avoidance.

@@ -435,37 +435,41 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
  *
  * @param string $url
  *   The file path.
+ * @param boolean $to_embed
+ *   (optional) Wheter the URL is used to embed the file. Defaults to NULL.
  *
  * @return string
  *   A processed URL.
  */
-function _mimemail_url($url, $embed_file = NULL) {
+function _mimemail_url($url, $to_embed = NULL) {
   global $base_url;
   $url = urldecode($url);
 
-  // If the URL is absolute or a mailto, return it as-is.
-  if (strpos($url, '://') !== FALSE || preg_match('!(mailto|callto|tel)\:!', $url)) {
-    $url = str_replace(' ', '%20', $url);
+  $to_link = variable_get('mimemail_linkonly', 0);
+  $is_image = preg_match('!\.(png|gif|jpg|jpeg)!i', $url);
+  $is_absolute = file_uri_scheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
+
+  if (!$to_embed) {
+    if ($is_absolute) {
+      return str_replace(' ', '%20', $url);
+    }
+  }
+  else {
+    $url = preg_replace('!^' . base_path() . '!', '', $url, 1);
+    if ($is_image) {
+      if ($to_link) {
+        // Exclude images from embedding if needed.
+        $url = file_create_url($url);
+        $url = str_replace(' ', '%20', $url);
+      }
+      else {
+        // Remove security token from URL, this allows for styled image embedding.
+        // @see https://drupal.org/drupal-7.20-release-notes
+        $url = preg_replace('/\\?itok=.*$/', '', $url);
+      }
+
+    }
     return $url;
-  }
-  // If the image embedding is disabled, return the absolute URL for the image.
-  elseif (variable_get('mimemail_linkonly', 0) && preg_match('!\.(png|gif|jpg|jpeg)!i', $url)) {
-    $url = $base_url . $url;
-    $url = str_replace(' ', '%20', $url);
-    return $url;
-  }
-
-  $url = preg_replace('!^' . base_path() . '!', '', $url, 1);
-
-  // If we're processing to embed the file, we're done here so return.
-  if ($embed_file) {
-    // Remove security token from URL, this allows for styled image embedding.
-    // @see https://drupal.org/drupal-7.20-release-notes
-    return preg_replace('/\\?itok=.*$/', '', $url);
-  }
-
-  if (!preg_match('!^\?q=*!', $url)) {
-    $strip_clean = TRUE;
   }
 
   $url = str_replace('?q=', '', $url);
@@ -507,7 +511,7 @@ function _mimemail_url($url, $embed_file = NULL) {
   $url = url($path, $options);
 
   // If url() added a ?q= where there should not be one, remove it.
-  if (isset($strip_clean) && $strip_clean) {
+  if (preg_match('!^\?q=*!', $url)) {
     $url = preg_replace('!\?q=!', '', $url);
   }
 

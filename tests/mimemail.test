@@ -46,6 +46,10 @@ class MimeMailUnitTestCase extends DrupalUnitTestCase {
     $result = _mimemail_url($url, TRUE);
     $expected = 'sites/default/files/styles/thumbnail/public/image.jpg';
     $this->assertIdentical($result, $expected, 'Security token removed from styled image URL.');
+
+    $expected = $url = 'public://' . $this->randomName() . ' '. $this->randomName() . '.' . $this->randomName(3);
+    $result = _mimemail_url($url, TRUE);
+    $this->assertIdentical($result, $expected, 'Space in the filename of the attachment left intact.');
   }
 
 }
@@ -75,5 +79,17 @@ class MimeMailWebTestCase extends DrupalWebTestCase {
 
     $this->drupalLogin($this->adminUser);
   }
+
+  public function testUrl() {
+    $this->drupalPost('admin/config/system/mimemail',
+      array('mimemail_linkonly' => TRUE),
+      t('Save configuration'));
+
+    $url = 'public://' . $this->randomName() . ' '. $this->randomName() . '.jpg';
+    $result = _mimemail_url($url, TRUE);
+    $expected = str_replace(' ', '%20', file_create_url($url));
+    $message = 'Stream wrapper converted to web accessible URL for linked image.';
+    $this->assertIdentical($result, $expected, $message);
+   }
 
 }
