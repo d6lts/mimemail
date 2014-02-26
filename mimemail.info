@@ -1,6 +1,7 @@
 name = Mime Mail
 description = Send MIME-encoded emails with embedded images and attachments.
 dependencies[] = mailsystem
+dependencies[] = system (>=7.24)
 package = Mail
 core = 7.x
 

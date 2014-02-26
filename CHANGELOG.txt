@@ -1,5 +1,9 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+
+Mime Mail 7.x-1.0-beta2, 2014-02-26
+-----------------------
+- Stronger authentication for incoming messages.
 - #2031143 by sgabe, das-peter: Support @import by using drupal_load_stylesheet().
 - #2087913 by sgabe | alancsilver: Allow spaces in attachment filenames.
 - #1852694 by clemens.tolboom | Pixelstyle: Convert float to align for images.
