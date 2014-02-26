@@ -2,6 +2,9 @@ Mime Mail 6.x-1.x, xxxx-xx-xx
 -----------------------
 - #1852694 by clemens.tolboom | Pixelstyle: Convert float to align for images.
 - #2119613 by sgabe, david_garcia_garcia: Further improve boundary collision avoidance.
+
+Mime Mail 6.x-1.2, 2013-10-07
+-----------------------
 - #2050907 by nick_schuch: No attachment if 'public files' directory is a symlink.
 - #2045699 by sgabe | Punk_UnDeaD: Boundaries are not unique on Windows.
 - #1798324 by sgabe, kienan | ShaneOnABike: Return-Path is incorrectly using sender name.
