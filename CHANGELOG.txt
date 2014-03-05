@@ -1,6 +1,10 @@
 Mime Mail 6.x-1.x, xxxx-xx-xx
 -----------------------
 
+Mime Mail 6.x-1.4, 2014-03-05
+-----------------------
+- Public files test incorrect if similar path is not below root.
+
 Mime Mail 6.x-1.3, 2014-02-26
 -----------------------
 - Stronger authentication for incoming messages.

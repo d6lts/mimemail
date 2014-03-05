@@ -161,7 +161,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
             _mimemail_imagecache($url);
         }
         // Download method is private, and the URL needs conversion.
-        if (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PRIVATE && strpos($url, 'system/files/') !== FALSE) {
+        if (variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC) == FILE_DOWNLOADS_PRIVATE && strpos($url, 'system/files/') !== 0) {
           $file = file_create_path(drupal_substr($url, (strpos($url, 'system/files/') + drupal_strlen('system/files/'))));
         }
         // Download method is public.
