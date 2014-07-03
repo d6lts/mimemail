@@ -66,7 +66,7 @@ function mimemail_rules_action_info() {
         'body' => array(
           'type' => 'text',
           'label' => t('Body'),
-          'description' => t("The mail's message HTML body."),
+          'description' => t('The mail\'s HTML body. Will be formatted using the text format selected on the <a href="@url">settings</a> page.', array('@url' => url('admin/config/system/mimemail'))),
           'sanitize' => TRUE,
           'optional' => TRUE,
           'translatable' => TRUE,
@@ -74,7 +74,7 @@ function mimemail_rules_action_info() {
         'plaintext' => array(
           'type' => 'text',
           'label' => t('Plain text body'),
-          'description' => t("The mail's message plaintext body."),
+          'description' => t("The mail's plaintext body."),
           'optional' => TRUE,
           'translatable' => TRUE,
         ),
