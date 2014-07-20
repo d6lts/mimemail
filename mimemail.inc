@@ -491,9 +491,10 @@ function _mimemail_url($url, $to_embed = NULL) {
   $language = language_default();
 
   // Check for language prefix.
+  $path = trim($path, '/');
   $args = explode('/', $path);
   foreach ($languages as $lang) {
-    if ($args[0] == $lang->prefix) {
+    if (!empty($args) && $args[0] == $lang->prefix) {
       $prefix = array_shift($args);
       $language = $lang;
       $path = implode('/', $args);
