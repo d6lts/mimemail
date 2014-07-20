@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2297091 by cameron1729: TLDs in Return-Path trimmed to 4 characters.
 - #2237109 by Dane Powell: Indicate text format for body in Rules.
 
 Mime Mail 7.x-1.0-beta3, 2014-03-05
