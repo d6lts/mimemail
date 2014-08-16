@@ -188,19 +188,23 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     $file = $content;
   }
 
-  if (isset($file) && (@is_file($file) || $content)) {
-    $public_path = file_default_scheme() . '://';
-    $no_access = !user_access('send arbitrary files');
-    $not_in_public_path = strpos(drupal_realpath($file), drupal_realpath($public_path)) !== 0;
-    if (@is_file($file) && $not_in_public_path && $no_access) {
-      return $url;
+  if (isset($file)) {
+    $is_file = @is_file($file);
+
+    if ($is_file) {
+      $access = user_access('send arbitrary files');
+      $public_path = file_default_scheme() . '://';
+      $in_public_path = strpos(drupal_realpath($file), drupal_realpath($public_path)) === 0;
+      if (!$in_public_path && !$access) {
+        return $url;
+      }
     }
 
     if (!$name) {
-      $name = (@is_file($file)) ? basename($file) : 'attachment.dat';
+      $name = $is_file ? basename($file) : 'attachment.dat';
     }
     if (!$type) {
-      $type = ($name) ? file_get_mimetype($name) : file_get_mimetype($file);
+      $type = $is_file ? file_get_mimetype($file) : file_get_mimetype($name);
     }
 
     $id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
@@ -323,7 +327,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
       }
 
       if (isset($part['file'])) {
-        $file = (is_file($part['file'])) ? file_get_contents($part['file']) : $part['file'];
+        $file = (@is_file($part['file'])) ? file_get_contents($part['file']) : $part['file'];
         $part_body = chunk_split(base64_encode($file), 76, variable_get('mimemail_crlf', "\n"));
 
       }

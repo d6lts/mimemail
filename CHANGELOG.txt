@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2057703 by New Zeal, sgabe: Warning: is_file() expects a valid path.
 - #2202127 by k.skarlatos: Added List-Unsubscribe header field for bulk mails.
 - #2297135 by tobiasb: Language prefix with absolute-path reference.
 - #2297091 by cameron1729: TLDs in Return-Path trimmed to 4 characters.
