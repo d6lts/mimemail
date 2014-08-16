@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2219609 by mitrpaka, sgabe: Convert float properties just for images.
 - #2057703 by New Zeal, sgabe: Warning: is_file() expects a valid path.
 - #2202127 by k.skarlatos: Added List-Unsubscribe header field for bulk mails.
 - #2297135 by tobiasb: Language prefix with absolute-path reference.
