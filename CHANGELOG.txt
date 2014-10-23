@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2359771 by PascalAnimateur: Support for OG membership tokens.
 - #2218037 by sgabe | pinkonomy: Fixed integrity constraint violation.
 - #2219609 by mitrpaka, sgabe: Convert float properties just for images.
 - #2057703 by New Zeal, sgabe: Warning: is_file() expects a valid path.
