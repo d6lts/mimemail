@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1908318 by jvieille, zionduc, bisonbleu | anrkaid: Sender is double encoded.
 - #2359771 by PascalAnimateur: Support for OG membership tokens.
 - #2218037 by sgabe | pinkonomy: Fixed integrity constraint violation.
 - #2219609 by mitrpaka, sgabe: Convert float properties just for images.
