@@ -1,5 +1,6 @@
 Mime Mail 6.x-1.x, xxxx-xx-xx
 -----------------------
+- #2031143 by sgabe, das-peter: Support @import by using drupal_load_stylesheet()
 
 Mime Mail 6.x-1.4, 2014-03-05
 -----------------------
