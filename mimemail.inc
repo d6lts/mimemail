@@ -37,7 +37,7 @@ function mimemail_rfc_headers($headers) {
         $value = wordwrap($value, 50, "$crlf ", FALSE);
       }
     }
-    $header .= $key . ":" . $value . $crlf;
+    $header .= $key . ": " . $value . $crlf;
   }
   return trim($header);
 }
