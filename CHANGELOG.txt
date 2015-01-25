@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2312747 by Lukas von Blarer: Remove 'itok' token from image URL
 - #2366659 by david_garcia: Attachments created by content generate warnings
 - #2404719 by alexp999: Missing space in RFC headers breaks DKIM
 - #1908318 by jvieille, zionduc, bisonbleu | anrkaid: Sender is double encoded.

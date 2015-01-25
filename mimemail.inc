@@ -465,17 +465,14 @@ function _mimemail_url($url, $to_embed = NULL) {
   else {
     $url = preg_replace('!^' . base_path() . '!', '', $url, 1);
     if ($is_image) {
+      // Remove security token from URL, this allows for styled image embedding.
+      // @see https://drupal.org/drupal-7.20-release-notes
+      $url = preg_replace('/\\?itok=.*$/', '', $url);
       if ($to_link) {
         // Exclude images from embedding if needed.
         $url = file_create_url($url);
         $url = str_replace(' ', '%20', $url);
       }
-      else {
-        // Remove security token from URL, this allows for styled image embedding.
-        // @see https://drupal.org/drupal-7.20-release-notes
-        $url = preg_replace('/\\?itok=.*$/', '', $url);
-      }
-
     }
     return $url;
   }
