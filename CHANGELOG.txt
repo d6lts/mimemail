@@ -1,5 +1,9 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+
+Mime Mail 7.x-1.0-beta4, 2015-08-02
+-----------------------
+- #2413495 by sgabe, siggi_kid: Public images not embedded when file default scheme is private
 - #2312747 by Lukas von Blarer: Remove 'itok' token from image URL
 - #2366659 by david_garcia: Attachments created by content generate warnings
 - #2404719 by alexp999: Missing space in RFC headers breaks DKIM

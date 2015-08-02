@@ -196,8 +196,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
 
     if ($is_file) {
       $access = user_access('send arbitrary files');
-      $public_path = file_default_scheme() . '://';
-      $in_public_path = strpos(@drupal_realpath($file), drupal_realpath($public_path)) === 0;
+      $in_public_path = strpos(@drupal_realpath($file), drupal_realpath('public://')) === 0;
       if (!$in_public_path && !$access) {
         return $url;
       }
