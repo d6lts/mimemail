@@ -449,7 +449,6 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
  *   A processed URL.
  */
 function _mimemail_url($url, $to_embed = NULL) {
-  global $base_url;
   $url = urldecode($url);
 
   $to_link = variable_get('mimemail_linkonly', 0);
@@ -541,7 +540,6 @@ function mimemail_address($address, $simplify = FALSE) {
   if (is_array($address)) {
     // It's an array containing 'mail' and/or 'name'.
     if (isset($address['mail'])) {
-      $output = '';
       if (empty($address['name']) || $simplify) {
         return $address['mail'];
       }
