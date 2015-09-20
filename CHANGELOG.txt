@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2562177 by rrfegade: Spelling errors
 
 Mime Mail 7.x-1.0-beta4, 2015-08-02
 -----------------------
