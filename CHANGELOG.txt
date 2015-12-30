@@ -1,7 +1,6 @@
-Mime Mail 7.x-1.x, xxxx-xx-xx
+Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
-- #2562181 by rrfegade: Remove unused varibles
-- #2562177 by rrfegade: Spelling errors
+- #2138947 by marthinal: Initial commit of Drupal 8 port
 
 Mime Mail 7.x-1.0-beta4, 2015-08-02
 -----------------------
