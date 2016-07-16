@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2754259 by Sonal.Sangale: Remove @file tag docblock from all the .php files
 - #2761275 by jehon: Strict warning shown
 - #2138947 by marthinal: Initial commit of Drupal 8 port
 

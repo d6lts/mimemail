@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\mimemail\MimeMailFormatHelper.
- */
-
 namespace Drupal\mimemail\Utility;
 
 use Drupal\Component\Utility\Html;

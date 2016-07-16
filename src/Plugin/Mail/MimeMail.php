@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\MimeMail\Plugin\Mail\MimeMail.
- */
-
 namespace Drupal\mimemail\Plugin\Mail;
 
 use Drupal\Core\Mail\MailInterface;
