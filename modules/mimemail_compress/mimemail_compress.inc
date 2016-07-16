@@ -32,7 +32,7 @@ class mimemail_compress {
   private $css = '';
   private $unprocessable_tags = array('wbr');
 
-  public function mimemail_compress($html = '', $css = '') {
+  public function __construct($html = '', $css = '') {
     $this->html = $html;
     $this->css  = $css;
   }

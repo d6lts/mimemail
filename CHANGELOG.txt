@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2678818 by hoebekewim, das-peter: Mime Mail Compress has a deprecated constructor
 - #2553815 by nitrocad, anthonys: Imported font generates empty attachment
 - #2562181 by rrfegade: Remove unused varibles
 - #2562177 by rrfegade: Spelling errors
