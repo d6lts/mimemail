@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1568680 by jamsilver: Use $message for themeing
 - #2721799 by igorik, sgabe: Minor typo
 - #2146513 by torotil, Anybody: Scan theme for other *css* file types
 - #2678818 by hoebekewim, das-peter: Mime Mail Compress has a deprecated constructor
