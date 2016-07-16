@@ -60,7 +60,7 @@ function mimemail_rules_action_info() {
         'list_unsubscribe' => array(
           'type' => 'text',
           'label' => t('Unsubscription e-mail and/or URL'),
-          'description' => t("An e-mail address and/or a URL which can be used for unsubscription. Values must be enclosed by angel brackets and separated by a comma."),
+          'description' => t("An e-mail address and/or a URL which can be used for unsubscription. Values must be enclosed by angle brackets and separated by a comma."),
           'optional' => TRUE,
         ),
         'subject' => array(
