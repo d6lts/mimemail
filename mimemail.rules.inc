@@ -148,6 +148,13 @@ function mimemail_rules_action_info() {
           'optional' => TRUE,
           'allow null' => TRUE,
         ),
+        'reply_to' => array(
+          'type' => 'text',
+          'label' => t('Reply e-mail address'),
+          'description' => t("The address to reply to. Leave it empty to use the sender's address."),
+          'optional' => TRUE,
+          'allow null' => TRUE,
+        ),
         'subject' => array(
           'type' => 'text',
           'label' => t('Subject'),
@@ -306,7 +313,7 @@ function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = 
 /**
  * Action: Send HTML mail to all users of a specific role group(s).
  */
-function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_name = NULL, $from_mail = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $use_userlang = FALSE, $langcode= NULL, $settings, RulesState $state, RulesPlugin $element) {
+function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_name = NULL, $from_mail = NULL, $reply_to = NULL, $subject, $body, $plaintext = NULL, $attachments = array(), $use_userlang = FALSE, $langcode= NULL, $settings, RulesState $state, RulesPlugin $element) {
   module_load_include('inc', 'mimemail');
 
   // Set the sender name and from address.
@@ -347,6 +354,7 @@ function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_nam
       'action' => $element,
       'state' => $state,
     ),
+    'reply-to' => $reply_to,
     'plaintext' => $plaintext,
     'attachments' => $attachments,
   );
