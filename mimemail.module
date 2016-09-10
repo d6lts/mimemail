@@ -376,7 +376,9 @@ function mimemail_prepare_message($message) {
     'message' => $message
   );
 
-  $body = theme($hook, $variables);
+  if (!$plain) {
+    $body = theme($hook, $variables);
+  }
 
   foreach (module_implements('mail_post_process') as $module) {
     $function = $module . '_mail_post_process';
