@@ -177,7 +177,7 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
       $url = _mimemail_url($url, 'TRUE');
       // The $url is absolute, we're done here.
       $scheme = file_uri_scheme($url);
-      if ($scheme == 'http' || $scheme == 'https' || preg_match('!mailto:!', $url)) {
+      if ($scheme == 'http' || $scheme == 'https' || preg_match('!mailto:!', $url) || preg_match('!^data:!', $url)) {
         return $url;
       }
       // The $url is a non-local URI that needs to be converted to a URL.
