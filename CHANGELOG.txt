@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2796993 by Cauliflower: Return send status in Rules actions
 - #2796965 by Cauliflower: Allow NULL values in Rules actions
 - #1568680 by jamsilver: Use $message for themeing
 - #2721799 by igorik, sgabe: Minor typo

@@ -105,6 +105,12 @@ function mimemail_rules_action_info() {
           'default mode' => 'selector',
         ),
       ),
+      'provides' => array(
+        'send_status' => array(
+          'type' => 'boolean',
+          'label' => t('Send status'),
+        ),
+      ),
       'base' => 'rules_action_mimemail',
       'access callback' => 'rules_system_integration_access',
     ),
@@ -181,6 +187,12 @@ function mimemail_rules_action_info() {
           'optional' => TRUE,
           'default value' => LANGUAGE_NONE,
           'default mode' => 'selector',
+        ),
+      ),
+      'provides' => array(
+        'send_status' => array(
+          'type' => 'boolean',
+          'label' => t('Send status'),
         ),
       ),
       'base' => 'rules_action_mimemail_to_users_of_role',
@@ -286,7 +298,9 @@ function rules_action_mimemail($key, $to, $cc = NULL, $bcc = NULL, $from_name = 
     'attachments' => $attachments,
   );
 
-  drupal_mail('mimemail', $key, $to, $language, $params, $from);
+  $message = drupal_mail('mimemail', $key, $to, $language, $params, $from);
+
+  return array('send_status' => !empty($message['result']));
 }
 
 /**
@@ -359,6 +373,8 @@ function rules_action_mimemail_to_users_of_role($key, $roles, $active, $from_nam
     $role_names = array_intersect_key(user_roles(TRUE), array_flip($roles));
     watchdog('rules', 'Successfully sent HTML email to the role(s) %roles.', array('%roles' => implode(', ', $role_names)));
   }
+
+  return array('send_status' => !empty($message['result']));
 }
 
 /**
