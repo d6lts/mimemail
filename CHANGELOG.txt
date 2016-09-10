@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #1532352 by sgabe, Matt B: Add permission to view user specific settings
 - #2783815 by argiepiano: Add 'Reply-to' field to "Send HTML mail to all users of a role" action
 - #2796993 by Cauliflower: Return send status in Rules actions
 - #2796965 by Cauliflower: Allow NULL values in Rules actions
