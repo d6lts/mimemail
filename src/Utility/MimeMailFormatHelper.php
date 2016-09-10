@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Mail\MailFormatHelper;
+use Drupal\Core\Url;
 
 /**
  * Defines a class containing utility methods for formatting mime mail messages.
@@ -369,7 +370,7 @@ class MimeMailFormatHelper {
       'prefix' => $prefix,
     );
 
-    $url = \Drupal::url($path, $options);
+    $url = Url::fromUserInput($path, $options)->toString();
 
     // If url() added a ?q= where there should not be one, remove it.
     if (preg_match('!^\?q=*!', $url)) {
