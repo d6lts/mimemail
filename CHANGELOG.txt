@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2842987 by nehakhadke, hansfn: $this->t() should be used instead of t()
 - #2790803 by meramo: Drupal::url has been deprecated
 - #2754259 by Sonal.Sangale: Remove @file tag docblock from all the .php files
 - #2761275 by jehon: Strict warning shown
