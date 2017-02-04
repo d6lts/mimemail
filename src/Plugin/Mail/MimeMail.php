@@ -5,8 +5,6 @@ namespace Drupal\mimemail\Plugin\Mail;
 use Drupal\Core\Mail\MailInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\mimemail\Utility\MimeMailFormatHelper;
-use Drupal\Core\Mail\Plugin\Mail\PhpMail;
-use Drupal\Core\Site\Settings;
 
 /**
  * Defines the default Drupal mail backend, using PHP's native mail() function.

@@ -2,9 +2,7 @@
 
 namespace Drupal\mimemail\Utility;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Url;

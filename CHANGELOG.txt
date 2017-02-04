@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2723179 by jojyja: Removing unused imports in code
 - #2833963 by cebasqueira, renatog: Implement hook_help()
 - #2806795 by hussainweb: MIME HTML messages are not constructed correctly
 - #2842987 by nehakhadke, hansfn: $this->t() should be used instead of t()
