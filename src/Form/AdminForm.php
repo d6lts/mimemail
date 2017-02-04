@@ -36,7 +36,7 @@ class AdminForm extends ConfigFormBase {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MailsystemManager $mail_manager, ModuleHandlerInterface $module_handler, ThemeHandlerInterface $theme_handler) {
+  public function __construct(ConfigFactoryInterface $config_factory, MailManagerInterface $mail_manager, ModuleHandlerInterface $module_handler, ThemeHandlerInterface $theme_handler) {
     parent::__construct($config_factory);
     $this->mailManager = $mail_manager;
     $this->moduleHandler = $module_handler;
