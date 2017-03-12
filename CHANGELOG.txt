@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2858651 by Munavijayalakshmi, dhruveshdtripathi: Add Configure link
 - #2719981 by Kgaut: TypeError when using Web Profiler
 - #2723179 by jojyja: Removing unused imports in code
 - #2833963 by cebasqueira, renatog: Implement hook_help()
