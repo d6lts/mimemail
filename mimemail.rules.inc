@@ -131,7 +131,7 @@ function mimemail_rules_action_info() {
         ),
         'active' => array(
           'type' => 'boolean',
-          'label' =>('Send to active users'),
+          'label' => t('Send to active users'),
           'description' => t('Send mail only to active users.'),
         ),
         'from_name' => array(

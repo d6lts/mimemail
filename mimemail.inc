@@ -209,11 +209,11 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
       $type = $is_file ? file_get_mimetype($file) : file_get_mimetype($name);
     }
 
-    $id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
+    $id = md5($file) . '@' . $_SERVER['HTTP_HOST'];
 
     // Prevent duplicate items.
     if (isset($ids[$id])) {
-      return 'cid:'. $ids[$id];
+      return 'cid:' . $ids[$id];
     }
 
     $new_file = array(

@@ -364,7 +364,7 @@ function mimemail_prepare_message($message) {
 
   $hook = array(
     'mimemail_message__' . $key,
-    'mimemail_message__' . $module .'__'. $key,
+    'mimemail_message__' . $module . '__' . $key,
   );
 
   $variables = array(

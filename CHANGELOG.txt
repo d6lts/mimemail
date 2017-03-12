@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2858390 by Munavijayalakshmi, Jigar.addweb: Fix coding standard issues
 - #2594743 by skipyT: Theme function called for plain messages also
 - #2374673 by smokris: Prevent processing of already embedded images
 - #1532352 by sgabe, Matt B: Add permission to view user specific settings
