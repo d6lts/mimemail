@@ -1,5 +1,8 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+
+Mime Mail 8.x-1.0-alpha1, 2017-03-12
+-----------------------
 - #2801187 by danylevskyi: Mailsystem crashes when the code is invoked via Drush
 - #2858651 by Munavijayalakshmi, dhruveshdtripathi: Add Configure link
 - #2719981 by Kgaut: TypeError when using Web Profiler
