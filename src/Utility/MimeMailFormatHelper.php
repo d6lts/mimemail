@@ -363,8 +363,9 @@ class MimeMailFormatHelper {
       }
     }
 
+    parse_str($query, $arr);
     $options = array(
-      'query' => ($query) ? parse_url($query) : array(),
+      'query' => !empty($arr) ? $arr : array(),
       'fragment' => $fragment,
       'absolute' => TRUE,
       'language' => $language,

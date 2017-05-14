@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2792471 by meramo: Internal links with query arguments in message body encoded in a wrong way
 - #2807645 by hussainweb: Handle languages correctly when generating links
 - #2807649 by hussainweb: Links are not generated correctly when site is in subdirectory
 
