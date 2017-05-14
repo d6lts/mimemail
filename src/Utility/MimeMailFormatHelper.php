@@ -3,6 +3,7 @@
 namespace Drupal\mimemail\Utility;
 
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Url;
@@ -345,8 +346,7 @@ class MimeMailFormatHelper {
     }
 
     // Get a list of enabled languages.
-    $languages = \Drupal::languageManager()->getLanguages('enabled');
-    $languages = $languages[1];
+    $languages = \Drupal::languageManager()->getLanguages(LanguageInterface::STATE_ALL);
 
     // Default language settings.
     $prefix = '';
@@ -355,7 +355,7 @@ class MimeMailFormatHelper {
     // Check for language prefix.
     $args = explode('/', $path);
     foreach ($languages as $lang) {
-      if ($args[0] == $lang->prefix) {
+      if ($args[1] == $lang->getId()) {
         $prefix = array_shift($args);
         $language = $lang;
         $path = implode('/', $args);
