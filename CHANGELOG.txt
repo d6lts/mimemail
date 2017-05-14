@@ -1,5 +1,6 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+- #2803393 by DamienMcKenna, ThomWilhelm: Add template suggestions
 - #2858688 by Munavijayalakshmi: Convert module to use short array syntax (new coding standard)
 - #2792471 by meramo: Internal links with query arguments in message body encoded in a wrong way
 - #2807645 by hussainweb: Handle languages correctly when generating links

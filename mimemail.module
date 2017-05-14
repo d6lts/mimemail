@@ -124,3 +124,12 @@ function mimemail_theme() {
     ],
   ];
 }
+
+/**
+ * Implements hook_theme_suggestions_alter().
+ */
+function mimemail_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+  if ($hook == "mimemail_messages") {
+    $suggestions[] = "mimemail_messages__" . $variables['key'];
+  }
+}
