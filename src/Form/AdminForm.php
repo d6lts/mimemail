@@ -67,7 +67,7 @@ class AdminForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
-    return array('mimemail.settings');
+    return ['mimemail.settings'];
   }
 
   /**
@@ -76,39 +76,39 @@ class AdminForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('mimemail.settings');
 
-    $form = array();
-    $form['mimemail']['name'] = array(
+    $form = [];
+    $form['mimemail']['name'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Sender name'),
       '#default_value' => $config->get('name') ? $config->get('name') : \Drupal::config('system.site')->get('name'),
       '#size'          => 60,
       '#maxlength'     => 128,
       '#description'   => $this->t('The name that all site emails will be from when using default engine.'),
-    );
-    $form['mimemail']['mail'] = array(
+    ];
+    $form['mimemail']['mail'] = [
       '#type'          => 'textfield',
       '#title'         => $this->t('Sender e-mail address'),
       '#default_value' => $config->get('mail') ? $config->get('mail') : \Drupal::config('system.site')->get('mail'),
       '#size'          => 60,
       '#maxlength'     => 128,
       '#description'   => $this->t('The email address that all site e-mails will be from when using default engine.'),
-    );
+    ];
 
 
     // Get a list of all formats.
     $formats = filter_formats();
-    $format_options = array();
+    $format_options = [];
     foreach ($formats as $format) {
       $format_options[$format->get('format')] = $format->get('name');
     }
-    $form['mimemail']['format'] = array(
+    $form['mimemail']['format'] = [
       '#type' => 'select',
       '#title' => $this->t('E-mail format'),
       '#default_value' => $this->config('mimemail.settings')->get('format'),
       '#options' => $format_options,
       '#access' => count($formats) > 1,
-      '#attributes' => array('class' => array('filter-list')),
-    );
+      '#attributes' => ['class' => ['filter-list']],
+    ];
     // Check for the existence of a mail.css file in the default theme folder.
     /*$theme = variable_get('theme_default', NULL);
     $mailstyle = drupal_get_path('theme', $theme) . '/mail.css';
