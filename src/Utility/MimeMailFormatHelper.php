@@ -309,13 +309,16 @@ class MimeMailFormatHelper {
     $is_image = preg_match('!\.(png|gif|jpg|jpeg)!i', $url);
     $is_absolute = \Drupal::service('file_system')->uriScheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
 
+    // Strip the base path as Uri adds it again at the end.
+    $base_path = rtrim(base_path(), '/');
+    $url = preg_replace('!^' . $base_path . '!', '', $url, 1);
+
     if (!$to_embed) {
       if ($is_absolute) {
         return str_replace(' ', '%20', $url);
       }
     }
     else {
-      $url = preg_replace('!^' . base_path() . '!', '', $url, 1);
       if ($is_image) {
         if ($to_link) {
           // Exclude images from embedding if needed.
