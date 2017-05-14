@@ -1,5 +1,8 @@
 Mime Mail 8.x-1.x, xxxx-xx-xx
 -----------------------
+
+Mime Mail 8.x-1.0-alpha2, 2017-05-14
+-----------------------
 - #2803393 by DamienMcKenna, ThomWilhelm: Add template suggestions
 - #2858688 by Munavijayalakshmi: Convert module to use short array syntax (new coding standard)
 - #2792471 by meramo: Internal links with query arguments in message body encoded in a wrong way
