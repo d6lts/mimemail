@@ -1,5 +1,8 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+
+Mime Mail 7.x-1.0, 2017-05-14
+-----------------------
 - #2743229 by Bird-Kid, AdamPS: CSS doesn't get attached in PHP7
 - #2858390 by Munavijayalakshmi, Jigar.addweb: Fix coding standard issues
 - #2594743 by skipyT: Theme function called for plain messages also
