@@ -1,5 +1,6 @@
 Mime Mail 7.x-1.x, xxxx-xx-xx
 -----------------------
+- #2986204 by TR: Missing test dependencies
 
 Mime Mail 7.x-1.0, 2017-05-14
 -----------------------

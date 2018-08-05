@@ -13,3 +13,8 @@ files[] = includes/mimemail.mail.inc
 files[] = tests/mimemail.test
 files[] = tests/mimemail_rules.test
 files[] = tests/mimemail_compress.test
+
+; Modules needed for testing
+test_dependencies[] = rules
+test_dependencies[] = entity
+test_dependencies[] = entity_token
