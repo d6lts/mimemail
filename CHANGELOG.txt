@@ -1,5 +1,9 @@
 Mime Mail 6.x-1.x, xxxx-xx-xx
 -----------------------
+
+Mime Mail 6.x-1.5, 2018-10-17
+-----------------------
+- #161907 by RainbowLyte, sgabe: Fixed sanitization of additional mail parameter
 - #2031143 by sgabe, das-peter: Support @import by using drupal_load_stylesheet()
 
 Mime Mail 6.x-1.4, 2014-03-05

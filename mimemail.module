@@ -381,7 +381,9 @@ function mimemail_mailengine($op, $message = array()) {
         $subject = $message['subject'];
         $body = $message['body'];
         $headers = mimemail_rfc_headers($message['headers']);
-        if (isset($return_path) && !empty($return_path)) {
+        // We validate the return path, unless it is equal to the site mail, which
+        // we assume to be safe.
+        if (isset($return_path) && !empty($return_path) && (variable_get('site_mail', ini_get('sendmail_from')) === $return_path || mimemail_isshellsafe($return_path))) {
           if (isset($_SERVER['WINDIR']) || strpos($_SERVER['SERVER_SOFTWARE'], 'Win32') !== FALSE) {
             // On Windows, PHP will use the value of sendmail_from for the
             // Return-Path header.
@@ -440,4 +442,23 @@ if (strpos(variable_get('smtp_library', ''), 'mimemail') !== FALSE
     return $message['result'];
   }
 
+}
+
+/**
+ * Disallows potentially unsafe shell characters.
+ *
+ * @param string $string
+ *   The string to be validated.
+ *
+ * @return bool
+ *   True if the string is shell-safe.
+ */
+function mimemail_isshellsafe($string) {
+  if (escapeshellcmd($string) !== $string || !in_array(escapeshellarg($string), array("'$string'", "\"$string\""))) {
+    return FALSE;
+  }
+  if (preg_match('/[^a-zA-Z0-9@_\-.]/', $string) !== 0) {
+    return FALSE;
+  }
+  return TRUE;
 }
