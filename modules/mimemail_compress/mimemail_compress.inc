@@ -23,6 +23,13 @@ function mimemail_compress_clean_message($message) {
 }
 
 /**
+ * Callback for preg_match_callback() to make the match lower case.
+ */
+function _mimemail_compress_strtolower_callback($matches) {
+  return drupal_strtolower($matches[0]);
+}
+
+/**
  * Compress HTML and CSS into combined message.
  */
 class mimemail_compress {
@@ -30,7 +37,7 @@ class mimemail_compress {
   private $css = '';
   private $unprocessable_tags = array('wbr');
 
-  public function mimemail_compress($html = '', $css = '') {
+  public function __construct($html = '', $css = '') {
     $this->html = $html;
     $this->css  = $css;
   }
@@ -110,7 +117,8 @@ class mimemail_compress {
     $nodes = @$xpath->query('//*[@style]');
     if ($nodes->length > 0) {
       foreach ($nodes as $node) {
-        $style = preg_replace('/[A-z\-]+(?=\:)/Se', "drupal_strtolower('\\0')", $node->getAttribute('style'));
+        $style = preg_replace_callback('/[A-z\-]+(?=\:)/S', '_mimemail_compress_strtolower_callback', $node->getAttribute('style'));
+
         $all_selectors[] = array(
           'selector' => $this->calculateXPath($node),
           'attributes' => $style,
