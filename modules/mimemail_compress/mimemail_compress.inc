@@ -196,6 +196,23 @@ class mimemail_compress {
   }
 
   /**
+   * Replace callback function that matches ID attributes.
+   */
+  private static function replace_id_attributes($m) {
+    return (strlen($m[1]) ? $m[1] : '*') . '[@id="' . $m[2] . '"]';
+  }
+
+  /**
+   * Replace callback function that matches class attributes.
+   */
+  private static function replace_class_attributes($m) {
+    return (strlen($m[1]) ? $m[1] : '*') .
+      '[contains(concat(" ",normalize-space(@class)," "),concat(" ","' .
+      implode('"," "))][contains(concat(" ",normalize-space(@class)," "),concat(" ","', explode('.', substr($m[2], 1))) .
+      '"," "))]';
+  }
+
+  /**
    * Right now we only support CSS 1 selectors, but include CSS2/3 selectors are fully possible.
    *
    * @see http://plasmasturm.org/log/444/
@@ -205,6 +222,7 @@ class mimemail_compress {
       // Already an XPath expression.
       return $selector;
     }
+
     // Returns an Xpath selector.
     $search = array(
       '/\s+>\s+/', // Matches any F element that is a child of an element E.
@@ -212,8 +230,6 @@ class mimemail_compress {
       '/\s+/', // Matches any F element that is a descendant of an E element.
       '/(\w)\[(\w+)\]/', // Matches element with attribute.
       '/(\w)\[(\w+)\=[\'"]?(\w+)[\'"]?\]/', // Matches element with EXACT attribute.
-      '/(\w+)?\#([\w\-]+)/e', // Matches id attributes.
-      '/(\w+|\*)?((\.[\w\-]+)+)/e', // Matches class attributes.
     );
     $replace = array(
       '/',
@@ -221,10 +237,13 @@ class mimemail_compress {
       '//',
       '\\1[@\\2]',
       '\\1[@\\2="\\3"]',
-      "(strlen('\\1') ? '\\1' : '*').'[@id=\"\\2\"]'",
-      "(strlen('\\1') ? '\\1' : '*').'[contains(concat(\" \",normalize-space(@class),\" \"),concat(\" \",\"'.implode('\",\" \"))][contains(concat(\" \",normalize-space(@class),\" \"),concat(\" \",\"',explode('.',drupal_substr('\\2',1))).'\",\" \"))]'",
     );
-    return '//'. preg_replace($search, $replace, trim($selector));
+
+    $result = preg_replace($search, $replace, trim($selector));
+    $result = preg_replace_callback('/(\w+)?\#([\w\-]+)/', 'mimemail_compress::replace_id_attributes', $result);
+    $result = preg_replace_callback('/(\w+|\*)?((\.[\w\-]+)+)/', 'mimemail_compress::replace_class_attributes', $result);
+
+    return '//' . $result;
   }
 
   private function css_style_to_array($style) {
